@@ -134,16 +134,17 @@
     </div>
 
     <script>
-        // ====================== ANIMAÇÃO DOS BLOBS (12s) ======================
+        // ====================== ANIMAÇÃO CONTÍNUA DOS BLOBS ======================
         const b1 = document.getElementById('blob-1');
         const b2 = document.getElementById('blob-2');
 
-        let phase = 0;
-        const TOTAL_PHASES = 12;
+        // Duração de um ciclo completo em milissegundos
+        const CYCLE_DURATION = 12000;
 
-        // Padrões de posição para os blobs — varredura contínua usando Lissajous
         function animateBlobs() {
-            const t = (phase / TOTAL_PHASES) * Math.PI * 2;
+            // Tempo contínuo (0 → 2π a cada CYCLE_DURATION ms)
+            const now = performance.now();
+            const t = (now % CYCLE_DURATION) / CYCLE_DURATION * Math.PI * 2;
 
             // Blob 1: movimento orgânico com seno/cosseno defasados
             const b1TranslateX = Math.sin(t) * 40;
@@ -155,19 +156,16 @@
             const b2TranslateY = Math.sin(t * 1.1) * 20;
             b2.style.transform = `translate(${b2TranslateX}vw, ${b2TranslateY}vh)`;
 
-            // Hue rotate: ciclo de 0° a 360° ao longo das fases
-            const hue = (phase / TOTAL_PHASES) * 360;
+            // Hue rotate contínuo
+            const hue = (t / (Math.PI * 2)) * 360;
             b1.style.filter = `blur(120px) grayscale(0%) brightness(1) hue-rotate(${hue}deg)`;
             b2.style.filter = `blur(120px) grayscale(0%) brightness(1) hue-rotate(${hue * 1.5}deg)`;
 
-            phase = (phase + 1) % TOTAL_PHASES;
+            requestAnimationFrame(animateBlobs);
         }
 
-        // Primeira execução imediata (sem delay)
-        animateBlobs();
-
-        // Ciclo a cada 12 segundos
-        setInterval(animateBlobs, 50);
+        // loop
+        requestAnimationFrame(animateBlobs);
     </script>
 
 </body>
