@@ -40,13 +40,24 @@
             -ms-user-select: none;
         }
 
+        /* ======== Dithering — previne banding nos gradientes ======== */
+        .dither-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            /* O SVG inline aplica ruído de alta frequência diretamente sobre os blobs */
+        }
+
         /* ======== Blobs ======== */
         .blob {
             position: fixed;
             border-radius: 50%;
             filter: blur(120px);
             z-index: -2;
-            transition: all 1.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         #blob-1 {
@@ -97,24 +108,11 @@
             letter-spacing: 0.04em;
             color: var(--text-main);
             opacity: 0.85;
-            animation: pulse-text 6s ease-in-out infinite;
             text-shadow: 0 0 60px rgba(255, 255, 255, 0.08);
         }
 
         .center-content h1 span {
             font-weight: 700;
-        }
-
-        @keyframes pulse-text {
-
-            0%,
-            100% {
-                opacity: 0.7;
-            }
-
-            50% {
-                opacity: 1;
-            }
         }
     </style>
 </head>
@@ -125,12 +123,24 @@
     <div id="blob-1" class="blob"></div>
     <div id="blob-2" class="blob"></div>
 
+    <!-- Dithering: ruído azul de alta frequência — quebra o banding -->
+    <svg class="dither-overlay" xmlns="http://www.w3.org/2000/svg">
+        <filter id="dither">
+            <feTurbulence type="fractalNoise" baseFrequency="1.5" numOctaves="1" seed="5" />
+            <feColorMatrix type="saturate" values="0" />
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.035" />
+            </feComponentTransfer>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#dither)" />
+    </svg>
+
     <!-- Ruído -->
     <div class="noise-overlay"></div>
 
     <!-- Conteúdo -->
     <div class="center-content">
-        <h1>Em <span>breve</span>...</h1>
+        <h1>Em <span>breve</span>™</h1>
     </div>
 
     <script>
@@ -138,33 +148,81 @@
         const b1 = document.getElementById('blob-1');
         const b2 = document.getElementById('blob-2');
 
-        // Duração de um ciclo completo em milissegundos
-        const CYCLE_DURATION = 12000;
+        // ═══════════════════════════════════════════════════════
+        //  VARIÁVEIS DE CONTROLE — ajuste aqui!
+        // ═══════════════════════════════════════════════════════
+
+        // --- Movimento (órbita seamless, sem reset) ---
+        const MOVE_SPEED = 0.1;          // rad/s base — quanto maior, mais rápido
+        const AMPLITUDE_X = 25;          // vw — alcance horizontal máximo
+        const AMPLITUDE_Y = 35;          // vh — alcance vertical máximo
+
+        // --- Cor (hue-rotate) ---
+        const HUE_SPEED = 4;             // graus/s — 360° em ~45s com valor 8
+        const HUE_BLOB2_OFFSET = 60;     // graus — defasagem de cor do blob 2
+
+        // --- Variação orgânica aleatória (random walk lento) ---
+        const VARIATION_SPEED = 0.04;    // quão rápido os parâmetros orbitais mudam
+        const VARIATION_RANGE = 0.35;    // o quanto os parâmetros podem desviar (±)
+
+        // ═══════════════════════════════════════════════════════
+
+        // Estado interno da variação aleatória
+        const rng = {
+            freq1: 1.0, phase1: 0,
+            freq2: 1.7, phase2: 1.3,
+            freq3: 0.9, phase3: 2.5,
+            freq4: 1.5, phase4: 0.7,
+        };
+        const rngKeys = Object.keys(rng);
+
+        // Data de início (tempo absoluto contínuo)
+        const t0 = performance.now() * 0.001; // segundos
+
+        function smoothRandom(t, key) {
+            // Gera um valor pseudo-aleatório determinístico e suave baseado no tempo
+            const seed = key.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 0.001;
+            const f1 = Math.sin(t * 0.137 + seed) * 0.5 + 0.5;
+            const f2 = Math.cos(t * 0.079 + seed * 1.7) * 0.5 + 0.5;
+            const f3 = Math.sin(t * 0.053 + seed * 3.1);
+            return (f1 + f2 + f3) / 3; // 0..1 suave
+        }
 
         function animateBlobs() {
-            // Tempo contínuo (0 → 2π a cada CYCLE_DURATION ms)
-            const now = performance.now();
-            const t = (now % CYCLE_DURATION) / CYCLE_DURATION * Math.PI * 2;
+            // Tempo contínuo em segundos desde o carregamento da página
+            const t = performance.now() * 0.001 - t0;
 
-            // Blob 1: movimento orgânico com seno/cosseno defasados
-            const b1TranslateX = Math.sin(t) * 40;
-            const b1TranslateY = Math.cos(t * 1.3) * 30;
-            b1.style.transform = `translate(${b1TranslateX}vw, ${b1TranslateY}vh)`;
+            // Variação suave dos parâmetros orbitais ao longo do tempo
+            const v1 = smoothRandom(t * VARIATION_SPEED, 'b1fx') * VARIATION_RANGE * 2 - VARIATION_RANGE;
+            const v2 = smoothRandom(t * VARIATION_SPEED, 'b1fy') * VARIATION_RANGE * 2 - VARIATION_RANGE;
+            const v3 = smoothRandom(t * VARIATION_SPEED, 'b2fx') * VARIATION_RANGE * 2 - VARIATION_RANGE;
+            const v4 = smoothRandom(t * VARIATION_SPEED, 'b2fy') * VARIATION_RANGE * 2 - VARIATION_RANGE;
 
-            // Blob 2: contraponto com fase invertida
-            const b2TranslateX = Math.cos(t * 0.8) * -50;
-            const b2TranslateY = Math.sin(t * 1.1) * 20;
-            b2.style.transform = `translate(${b2TranslateX}vw, ${b2TranslateY}vh)`;
+            // Frequências dinâmicas (base + variação suave)
+            const f1 = 1.0 + v1;
+            const f2 = 1.3 + v2;
+            const f3 = 0.8 + v3;
+            const f4 = 1.1 + v4;
 
-            // Hue rotate contínuo
-            const hue = (t / (Math.PI * 2)) * 360;
-            b1.style.filter = `blur(120px) grayscale(0%) brightness(1) hue-rotate(${hue}deg)`;
-            b2.style.filter = `blur(120px) grayscale(0%) brightness(1) hue-rotate(${hue * 1.5}deg)`;
+            // --- Blob 1: órbita Lissajous contínua (seno/cosseno defasados) ---
+            const b1X = Math.sin(t * MOVE_SPEED * f1) * AMPLITUDE_X;
+            const b1Y = Math.cos(t * MOVE_SPEED * f2) * AMPLITUDE_Y;
+            b1.style.transform = `translate(${b1X}vw, ${b1Y}vh)`;
+
+            // --- Blob 2: contraponto com frequências próprias ---
+            const b2X = Math.cos(t * MOVE_SPEED * f3) * -AMPLITUDE_X;
+            const b2Y = Math.sin(t * MOVE_SPEED * f4) * AMPLITUDE_Y;
+            b2.style.transform = `translate(${b2X}vw, ${b2Y}vh)`;
+
+            // --- Cor: gira devagar, sem multiplicador de movimento ---
+            const hue1 = (t * HUE_SPEED) % 360;
+            const hue2 = (hue1 + HUE_BLOB2_OFFSET) % 360;
+            b1.style.filter = `blur(120px) brightness(1) hue-rotate(${hue1}deg)`;
+            b2.style.filter = `blur(120px) brightness(1) hue-rotate(${hue2}deg)`;
 
             requestAnimationFrame(animateBlobs);
         }
 
-        // loop
         requestAnimationFrame(animateBlobs);
     </script>
 
