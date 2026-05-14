@@ -36,23 +36,8 @@
             height: 100vh;
             user-select: none;
             -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
         }
 
-        /* ======== Dithering — previne banding nos gradientes ======== */
-        .dither-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            pointer-events: none;
-            /* O SVG inline aplica ruído de alta frequência diretamente sobre os blobs */
-        }
-
-        /* ======== Blobs ======== */
         .blob {
             position: fixed;
             border-radius: 50%;
@@ -76,20 +61,25 @@
             background: radial-gradient(circle, var(--blob-cyan) 0%, transparent 70%);
         }
 
-        /* ======== Noise Overlay ======== */
-        .noise-overlay {
+        #noise-canvas,
+        #dither-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            opacity: 0.04;
-            z-index: -1;
             pointer-events: none;
+            z-index: -1;
         }
 
-        /* ======== Conteúdo Central ======== */
+        #noise-canvas {
+            opacity: 0.055;
+        }
+
+        #dither-canvas {
+            opacity: 0.025;
+        }
+
         .center-content {
             position: fixed;
             top: 0;
@@ -118,114 +108,124 @@
 </head>
 
 <body>
-
-    <!-- Fundo Blobs -->
     <div id="blob-1" class="blob"></div>
     <div id="blob-2" class="blob"></div>
-
-    <!-- Dithering: ruído azul de alta frequência — quebra o banding -->
-    <svg class="dither-overlay" xmlns="http://www.w3.org/2000/svg">
-        <filter id="dither">
-            <feTurbulence type="fractalNoise" baseFrequency="1.5" numOctaves="1" seed="5" />
-            <feColorMatrix type="saturate" values="0" />
-            <feComponentTransfer>
-                <feFuncA type="linear" slope="0.035" />
-            </feComponentTransfer>
-        </filter>
-        <rect width="100%" height="100%" filter="url(#dither)" />
-    </svg>
-
-    <!-- Ruído -->
-    <div class="noise-overlay"></div>
-
-    <!-- Conteúdo -->
+    <canvas id="noise-canvas"></canvas>
+    <canvas id="dither-canvas"></canvas>
     <div class="center-content">
         <h1>Em <span>breve</span>™</h1>
     </div>
-
     <script>
-        // ====================== ANIMAÇÃO CONTÍNUA DOS BLOBS ======================
-        const b1 = document.getElementById('blob-1');
-        const b2 = document.getElementById('blob-2');
+        // ------------------- Noise & Dither -------------------
+        (function () {
+            var noise = document.getElementById('noise-canvas');
+            var TILE = 256; noise.width = TILE; noise.height = TILE;
+            var ctx = noise.getContext('2d');
+            var img = ctx.createImageData(TILE, TILE);
+            for (var i = 0; i < img.data.length; i += 4) {
+                var v = Math.random() * 255 | 0;
+                img.data[i] = v; img.data[i + 1] = v; img.data[i + 2] = v; img.data[i + 3] = 255;
+            }
+            ctx.putImageData(img, 0, 0);
+            var display = document.createElement('canvas');
+            display.style.cssText = noise.style.cssText;
+            display.style.position = 'fixed';
+            display.style.top = '0';
+            display.style.left = '0';
+            display.style.width = '100vw';
+            display.style.height = '100vh';
+            display.style.zIndex = '-1';
+            display.style.pointerEvents = 'none';
+            display.style.opacity = '0.055';
+            noise.replaceWith(display);
+            function draw() {
+                display.width = window.innerWidth;
+                display.height = window.innerHeight;
+                var dctx = display.getContext('2d');
+                var pattern = dctx.createPattern(noise, 'repeat');
+                dctx.fillStyle = pattern;
+                dctx.fillRect(0, 0, display.width, display.height);
+            }
+            draw();
+            window.addEventListener('resize', draw);
+        })();
 
-        // ═══════════════════════════════════════════════════════
-        //  VARIÁVEIS DE CONTROLE — ajuste aqui!
-        // ═══════════════════════════════════════════════════════
+        (function () {
+            var dither = document.getElementById('dither-canvas');
+            var DTILE = 128; dither.width = DTILE; dither.height = DTILE;
+            var ctx = dither.getContext('2d');
+            var img = ctx.createImageData(DTILE, DTILE);
+            for (var i = 0; i < img.data.length; i += 4) {
+                var v = Math.random() * 255 | 0;
+                img.data[i] = v * 0.6 | 0;
+                img.data[i + 1] = v * 0.7 | 0;
+                img.data[i + 2] = v;
+                img.data[i + 3] = 255;
+            }
+            ctx.putImageData(img, 0, 0);
+            var display = document.createElement('canvas');
+            display.style.cssText = dither.style.cssText;
+            display.style.position = 'fixed';
+            display.style.top = '0';
+            display.style.left = '0';
+            display.style.width = '100vw';
+            display.style.height = '100vh';
+            display.style.zIndex = '-1';
+            display.style.pointerEvents = 'none';
+            display.style.opacity = '0.022';
+            dither.replaceWith(display);
+            function draw() {
+                display.width = window.innerWidth;
+                display.height = window.innerHeight;
+                var dctx = display.getContext('2d');
+                var pat = dctx.createPattern(dither, 'repeat');
+                dctx.fillStyle = pat;
+                dctx.fillRect(0, 0, display.width, display.height);
+            }
+            draw();
+            window.addEventListener('resize', draw);
+        })();
 
-        // --- Movimento (órbita seamless, sem reset) ---
-        const MOVE_SPEED = 0.1;          // rad/s base — quanto maior, mais rápido
-        const AMPLITUDE_X = 25;          // vw — alcance horizontal máximo
-        const AMPLITUDE_Y = 35;          // vh — alcance vertical máximo
-
-        // --- Cor (hue-rotate) ---
-        const HUE_SPEED = 4;             // graus/s — 360° em ~45s com valor 8
-        const HUE_BLOB2_OFFSET = 60;     // graus — defasagem de cor do blob 2
-
-        // --- Variação orgânica aleatória (random walk lento) ---
-        const VARIATION_SPEED = 0.04;    // quão rápido os parâmetros orbitais mudam
-        const VARIATION_RANGE = 0.35;    // o quanto os parâmetros podem desviar (±)
-
-        // ═══════════════════════════════════════════════════════
-
-        // Estado interno da variação aleatória
-        const rng = {
-            freq1: 1.0, phase1: 0,
-            freq2: 1.7, phase2: 1.3,
-            freq3: 0.9, phase3: 2.5,
-            freq4: 1.5, phase4: 0.7,
-        };
-        const rngKeys = Object.keys(rng);
-
-        // Data de início (tempo absoluto contínuo)
-        const t0 = performance.now() * 0.001; // segundos
-
-        function smoothRandom(t, key) {
-            // Gera um valor pseudo-aleatório determinístico e suave baseado no tempo
-            const seed = key.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 0.001;
-            const f1 = Math.sin(t * 0.137 + seed) * 0.5 + 0.5;
-            const f2 = Math.cos(t * 0.079 + seed * 1.7) * 0.5 + 0.5;
-            const f3 = Math.sin(t * 0.053 + seed * 3.1);
-            return (f1 + f2 + f3) / 3; // 0..1 suave
-        }
-
-        function animateBlobs() {
-            // Tempo contínuo em segundos desde o carregamento da página
-            const t = performance.now() * 0.001 - t0;
-
-            // Variação suave dos parâmetros orbitais ao longo do tempo
-            const v1 = smoothRandom(t * VARIATION_SPEED, 'b1fx') * VARIATION_RANGE * 2 - VARIATION_RANGE;
-            const v2 = smoothRandom(t * VARIATION_SPEED, 'b1fy') * VARIATION_RANGE * 2 - VARIATION_RANGE;
-            const v3 = smoothRandom(t * VARIATION_SPEED, 'b2fx') * VARIATION_RANGE * 2 - VARIATION_RANGE;
-            const v4 = smoothRandom(t * VARIATION_SPEED, 'b2fy') * VARIATION_RANGE * 2 - VARIATION_RANGE;
-
-            // Frequências dinâmicas (base + variação suave)
-            const f1 = 1.0 + v1;
-            const f2 = 1.3 + v2;
-            const f3 = 0.8 + v3;
-            const f4 = 1.1 + v4;
-
-            // --- Blob 1: órbita Lissajous contínua (seno/cosseno defasados) ---
-            const b1X = Math.sin(t * MOVE_SPEED * f1) * AMPLITUDE_X;
-            const b1Y = Math.cos(t * MOVE_SPEED * f2) * AMPLITUDE_Y;
-            b1.style.transform = `translate(${b1X}vw, ${b1Y}vh)`;
-
-            // --- Blob 2: contraponto com frequências próprias ---
-            const b2X = Math.cos(t * MOVE_SPEED * f3) * -AMPLITUDE_X;
-            const b2Y = Math.sin(t * MOVE_SPEED * f4) * AMPLITUDE_Y;
-            b2.style.transform = `translate(${b2X}vw, ${b2Y}vh)`;
-
-            // --- Cor: gira devagar, sem multiplicador de movimento ---
-            const hue1 = (t * HUE_SPEED) % 360;
-            const hue2 = (hue1 + HUE_BLOB2_OFFSET) % 360;
-            b1.style.filter = `blur(120px) brightness(1) hue-rotate(${hue1}deg)`;
-            b2.style.filter = `blur(120px) brightness(1) hue-rotate(${hue2}deg)`;
-
+        // ------------------- Blobs animation -------------------
+        (function () {
+            var b1 = document.getElementById('blob-1');
+            var b2 = document.getElementById('blob-2');
+            var MOVE_SPEED = 0.1,
+                AMPLITUDE_X = 25,
+                AMPLITUDE_Y = 35,
+                HUE_SPEED = 4,
+                HUE_BLOB2_OFFSET = 60,
+                VARIATION_SPEED = 0.04,
+                VARIATION_RANGE = 0.35;
+            var t0 = performance.now() * 0.001;
+            function smoothRandom(t, key) {
+                var seed = key.split('').reduce(function (a, c) { return a + c.charCodeAt(0); }, 0) * 0.001;
+                var f1 = Math.sin(t * 0.137 + seed) * 0.5 + 0.5;
+                var f2 = Math.cos(t * 0.079 + seed * 1.7) * 0.5 + 0.5;
+                var f3 = Math.sin(t * 0.053 + seed * 3.1);
+                return (f1 + f2 + f3) / 3;
+            }
+            function animateBlobs() {
+                var t = performance.now() * 0.001 - t0;
+                var v1 = smoothRandom(t * VARIATION_SPEED, 'b1fx') * VARIATION_RANGE * 2 - VARIATION_RANGE;
+                var v2 = smoothRandom(t * VARIATION_SPEED, 'b1fy') * VARIATION_RANGE * 2 - VARIATION_RANGE;
+                var v3 = smoothRandom(t * VARIATION_SPEED, 'b2fx') * VARIATION_RANGE * 2 - VARIATION_RANGE;
+                var v4 = smoothRandom(t * VARIATION_SPEED, 'b2fy') * VARIATION_RANGE * 2 - VARIATION_RANGE;
+                var f1 = 1.0 + v1,
+                    f2 = 1.3 + v2,
+                    f3 = 0.8 + v3,
+                    f4 = 1.1 + v4;
+                b1.style.transform = 'translate(' + Math.sin(t * MOVE_SPEED * f1) * AMPLITUDE_X + 'vw,' + Math.cos(t * MOVE_SPEED * f2) * AMPLITUDE_Y + 'vh)';
+                b2.style.transform = 'translate(' + Math.cos(t * MOVE_SPEED * f3) * -AMPLITUDE_X + 'vw,' + Math.sin(t * MOVE_SPEED * f4) * AMPLITUDE_Y + 'vh)';
+                var hue1 = (t * HUE_SPEED) % 360;
+                var hue2 = (hue1 + HUE_BLOB2_OFFSET) % 360;
+                b1.style.filter = 'blur(120px) brightness(1) hue-rotate(' + hue1 + 'deg)';
+                b2.style.filter = 'blur(120px) brightness(1) hue-rotate(' + hue2 + 'deg)';
+                requestAnimationFrame(animateBlobs);
+            }
             requestAnimationFrame(animateBlobs);
-        }
-
-        requestAnimationFrame(animateBlobs);
+        })();
     </script>
-
 </body>
 
 </html>
