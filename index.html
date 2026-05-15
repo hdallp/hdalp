@@ -4,15 +4,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Em breve...</title>
+    <title>⠋ Em breve...</title>
+    <!-- favicon animado via canvas -->
+    <link rel="icon" type="image/png" href="ICON.ico" id="favicon-link">
+
+    <script>
+        // ---------- Título animado (spinner Braille) ----------
+        (function () {
+            var frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+            var idx = 0;
+            function tick() {
+                document.title = frames[idx] + ' Em breve...';
+                idx = (idx + 1) % frames.length;
+            }
+            tick(); // executa imediatamente
+            setInterval(tick, 120);
+        })();
+
+        // ---------- Favicon animado (círculo pixelado + dither, sincronizado com blobs) ----------
+        // roda após DOM pronto pra garantir que blob-1 existe
+        (function initFavicon() {
+            var link = document.getElementById('favicon-link');
+            var SIZE = 16; // grid pixelado
+            var UPSCALE = 4; // 16×4 = 64px final
+
+            var canvas = document.createElement('canvas');
+            canvas.width = SIZE;
+            canvas.height = SIZE;
+            var ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+
+            // cache do dither: só o pattern (threshold) — a cor é aplicada live
+            var ditherMap = [];
+            (function buildDither() {
+                var cx = (SIZE - 1) / 2,
+                    cy = (SIZE - 1) / 2,
+                    r = (SIZE / 2) - 0.5;
+                var nx = 0.7071,
+                    ny = -0.7071; // luz da direita-cima
+                var bayer = [
+                    [0 / 4, 2 / 4],
+                    [3 / 4, 1 / 4]
+                ];
+                for (var y = 0; y < SIZE; y++) {
+                    ditherMap[y] = [];
+                    for (var x = 0; x < SIZE; x++) {
+                        var dx = x - cx,
+                            dy = y - cy;
+                        var inside = (dx * dx + dy * dy) <= (r * r);
+                        if (!inside) { ditherMap[y][x] = 0; continue; }
+                        var d = (dx * nx + dy * ny) / (r * 1.42);
+                        var lightness = (d * 0.5 + 0.5);
+                        var threshold = bayer[y & 1][x & 1];
+                        ditherMap[y][x] = (lightness > threshold) ? 2 : 1;
+                    }
+                }
+            })();
+
+            var displayCanvas = document.createElement('canvas');
+            displayCanvas.width = SIZE * UPSCALE;
+            displayCanvas.height = SIZE * UPSCALE;
+            var dctx = displayCanvas.getContext('2d');
+            dctx.imageSmoothingEnabled = false;
+
+            // helpers de cor
+            function hexToRgb(hex) {
+                var h = hex.replace('#', '');
+                return {
+                    r: parseInt(h.substring(0, 2), 16),
+                    g: parseInt(h.substring(2, 4), 16),
+                    b: parseInt(h.substring(4, 6), 16)
+                };
+            }
+
+            function applyHueRotate(rgb, deg) {
+                var rad = deg * Math.PI / 180;
+                var cos = Math.cos(rad),
+                    sin = Math.sin(rad);
+                var rw = 0.213,
+                    gw = 0.715,
+                    bw = 0.072;
+                var r = rgb.r / 255,
+                    g = rgb.g / 255,
+                    b = rgb.b / 255;
+                var rr = r * (cos + rw * (1 - cos)) + g * (gw * (1 - cos) - bw * sin) + b * (bw * (1 - cos) + gw * sin);
+                var gg = r * (rw * (1 - cos) + bw * sin) + g * (cos + gw * (1 - cos)) + b * (bw * (1 - cos) - rw * sin);
+                var bb = r * (rw * (1 - cos) - gw * sin) + g * (gw * (1 - cos) + rw * sin) + b * (cos + bw * (1 - cos));
+                return {
+                    r: Math.max(0, Math.min(255, Math.round(rr * 255))),
+                    g: Math.max(0, Math.min(255, Math.round(gg * 255))),
+                    b: Math.max(0, Math.min(255, Math.round(bb * 255)))
+                };
+            }
+
+            var baseRgb = hexToRgb('#6B46FF');
+
+            function getHueDeg() {
+                var b1 = document.getElementById('blob-1');
+                if (!b1) return 0;
+                var filter = window.getComputedStyle(b1).filter;
+                var match = filter.match(/hue-rotate\(([\-\d.]+)deg\)/);
+                return match ? parseFloat(match[1]) : 0;
+            }
+
+            function drawFavicon() {
+                var hueDeg = getHueDeg();
+                var currentRgb = applyHueRotate(baseRgb, hueDeg);
+
+                ctx.clearRect(0, 0, SIZE, SIZE);
+                var img = ctx.createImageData(SIZE, SIZE);
+                var data = img.data;
+                for (var y = 0; y < SIZE; y++) {
+                    for (var x = 0; x < SIZE; x++) {
+                        var i = (y * SIZE + x) * 4;
+                        var m = ditherMap[y][x];
+                        if (m === 0) {
+                            data[i] = 0;
+                            data[i + 1] = 0;
+                            data[i + 2] = 0;
+                            data[i + 3] = 0;
+                        } else if (m === 1) {
+                            data[i] = currentRgb.r;
+                            data[i + 1] = currentRgb.g;
+                            data[i + 2] = currentRgb.b;
+                            data[i + 3] = 255;
+                        } else {
+                            // highlight: puxa levemente pro ciano (blob2), proporcional à distância do canto
+                            var t = 0.35;
+                            data[i] = Math.round(currentRgb.r + (0x00 - currentRgb.r) * t);
+                            data[i + 1] = Math.round(currentRgb.g + (0xF0 - currentRgb.g) * t);
+                            data[i + 2] = Math.round(currentRgb.b + (0xFF - currentRgb.b) * t);
+                            data[i + 3] = 255;
+                        }
+                    }
+                }
+                ctx.putImageData(img, 0, 0);
+
+                dctx.clearRect(0, 0, SIZE * UPSCALE, SIZE * UPSCALE);
+                dctx.drawImage(canvas, 0, 0, SIZE * UPSCALE, SIZE * UPSCALE);
+                link.href = displayCanvas.toDataURL('image/png');
+            }
+
+            // adia o start pra garantir que o DOM tá pronto
+            function start() {
+                drawFavicon();
+                setInterval(drawFavicon, 120);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', start);
+            } else {
+                start();
+            }
+        })();
+    </script>
 
     <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
-    <!-- favicon -->
-    <link rel="icon" type="image/png" href="../LOGO.ico">
+
 
     <style>
         :root {
