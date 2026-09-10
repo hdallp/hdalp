@@ -175,7 +175,11 @@
                 "as many as fit the height" belongs to a column with a height;
      the axis   the arrival falls instead of sliding. A row of bars flying in from
                 the left would cross each other on the way and pass under the mark;
-                dropping from above, each one lands where it stands.
+                dropping from above, each one lands where it stands — and it lands
+                with the page, not with the piece (site/src/scripts/aside.js);
+     the edge   the bottom one: a torn strip hanging below each bar, past its box,
+                and a pixel of overlap between two cells so the row has no seam
+                (see .bar and .bar::after);
      the pull   switched off: on a touch screen there is no pointer to come near. */
 @media (max-width: 900px) {
   .aside {
@@ -196,7 +200,7 @@
        staircase, which is also what makes each item its own thing instead of a
        piece of an even band. */
     --step: 12px;
-    --tear: 2px;            /* how deep the torn bottom edge cuts */
+    --tear: 2px;            /* how far the torn edge reaches below the bar */
     /* Fewer bars, so each one has to be more clearly its own beat: a wider gap and
        a shorter fall. Four bars at the column's 45ms landed almost together. */
     --delay: 120ms;
@@ -224,10 +228,17 @@
     object-fit: contain;
   }
 
-  /* Side by side: flex-basis 0 wins over the width the JS writes, so the row
-     shares the width evenly — and the pull, off here, could not disturb it. */
+  /* Side by side: flex-basis 0 wins over the width the JS writes, so the row shares
+     the width evenly — and the pull, off here, could not disturb it.
+
+     Each bar starts a pixel before the one on its left, so two cells overlap. That
+     pixel is what keeps the row solid: a boundary landing between two device pixels
+     would otherwise be covered half by each side, and the paper would show through
+     as a hairline between two bars. The overlap costs the row nothing — every bar is
+     a pixel wider and the last one still ends on the edge of the screen. */
   .bar {
     flex: 1 1 0;
+    margin-inline-start: -1px;
     /* The step happens at the BOTTOM. Every bar starts on the same line — aligned
        tops, no hole above the ones on the right — and the further right a bar is,
        the lower it reaches.
@@ -240,31 +251,47 @@
     align-self: flex-start;
     padding-block-end: calc(var(--i, 0) * var(--step));
 
-    /* And the bottom edge is torn, like the perforation of a ticket stub that you
-       could pull off. The pitch is a percentage, so it holds across the different
-       widths; the depth is a length, so it stays the same across the different
-       heights. Both corners end on a valley: the cut is the edge, not a decoration
-       sitting on it. */
+    /* The bottom edge itself stays straight: the tear does not cut into the bar. The
+       bar stops where its box stops, and the torn strip hangs below, past that edge —
+       .bar::after, just underneath. */
+  }
+
+  /* The tear. After the item, not inside it: a clip-path on the bar could only ever
+     take material away from the bar, because a clip never paints past the box it
+     clips. A strip of its own, hanging under the bar, can.
+
+     The pitch is a percentage, so it holds across the different widths; the depth is
+     a length, so it stays the same across the different heights. Both corners end on
+     a valley: the cut is the edge, not a decoration sitting on it. */
+  .bar::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    /* 100% is the bar's own bottom edge: an absolute child is placed against the
+       padding box, and the bar has no border, so this lands exactly where it stops. */
+    top: 100%;
+    block-size: var(--tear);
+    /* The bar cools towards --cool under the pointer; the tear cools with it,
+       instead of staying black against a bar that no longer is. */
+    background-color: inherit;
     clip-path: polygon(
       0 0,
       100% 0,
-      100% calc(100% - var(--tear)),
       93.75% 100%,
-      87.50% calc(100% - var(--tear)),
+      87.50% 0,
       81.25% 100%,
-      75% calc(100% - var(--tear)),
+      75% 0,
       68.75% 100%,
-      62.50% calc(100% - var(--tear)),
+      62.50% 0,
       56.25% 100%,
-      50% calc(100% - var(--tear)),
+      50% 0,
       43.75% 100%,
-      37.50% calc(100% - var(--tear)),
+      37.50% 0,
       31.25% 100%,
-      25% calc(100% - var(--tear)),
+      25% 0,
       18.75% 100%,
-      12.50% calc(100% - var(--tear)),
-      6.25% 100%,
-      0 calc(100% - var(--tear))
+      12.50% 0,
+      6.25% 100%
     );
   }
 
