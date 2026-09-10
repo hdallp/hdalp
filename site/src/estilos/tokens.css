@@ -1,0 +1,34 @@
+/* tokens — the site's decisions, in one file.
+
+   Every choice (colour, type, space, size) lives here and no other file invents
+   a value of its own: when the portfolio's typography and spacing arrive, they
+   land here too, as --font-*, --text-*, --space-*, --measure. */
+
+:root {
+  /* Colours. Paper 254, ink 7. */
+  --paper: #fefefe;
+  --ink: #070707;
+
+  /* Type. These family names are the ones site/src/estilos/fonts.css declares,
+     so the file it points at and the name used here are always the same pair. */
+  --font-ui: 'Bitroad', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Bitroad Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  /* The piece's colour hook: changing this repaints the whole drawing without
+     touching site/src/mask/mask.css. Without it the piece falls back to its own
+     black — it is self-sufficient on purpose. */
+  --mask-ink: var(--ink);
+
+  /* What the piece settles into once it steps behind the site: the watermark. */
+  --mask-ink-faded: #d4d4d4;
+
+  /* The piece's stage: the box the site hands it. The piece measures this
+     element and draws inside it, so this single number decides how big the
+     drawing is. The vmin cap is only there to keep it from cropping on a small
+     screen. */
+  --frame: min(450px, 88vmin);
+
+  /* The fallback cell, so the box already has the right shape before the script
+     runs: the stage divided by the mask's 84 columns. */
+  --cell: calc(var(--frame) / 84);
+}

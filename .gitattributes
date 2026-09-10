@@ -1,0 +1,11 @@
+# Text is LF, everywhere, and stays that way on checkout: the .editorconfig asks
+# for it, and git on Windows would otherwise hand back CRLF.
+* text=auto eol=lf
+
+# Binaries, named one by one. mask.raw is the important one: it is a headerless
+# grayscale file with no extension git could recognise, and a line-ending
+# conversion would corrupt it.
+*.raw binary
+*.png binary
+*.otf binary
+*.ico binary

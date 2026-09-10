@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>HDALP STUDIO</title>
+<meta name="description" content="HDALP Studio Portfólio">
+
+<link rel="icon" href="site/src/mask/mask.png">
+
+<!-- The one face the page needs above the fold, fetched before the CSS gets a
+     chance to ask for it. Fonts are always fetched CORS, hence crossorigin. -->
+<link rel="preload" href="site/assets/fontes/Bitroad/Bitroad-Regular.otf" as="font" type="font/otf" crossorigin>
+
+<!-- Styles, in the order they read: the font files, the decisions, the ground,
+     the piece, the navigation. -->
+<link rel="stylesheet" href="site/src/estilos/fonts.css">
+<link rel="stylesheet" href="site/src/estilos/tokens.css">
+<link rel="stylesheet" href="site/src/estilos/base.css">
+<link rel="stylesheet" href="site/src/mask/mask.css">
+<link rel="stylesheet" href="site/src/estilos/aside.css">
+<link rel="stylesheet" href="site/src/estilos/cursor.css">
+</head>
+<body>
+
+<!-- The stage is the box the CSS sizes; the piece draws itself inside it. The two
+     names — frame and art — are the contract between this page and
+     site/src/mask/mask.js. -->
+<main class="frame" id="frame">
+  <div class="art" id="art" role="img" aria-label="A máscara, desenhada linha a linha em retângulos arredondados"></div>
+</main>
+
+<!-- The navigation: the mark (a file, not data) and, below it, the list of bars,
+     which site/src/scripts/aside.js builds from the ITEMS list at the top of that
+     file. -->
+<aside class="aside" id="aside" aria-label="Navegação do site">
+  <img class="mark" src="site/assets/marca/HDALP-branco.svg" alt="HDALP" width="52" height="14">
+</aside>
+
+<script src="site/src/mask/mask-data.js"></script>
+<script src="site/src/mask/mask.js"></script>
+<script src="site/src/scripts/aside.js"></script>
+<script src="site/src/scripts/cursor.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+/* cursor — the pointer, drawn by hand.
+
+   The native pointer is hidden here and site/src/scripts/cursor.js moves this
+   element with it. Two rules keep it cheap:
+
+     - the box is one fixed size (58px, the largest state) and it is positioned
+       once, at 0 0. All movement is transform: translate3d(), so the layout engine
+       is never involved;
+     - every state is a transform and an opacity on the layers inside it, never a
+       width or a height. A box that resized would re-rasterise its layer on every
+       hover, and the seal would arrive as a redraw instead of as a scale.
+
+   Only where there is a real pointer: on a touch screen the native cursor stays
+   and this element is never built. */
+
+@media (hover: hover) and (pointer: fine) {
+  /* Every element, not just the body. The user agent gives links a pointer of
+     their own — and a specified value beats an inherited one, which is why the
+     native arrow kept showing up on links. */
+  * { cursor: none; }
+}
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 58px;
+  height: 58px;
+  /* Centring as its own property: it composes with the transform the JS writes
+     instead of fighting it. */
+  translate: -50% -50%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  opacity: 0;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  /* Nothing paints outside this box, so the browser can stop looking. */
+  contain: paint;
+  transition: opacity 150ms linear;
+}
+
+.cursor.ready { opacity: 1; }
+
+/* The two layers: the blob and the seal. Both fixed in size, both centred on the
+   box, neither ever resized. */
+.cursor::before,
+.cursor::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  border-radius: 50%;
+}
+
+/* The blob. Its fill never changes — 0.53 of a 0.85 white is exactly the 0.45
+   white it used to be — so every state it has is transform and opacity, and both
+   of those are composited. */
+.cursor::before {
+  width: 30px;
+  height: 30px;
+  background-color: rgba(227, 243, 228, 0.85);
+  opacity: 0.53;
+  transition:
+    transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* The seal, waiting inside the same box: it arrives by scaling up. */
+.cursor::after {
+  width: 58px;
+  height: 58px;
+  background: url('../../assets/cursor/seal.svg') center / 100% 100% no-repeat;
+  opacity: 0;
+  transform: scale(0.55);
+  transition:
+    transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 240ms ease;
+}
+
+/* Over a link: the blob folds away and the seal scales in. */
+.cursor.hover::before { opacity: 0; transform: scale(0); }
+.cursor.hover::after { opacity: 1; transform: scale(1); }
+
+/* Nothing moved for a while: the blob shrinks to a dot. It only speaks while the
+   seal is not up. */
+.cursor.idle:not(.hover)::before {
+  opacity: 1;
+  transform: scale(0.167);
+  transition-duration: 500ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor,
+  .cursor::before,
+  .cursor::after { transition: none; }
+}

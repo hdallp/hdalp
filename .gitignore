@@ -1,0 +1,20 @@
+# Dependências e artefatos de ferramenta
+node_modules/
+dist/
+build/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Ferramentas locais (capturas, rascunhos, caches) — nunca versionado
+.dsh-vision-router/
+*.log
+temp/
+tmp/

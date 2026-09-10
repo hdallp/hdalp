@@ -1,0 +1,31 @@
+/* base — minimal reset, the page body, and the piece's stage.
+
+   No components here: this is the ground the pages and the piece stand on. */
+
+* { box-sizing: border-box; }
+
+html { height: 100%; }
+
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  /* The face the whole site speaks in. --font-mono is there for code and numbers. */
+  font-family: var(--font-ui);
+  /* The content is centred in the viewport; a page that needs to scroll will. */
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The stage: the box the site hands the piece. It is the contract between the
+   two — the piece measures this element and draws inside it, so changing --frame
+   changes the whole drawing without the piece knowing anything. */
+.frame {
+  inline-size: var(--frame);
+  block-size: var(--frame);
+  display: grid;
+  place-items: center;
+}

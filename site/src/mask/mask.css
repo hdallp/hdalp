@@ -1,0 +1,91 @@
+/* mask — the drawing and its movement.
+
+   Nothing here knows a site exists: the two variables this file reads
+   (--mask-ink and --cell) both carry their own fallback, so the piece runs on its
+   own and the site can repaint or resize it from tokens.css without touching any
+   of this.
+
+   All the piece needs from the page is an element with id="frame" and a defined
+   size. Everything else it measures and writes itself. */
+
+/* The drawing. Its real size is written inline by mask.js, in whole cells; the
+   calc here is only the state before the script runs. */
+.art {
+  position: relative;
+  width: calc(84 * var(--cell, 5px));
+  height: calc(82 * var(--cell, 5px));
+  /* Layout containment keeps every consequence of a pointer move inside this
+     element. Paint is deliberately not contained: the runs swell sideways under
+     the hand, and a run sitting against the edge of the box should swell past it
+     rather than be cut off flat. */
+  contain: layout;
+}
+
+/* The cell: the geometry (written inline by mask.js) and the pointer's swell,
+   which is an inline transform right here, about the centre.
+   Nobody points at a pixel; the page listens on the window. Skipping the hit test
+   for every box is free frame time — and it applies to what is inside, because
+   pointer-events inherits. */
+.px {
+  position: absolute;
+  transform-origin: center center;
+  pointer-events: none;
+}
+
+/* The ink inside the cell: that is what you see, and that is what carries the
+   sweeps. A separate layer for one reason: a CSS animation overrides an inline
+   transform, so if cell and ink were the same element the pointer's swell would
+   vanish during the arrival — exactly when it needs to answer. */
+.ink {
+  position: absolute;
+  inset: 0;
+  background: var(--mask-ink, #070707);
+  border-radius: 20px;
+  transform-origin: center center;
+  /* The only colour the drawing has, so the watermark is one transition here and
+     not a per-run animation. */
+  transition: background-color 700ms ease;
+}
+
+/* The watermark: the same drawing, in a grayer ink, staying where it is instead
+   of leaving. The colour is a decision and lives in tokens.css. */
+.art.faded {
+  --mask-ink: var(--mask-ink-faded, #d4d4d4);
+}
+
+/* The two sweeps: one wave each, both travelling left to right, both a scaleX —
+   never a width, so neither costs the layout engine anything.
+   They do not anchor the same way, and that is the point: the piece arrives
+   growing out of each run's left edge, and leaves being swallowed into each run's
+   right edge, so the cells go out in the same direction the wave does.
+   .grow is added and taken off again as the piece arrives. .out is added and left
+   on: with fill forwards, it is what holds the drawing collapsed until the piece
+   is called back. */
+@keyframes px-in {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes px-out {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+.art.grow .ink {
+  transform-origin: left center;
+  animation-name: px-in;
+  animation-timing-function: cubic-bezier(0.22, 0.9, 0.24, 1);
+  animation-fill-mode: both;
+}
+
+.art.out .ink {
+  transform-origin: right center;
+  animation-name: px-out;
+  animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.4);
+  animation-fill-mode: forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art.grow .ink { animation: none; }
+  .art.out .ink { animation: none; transform: scaleX(0); }
+}

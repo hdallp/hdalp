@@ -1,0 +1,135 @@
+/* aside — the site navigation, built entirely out of bars.
+
+   There is no background panel: the black column IS the stack of bars, touching
+   one another. Some bars carry an item (label + link), the rest are just bars.
+   That is what lets the aside assemble line by line, top to bottom.
+
+   site/src/scripts/aside.js builds it and reads every custom property below,
+   so this is the one place to tune.
+
+   The rule of the drawing: column and bar share the same colour. At rest the
+   column is solid and all you read are the labels, on the right. What reveals the
+   bars is the pointer — it stretches them out, and it cools them, and the cooling
+   stays on the bar after the pointer has moved on. */
+
+.aside {
+  /* ---- the column ---- */
+  --bar-w: 390px;
+  --bar-pad: 42px;        /* inner margin: the mark at the top, labels at the sides */
+  --bar-bg: transparent;  /* the column is the stack itself; this is only a fallback */
+
+  /* ---- the mark ---- */
+  --mark-w: 156px;        /* the white SVG in site/assets/marca/ */
+
+  /* ---- the bars ---- */
+  --line: 66px;           /* NOMINAL bar height: the JS divides the column height
+                             by it to know how many bars fit, then spreads the
+                             remainder, so the stack closes at exactly 100% */
+  --label-size: 20px;      /* the face decides this: a display face reads small */
+  --line-pad: 42px;       /* where the label starts, measured from the right */
+  --line-bg: var(--ink);  /* a bar is black, like the column */
+  --radius: 0;            /* no radius: it is a straight line. Raise it to round */
+
+  /* ---- the pointer ---- */
+  --reach: 135px;          /* how far away it already starts pulling */
+  --stretch: 84px;        /* how far a bar WITH an item stretches out, at most */
+  --empty: 0.4;           /* how much of that a bar WITHOUT an item answers */
+  --hover: 18px;          /* how much further the hovered bar stretches */
+  --cool: #550000;        /* the colour every bar cools towards near the pointer */
+  --ease: 0.2;            /* how fast a bar answers the pointer, per frame */
+  --cool-ease: 0.03;      /* how slowly the colour lets go: lower is a longer tail */
+
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: var(--bar-w);
+  background: var(--bar-bg);
+  z-index: 2;
+  /* hidden until it arrives: nobody tabs into a link that is not there yet */
+  visibility: hidden;
+}
+
+.aside.ready { visibility: visible; }
+
+/* The mark floats above the stack, centred on the aside's axis. To centre it
+   vertically as well, swap top for 50% and the translate for -50% -50%.
+   z-index matters: the bars are positioned too and come later in the DOM, so
+   without it they would paint straight over the mark. */
+.mark {
+  position: absolute;
+  top: var(--bar-pad);
+  left: 50%;
+  translate: -50% 0;
+  width: var(--mark-w);
+  height: auto;
+  z-index: 1;
+  /* the mark does not steal the pointer from the bars passing under it */
+  pointer-events: none;
+}
+
+/* One bar of the stack. Width, height and background are written by the JS —
+   width is where the stretch happens, height is what closes the column. */
+.bar {
+  position: relative;
+  display: block;
+  flex: none;
+  height: var(--line);
+  background: var(--line-bg);
+  border-radius: var(--radius);
+}
+
+/* An item is a bar with a label inside it. */
+.item {
+  color: var(--paper);
+  text-decoration: none;
+}
+
+/* The label sits against the right end of the bar and travels with it: the
+   stretch grows the right tip, so the label rides out with the tip. That is why
+   the stretch is a width and never a scale — stretched text is broken text. */
+.label {
+  position: absolute;
+  top: 50%;
+  right: var(--line-pad);
+  translate: 0 -50%;
+  font-size: var(--label-size);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* The keyboard has no pointer to come near: it gets an outline inside the bar,
+   which never fights the values the JS writes. */
+.item:focus-visible {
+  outline: 1px solid var(--paper);
+  outline-offset: -6px;
+}
+
+/* The arrival: everything comes in from off-screen left — the mark first, then
+   the bars, one by one, top to bottom, until the column is closed. The starting
+   point (--from) is written inline by the JS, because it depends on where the
+   thing rests and how wide it is. When the arrival is over the JS drops the
+   class, so nothing stays animated or composited afterwards. */
+@keyframes arrive {
+  from { transform: translateX(var(--from, -100vw)); }
+  to   { transform: translateX(0); }
+}
+
+.aside.arriving .mark,
+.aside.arriving .bar {
+  animation-name: arrive;
+  animation-timing-function: cubic-bezier(0.2, 0.85, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+/* Each bar's delay is inline, written by the JS. The mark goes first. */
+.aside.arriving .mark {
+  animation-duration: 620ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aside.arriving .mark,
+  .aside.arriving .bar { animation: none; }
+}

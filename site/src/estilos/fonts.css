@@ -1,0 +1,46 @@
+/* fonts — the font files, declared once.
+
+   The family names here are ours, not the ones inside the files: @font-face is
+   what defines them. site/src/estilos/tokens.css is where the site decides which
+   one it uses (--font-ui, --font-mono).
+
+   The files are OpenType (.otf) in site/assets/fontes/Bitroad/. They could be
+   converted to woff2 — the same shapes in a fraction of the bytes — by a script
+   in tools/, the way updatemask.js handles the mask. Until then they ship as they
+   are, and only the regular is preloaded (see index.html).
+
+   Licence: the files carry "© 2024 by Lettertype Studio Co. All rights reserved"
+   and there is no licence file beside them. A webfont needs the web licence for
+   the domain it is served from — worth having that on file. */
+
+@font-face {
+  font-family: 'Bitroad';
+  src: url('../../assets/fontes/Bitroad/Bitroad-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bitroad';
+  src: url('../../assets/fontes/Bitroad/Bitroad-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bitroad Mono';
+  src: url('../../assets/fontes/Bitroad/BitroadMono-RegularMono.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bitroad Mono';
+  src: url('../../assets/fontes/Bitroad/BitroadMono-ItalicMono.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
