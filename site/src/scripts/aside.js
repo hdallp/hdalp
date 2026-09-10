@@ -71,6 +71,10 @@
   var last = 0;
   var entered = false;
   var arriving = false;
+  /* When the arrival began. A rebuild in the middle of it — a resize, which is
+     exactly when a viewport settles — needs it to pick the flight up where it was
+     instead of flying the whole row again from the top. */
+  var started = 0;
 
   var pointer = { x: -1e9, y: -1e9, on: false };
   var previous = { x: -1e9, y: -1e9 };
@@ -174,6 +178,15 @@
     var c = column();
     var first = Math.max(0, Math.round((c.count - ITEMS.length) / 2));
 
+    /* How long the arrival has been running, when one is running at all: a rebuild
+       under it has to carry on, not start over (see the delays below). */
+    var behind = arriving ? Date.now() - started : 0;
+
+    /* The mark goes first because it carries no delay of its own and the first bar
+       waits --delay for it. On a rebuild mid-arrival its delay is shifted like the
+       bars' are, so the two stay in step. */
+    if (mark) mark.style.animationDelay = (behind ? -behind : 0) + 'ms';
+
     /* Clear the old stack — the mark is page content and stays. */
     for (var i = bars.length - 1; i >= 0; i--) {
       aside.removeChild(bars[i].el);
@@ -224,7 +237,11 @@
         el.setAttribute('aria-hidden', 'true');
       }
 
-      var delay = delayStep + index * perLine;
+      /* When the arrival is already under way — a resize caught it mid-flight — the
+         delay comes back shifted by how long it has been running: a negative delay
+         is an animation that starts in the middle of itself, so the new bars carry
+         on falling instead of jumping back to the top and landing twice. */
+      var delay = delayStep + index * perLine - behind;
       if (delay > last) last = delay;
       /* Whole pixels, and the remainder spent one pixel at a time: the stack adds
          up to the column exactly, with no fractional edge anywhere in it. */
@@ -274,28 +291,47 @@
   }
 
   function boxes() {
+    /* Everything here is measured on the LAYOUT, never on the painted box.
+       offsetTop, offsetLeft, offsetWidth and offsetHeight are layout numbers, and no
+       animation touches them. getBoundingClientRect is the painted box, and during
+       the arrival these elements ARE being animated: a bar measured mid-flight came
+       back where the animation had put it rather than where it stands — a screen
+       above, since a fresh bar takes the keyframe's -100vh fallback until its offset
+       is written — and a start worked out from that measurement turns the drop into
+       a rise.
+
+       The aside is the frame everything is measured against: it is fixed and never
+       transformed, so its own rect is the layout's origin. The bars are positioned,
+       and the mark's ancestor is the aside, so for both of them the aside is the
+       offsetParent and these offsets are its own. */
+    var frame = aside.getBoundingClientRect();
+
     /* The mark first: it arrives like the bars, so it needs the same starts.
        Both axes are measured and written; which one is used is the layout's
        business (see the arrivals in aside.css). */
     if (mark) {
-      var m = mark.getBoundingClientRect();
-      mark.style.setProperty('--from-x', (-(m.left + m.width) - OFF) + 'px');
-      mark.style.setProperty('--from-y', (-(m.top + m.height) - OFF) + 'px');
+      var mx = frame.left + mark.offsetLeft;
+      var my = frame.top + mark.offsetTop;
+      mark.style.setProperty('--from-x', (-(mx + mark.offsetWidth) - OFF) + 'px');
+      mark.style.setProperty('--from-y', (-(my + mark.offsetHeight) - OFF) + 'px');
     }
 
     for (var i = 0; i < bars.length; i++) {
       var bar = bars[i];
-      var r = bar.el.getBoundingClientRect();
-      bar.x = r.left;
-      bar.y = r.top;
-      bar.w = r.width;
-      bar.h = r.height;
+      var x = frame.left + bar.el.offsetLeft;
+      var y = frame.top + bar.el.offsetTop;
+      var w = bar.el.offsetWidth;
+      var h = bar.el.offsetHeight;
+      bar.x = x;
+      bar.y = y;
+      bar.w = w;
+      bar.h = h;
 
       /* Where the bar comes from: far enough to be entirely off-screen, on the
          left for the column and above for the navbar, plus a little so it never
          touches an edge. */
-      bar.el.style.setProperty('--from-x', (-(r.left + r.width) - OFF) + 'px');
-      bar.el.style.setProperty('--from-y', (-(r.top + r.height) - OFF) + 'px');
+      bar.el.style.setProperty('--from-x', (-(x + w) - OFF) + 'px');
+      bar.el.style.setProperty('--from-y', (-(y + h) - OFF) + 'px');
     }
   }
 
@@ -305,6 +341,7 @@
     if (entered) return;
     entered = true;
     arriving = true;
+    started = Date.now();
 
     aside.classList.add('ready', 'arriving');
 
@@ -312,6 +349,7 @@
        composited after the column is closed. The end state is the bars' own. */
     setTimeout(function () {
       aside.classList.remove('arriving');
+      if (mark) mark.style.animationDelay = '';
       for (var i = 0; i < bars.length; i++) {
         bars[i].el.style.animationDelay = '';
         bars[i].el.style.animationDuration = '';
