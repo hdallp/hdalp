@@ -7,18 +7,19 @@
 <title>HDALP STUDIO</title>
 <meta name="description" content="HDALP Studio Portfólio">
 
-<link rel="icon" href="site/src/mask/mask.png">
+<link rel="icon" href="site/assets/marca/favico.png">
 
 <!-- The one face the page needs above the fold, fetched before the CSS gets a
      chance to ask for it. Fonts are always fetched CORS, hence crossorigin. -->
 <link rel="preload" href="site/assets/fontes/Bitroad/Bitroad-Regular.otf" as="font" type="font/otf" crossorigin>
 
 <!-- Styles, in the order they read: the font files, the decisions, the ground, the
-     content column, the piece, the navigation, the pointer. -->
+     content column, the work, the piece, the navigation, the pointer. -->
 <link rel="stylesheet" href="site/src/estilos/fonts.css">
 <link rel="stylesheet" href="site/src/estilos/tokens.css">
 <link rel="stylesheet" href="site/src/estilos/base.css">
 <link rel="stylesheet" href="site/src/estilos/pagina.css">
+<link rel="stylesheet" href="site/src/estilos/portfolio.css">
 <link rel="stylesheet" href="site/src/mask/mask.css">
 <link rel="stylesheet" href="site/src/estilos/aside.css">
 <link rel="stylesheet" href="site/src/estilos/cursor.css">
@@ -40,6 +41,25 @@
 <aside class="aside" id="aside" aria-label="Navegação do site">
   <img class="mark" src="site/assets/marca/HDALP-branco.svg" alt="HDALP" width="52" height="14">
 </aside>
+
+<!-- The work, in folders: one folder per line of it, below the opening and before
+     anything else. A folder is a header and a body — site/src/estilos/portfolio.css
+     draws both.
+
+     PLACEHOLDER. One folder, and both its name and the line inside it are standing
+     in until the real work arrives. -->
+<section class="portfolio" aria-label="Portfólio">
+  <article class="pasta">
+    <header class="pasta-topo">
+      <h2 class="pasta-aba">Lorem ipsum</h2>
+      <span class="pasta-conector" aria-hidden="true"></span>
+      <span class="pasta-filete" aria-hidden="true"></span>
+    </header>
+    <div class="pasta-corpo">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </div>
+  </article>
+</section>
 
 <!-- ==========================================================================
      PLACEHOLDER. Lorem ipsum, here for one reason: to give the page something

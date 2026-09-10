@@ -24,7 +24,8 @@
    The column arrives when the piece steps back: site/src/mask/mask.js announces
    mask:landed, and the arrival waits for the drawing to settle into its watermark
    (or to wipe out, if that ever comes first). The navbar does not wait: on a phone
-   the row is the first thing the page shows, so it lands with the load.
+   the row is the first thing the page shows, so it lands with the load. And the
+   column only waits on a first visit, and then once a day — see firstVisit.
 
    Every number lives in site/src/estilos/aside.css. This file only reads. */
 (function () {
@@ -39,9 +40,9 @@
              default comes from --stretch in the CSS. It is what gives one item a
              length of its own. */
   var ITEMS = [
-    { title: 'sobre',     target: '#sobre' },
     { title: 'portfolio', target: './portfolio/' },
-    { title: 'contato',   target: '#contato' }
+    { title: 'contato',   target: '#contato' },
+    { title: 'sobre',     target: '#sobre' }
   ];
 
   /* OFF is how far past the screen edge a bar starts, so it really is out of
@@ -392,6 +393,33 @@
     requestAnimationFrame(enter);
   }
 
+  /* ---------- the first time ---------- */
+
+  /* Whether the piece gets to go first on this visit.
+
+     The column waits for the drawing to land: that is the opening, and an opening
+     is only an opening once. On every visit after it, a navigation held back for
+     seconds while a drawing the visitor has already seen finishes its sweep does
+     not read as care — it reads as a page that is slow.
+
+     So the wait is spent. It happens on the visit that has not had it, it is written
+     down, and it comes back a day later. The day is not a promise about the visitor:
+     it is how often the piece is allowed to make the page wait at all.
+
+     Storage can be refused, and private windows do refuse it. Without it every visit
+     is a first visit — the safe way round, since the worst case is the opening
+     playing again. */
+  var SPENT = 'hdalp.abertura';
+  var DAY = 24 * 60 * 60 * 1000;
+
+  function firstVisit() {
+    var spent = 0;
+    try { spent = Number(localStorage.getItem(SPENT)) || 0; } catch (e) { spent = 0; }
+    if (spent && Date.now() - spent < DAY) return false;
+    try { localStorage.setItem(SPENT, String(Date.now())); } catch (e) { /* then it will simply come back */ }
+    return true;
+  }
+
   /* ---------- the pointer ---------- */
 
   /* True when the pointer is outside the page. Browsers do not promise a
@@ -496,14 +524,11 @@
   rest();
   boxes();
 
-  /* On the navbar the arrival is part of the load: the row is the first thing the
-     page shows, so it lands with the page instead of waiting for the drawing to
-     settle. It is called here, in the same pass that built the bars, so they are
-     never painted at rest first and then made to fly.
-
-     The column still waits, and for a reason: there the piece IS the opening, and a
-     navigation landing into a drawing still being drawn arrives in the middle of it. */
-  if (Math.round(css('--bars', 0)) < 0) enter();
+  /* Who waits, and who does not. The navbar never waits: on a phone the row is the
+     first thing the page shows, so it lands with the page. The column waits for the
+     piece — but only on a first visit and then once a day after that (firstVisit, and
+     the day it writes down), so the opening is an opening and not a toll. */
+  if (Math.round(css('--bars', 0)) < 0 || !firstVisit()) enter();
 
   /* The piece announces each sweep it lands. The column arrives when the drawing
      has arrived ('in') — and equally if it ever steps back first ('faded', the

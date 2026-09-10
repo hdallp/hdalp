@@ -1,0 +1,106 @@
+/* portfolio — the work, in folders.
+
+   A folder is a header and a body. The header is three pieces side by side, and
+   they are not ornaments around a panel: they ARE the shape, each one continuing
+   the last.
+
+     aba        the tab: a rectangle taller than the rest of the header, with its
+                top-left corner rounded and the folder's name inside it. Its width
+                is the name's own — a tab is as wide as what it carries, and the
+                connector starts where the name ends;
+     conector   the connector: the slant between the tab's top edge and the fillet.
+                It is a triangle, so the header's top edge comes down as one line
+                and not as a step;
+     filete     the fillet: a rectangle of its own, smaller height, running from the
+                connector out to the right edge. It closes the header, and it is
+                what makes the tab read as a tab rather than as a block.
+
+   The body is the pocket under them: one hairline of ink and the page's own paper
+   inside it. The header is ink, the body is drawn, and neither is a panel — this
+   page has no panels, it has paper and ink.
+
+   The six numbers below are the whole folder, and they live here and nowhere else.
+   Raise the tab, drop the fillet, push the connector out: the shape follows, and
+   nothing has to be kept in step by hand. */
+
+.portfolio {
+  /* The same column as the prose under it, so the folders line up with the words. */
+  inline-size: min(100% - 2 * var(--step), var(--measure));
+  margin-inline: auto;
+  padding-block: calc(var(--step) * 2) var(--step);
+}
+
+.pasta {
+  --aba-h: 46px;         /* the tab's height: what the folder stands on */
+  --aba-pad: 18px;       /* the air on either side of the name */
+  --aba-size: 15px;      /* the name's size — a tab is read, never studied */
+  --raio: 10px;          /* the tab's top-left corner, the only curve in here */
+  --conector-w: 34px;    /* how far the connector travels on its way down */
+  --filete-h: 18px;      /* how tall the fillet is: the floor of the header */
+  --corpo-pad: 22px;     /* the air inside the pocket */
+  --tinta: var(--ink);   /* the folder is drawn in the page's own ink */
+}
+
+/* A second folder, when it comes, keeps its distance from the first. */
+.pasta + .pasta { margin-block-start: var(--step); }
+
+/* The header is exactly as tall as the tab: the other two sit inside that height
+   and never beside it. */
+.pasta-topo {
+  display: flex;
+  align-items: stretch;
+  block-size: var(--aba-h);
+}
+
+/* The tab. Rounded at the top-left and nowhere else — one corner is what makes it a
+   tab. `nowrap` keeps it a single line: a tab that wraps is a paragraph in a box. */
+.pasta-aba {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding-inline: var(--aba-pad);
+  border-start-start-radius: var(--raio);
+  background: var(--tinta);
+  color: var(--paper);
+  font-size: var(--aba-size);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* The connector: a triangle with its vertical edge against the tab and its longest
+   side on the fillet's line. `calc(100% - var(--filete-h))` is where the fillet's
+   top edge lands, which is what makes the drop meet it exactly. */
+.pasta-conector {
+  inline-size: var(--conector-w);
+  background: var(--tinta);
+  clip-path: polygon(0 0, 100% calc(100% - var(--filete-h)), 0 100%);
+}
+
+/* The fillet takes whatever width is left and sits on the header's floor. */
+.pasta-filete {
+  flex: 1 1 auto;
+  align-self: flex-end;
+  block-size: var(--filete-h);
+  background: var(--tinta);
+}
+
+/* The pocket. Its ceiling is the header's own bottom edge — the tab and the fillet
+   both end there — so the body draws only the other three sides. */
+.pasta-corpo {
+  border: 1px solid var(--tinta);
+  border-block-start: 0;
+  padding: var(--corpo-pad);
+}
+
+/* The same prose the rest of the page speaks in. When the real contents arrive this
+   is what they are read in; it is set here rather than in pagina.css because a
+   folder is not a page. */
+.pasta-corpo p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.pasta-corpo p + p { margin-block-start: var(--step); }
