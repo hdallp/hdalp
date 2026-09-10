@@ -42,99 +42,51 @@
   <img class="mark" src="site/assets/marca/HDALP-branco.svg" alt="HDALP" width="52" height="14">
 </aside>
 
-<!-- The work, in folders: one folder per line of it, below the opening and before
-     anything else.
+<!-- The work, as a drawer: site/src/estilos/portfolio.css draws it and
+     site/src/scripts/abas.js works it.
 
-     The folders live inside one more folder, the master: its tab carries the
-     section's name and its body is what holds them, so the page shows a stack of
-     tabs inside a folder's body, with the envelope's paper above and below them.
-     Each folder is told two things here, in its style attribute: --tinta, its
-     colour, and --texto, the ink that is read on it. The colour names live in
+     There is one folder, the master. Its plate names the drawer, its body is the
+     whole content area, and the categories are tabs standing on the body's top edge
+     — only the tabs show above that line. Choosing a tab brings that category's
+     content into the body, and the body grows to hold it.
+
+     Each tab is told two things here, in its style attribute: --tinta, its colour,
+     and --texto, the ink that is read on it. The colour names live in
      site/src/estilos/tokens.css.
 
-     The folders alternate sides — `direita` puts the tab on the right — so the names
-     do not all pile into one column. site/src/scripts/pastas.js opens them.
-
-     PLACEHOLDER. Four folders, and every name and every line inside them is standing
-     in until the real work arrives. -->
+     PLACEHOLDER. Four categories, and every name and every line inside them is
+     standing in until the real work arrives. -->
 <section class="portfolio" aria-label="Portfólio">
 
-  <article class="mestre">
-    <h2 class="pasta-nome">
-      <div class="pasta-topo">
-        <span class="pasta-aba">Portfólio</span>
-        <span class="pasta-conector" aria-hidden="true"></span>
-        <span class="pasta-filete" aria-hidden="true"></span>
-      </div>
-    </h2>
-    <div class="mestre-corpo">
+  <div class="abas">
+    <span class="aba aba-placa">Portfólio</span>
 
-      <article class="pasta direita" style="--tinta: var(--aqua); --texto: var(--ink)">
-        <h3 class="pasta-nome">
-          <button class="pasta-topo" type="button">
-            <span class="pasta-aba">Lorem ipsum</span>
-            <span class="pasta-conector" aria-hidden="true"></span>
-            <span class="pasta-filete" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <div class="pasta-corpo">
-          <div class="pasta-bolso">
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-          </div>
-        </div>
-      </article>
-
-      <article class="pasta" style="--tinta: var(--iris); --texto: var(--ink)">
-        <h3 class="pasta-nome">
-          <button class="pasta-topo" type="button">
-            <span class="pasta-aba">Dolor sit amet</span>
-            <span class="pasta-conector" aria-hidden="true"></span>
-            <span class="pasta-filete" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <div class="pasta-corpo">
-          <div class="pasta-bolso">
-            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-            <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-          </div>
-        </div>
-      </article>
-
-      <article class="pasta direita" style="--tinta: var(--leaf); --texto: var(--ink)">
-        <h3 class="pasta-nome">
-          <button class="pasta-topo" type="button">
-            <span class="pasta-aba">Consectetur</span>
-            <span class="pasta-conector" aria-hidden="true"></span>
-            <span class="pasta-filete" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <div class="pasta-corpo">
-          <div class="pasta-bolso">
-            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
-            <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</p>
-          </div>
-        </div>
-      </article>
-
-      <article class="pasta" style="--tinta: var(--volt); --texto: var(--ink)">
-        <h3 class="pasta-nome">
-          <button class="pasta-topo" type="button">
-            <span class="pasta-aba">Adipiscing elit</span>
-            <span class="pasta-conector" aria-hidden="true"></span>
-            <span class="pasta-filete" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <div class="pasta-corpo">
-          <div class="pasta-bolso">
-            <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque.</p>
-            <p>Et harum quidem rerum facilis est et expedita distinctio.</p>
-          </div>
-        </div>
-      </article>
-
+    <div class="aba-lista" role="tablist" aria-label="Categorias do portfólio">
+      <button class="aba" id="aba-1" type="button" role="tab" aria-selected="true" aria-controls="painel-1" style="--tinta: var(--aqua); --texto: var(--ink)">Lorem ipsum</button>
+      <button class="aba" id="aba-2" type="button" role="tab" aria-controls="painel-2" style="--tinta: var(--iris); --texto: var(--ink)">Dolor sit amet</button>
+      <button class="aba" id="aba-3" type="button" role="tab" aria-controls="painel-3" style="--tinta: var(--leaf); --texto: var(--ink)">Consectetur</button>
+      <button class="aba" id="aba-4" type="button" role="tab" aria-controls="painel-4" style="--tinta: var(--volt); --texto: var(--ink)">Adipiscing elit</button>
     </div>
-  </article>
+  </div>
+
+  <div class="mestre-corpo">
+    <div class="painel" id="painel-1" role="tabpanel" aria-labelledby="aba-1">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+    </div>
+    <div class="painel" id="painel-2" role="tabpanel" aria-labelledby="aba-2">
+      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+    <div class="painel" id="painel-3" role="tabpanel" aria-labelledby="aba-3">
+      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+      <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+      <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.</p>
+    </div>
+    <div class="painel" id="painel-4" role="tabpanel" aria-labelledby="aba-4">
+      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>
+      <p>Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.</p>
+    </div>
+  </div>
 
 </section>
 
@@ -157,7 +109,7 @@
 <script src="site/src/mask/mask-data.js"></script>
 <script src="site/src/mask/mask.js"></script>
 <script src="site/src/scripts/aside.js"></script>
-<script src="site/src/scripts/pastas.js"></script>
+<script src="site/src/scripts/abas.js"></script>
 <script src="site/src/scripts/cursor.js"></script>
 <script src="site/src/scripts/smooth.js"></script>
 </body>

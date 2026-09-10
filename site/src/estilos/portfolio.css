@@ -1,238 +1,174 @@
-/* portfolio — the work, in folders.
+/* portfolio — the work, as a drawer of tabs.
 
-   A folder is a header and a pocket. The header is three pieces side by side, and
-   they are not ornaments around a panel: they ARE the shape, each one continuing
-   the last.
+   There is one folder here, the master, and its body is the whole thing: the content
+   area, with the categories standing on its top edge. Only the tabs show above that
+   line — that is the look — and whichever one is chosen is what the body holds.
 
-     aba        the tab: a rectangle taller than the rest of the header, its outer
-                top corner rounded, the folder's name inside it. Its width is the
-                name's own — a tab is as wide as what it carries — so the connector
-                starts where the name ends;
-     conector   the connector: the slant that brings the tab's top edge down to the
-                fillet, and everything under it. Its top is the slant, so the header's
-                ceiling reads as one line and nothing is left missing below the join;
-     filete     the fillet: a rectangle of its own, smaller height, running from the
-                connector out to the far edge. It closes the header, and it is what
-                makes the tab read as a tab rather than as a block.
+   A tab is two pieces, the same two the folder's own header was:
 
-   Under them is the pocket: one hairline of ink, the page's own paper inside, and
-   whatever the folder holds. It is shut until the header is clicked — and opening it
-   is that row growing, done with grid rows and not with a height, so nothing here
-   measures anything (see .pasta-corpo).
+     aba    the tab: a rectangle with its outer top corner rounded, the name inside
+            it;
+     fio    the slant that carries its top edge down to the line. It is a
+            pseudo-element, because a clip cannot round a corner and a rectangle
+            cannot slant one: the two pieces are the two halves of one silhouette.
+            Between two tabs the two slants meet at the line and make the valley.
 
-   A folder's colour is one variable set on it, in the page itself:
-   `style="--tinta: var(--aqua)"`, with --texto for the ink read on it. The four
-   colours are in tokens.css.
-
-   The whole stack sits inside one more folder, the master — .mestre — and that is
-   what gives the composition a body: the folders are held inside it, their tabs
-   showing against its paper, and its body carries on below them. A folder is a
-   folder whatever it holds, so the master is the same piece again.
+   The line is the body's own top border, so the tabs and the body are one drawing.
 
    Everything about the shape is in the numbers below, and they live here and
    nowhere else. */
 
 .portfolio {
-  /* The same column as the prose under it, so the folders line up with the words. */
+  /* The same column as the prose under it, so the drawer lines up with the words. */
   inline-size: min(100% - 2 * var(--step), var(--measure));
   margin-inline: auto;
   padding-block: calc(var(--step) * 2) var(--step);
 }
 
-/* The numbers of a folder — and of the master, which is the same piece again. */
-.pasta,
-.mestre {
-  --aba-h: 46px;         /* the tab's height: what the folder stands on */
-  --aba-pad: 18px;       /* the air on either side of the name */
-  --aba-size: 15px;      /* the name's size — a tab is read, never studied */
-  --raio: 10px;          /* the rounded corner of the tab, the only curve in here */
-  --conector-w: 34px;    /* how far the connector travels on its way down */
-  --filete-h: 18px;      /* how tall the fillet is: the floor of the header */
-  --corpo-pad: 22px;     /* the air inside the pocket */
-  --abre: 320ms;         /* how long the pocket takes to open, and to shut */
+/* The drawer's bar. The master's own tab is a plate and not a control: it names the
+   drawer, and it is not one of the choices inside it. */
+.abas {
+  display: flex;
+  align-items: flex-end;
 
-  --tinta: var(--ink);   /* the folder's colour: set in the page, one folder each */
+  --aba-h: 30px;         /* a tab's height above the line */
+  --aba-pad: 16px;       /* the air on either side of a name */
+  --aba-size: 15px;      /* the name's size — a tab is read, never studied */
+  --raio: 10px;          /* the rounded corner of a tab */
+  --conector-w: 26px;    /* how far one slant travels on its way down */
+  --tinta: var(--ink);   /* the tab's colour: set in the page, one tab each */
   --texto: var(--paper); /* and the ink that is read on it */
 }
 
-.mestre {
-  /* How much of the master's body shows below the last folder. It is the front of
-     the composition: the folders are held in front of its paper and behind it, and
-     this is the stretch that says so. */
-  --frente: 140px;
-}
-
-/* Flush. A drawer's folders touch: no air between the bands, each one starting a
-   pixel up under the one above it, so a join that lands between two device pixels
-   is covered whole instead of half by each side — the same hairline of paper that
-   the header's own pieces are overlapped against. */
-.pasta + .pasta { margin-block-start: -1px; }
-
-/* The heading carries the header and nothing else: the whole header is what opens
-   the folder, so the whole header is the control. */
-.pasta-nome { margin: 0; }
-
-.pasta-topo {
+/* The choices, side by side on the line. A bar that wrapped would be two rows of
+   tabs, which is not a bar: if the names are wider than the column it scrolls
+   sideways instead, and the plate stays where it is. */
+.aba-lista {
   display: flex;
-  inline-size: 100%;
-  align-items: stretch;
-  block-size: var(--aba-h);
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  color: inherit;
-  text-align: start;
-  cursor: pointer;
+  align-items: flex-end;
+  /* A flex item will not shrink below its contents unless it is allowed to, and this
+     one has to: scrolling is how the bar survives names that are wider than the
+     column. */
+  min-inline-size: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-/* The master's header is not a control: the drawer is not what opens, the folders
-   inside it are. */
-.mestre .pasta-topo { cursor: default; }
+.aba-lista::-webkit-scrollbar { display: none; }
 
-/* The keyboard gets an outline of its own, in ink, just outside the shape. */
-.pasta-topo:focus-visible {
-  outline: 1px solid var(--ink);
-  outline-offset: 3px;
-}
+/* The master's plate is not a control: it is the drawer's name, and the pointer says
+   so. */
+.aba-placa { cursor: default; }
 
-/* The three pieces are the same ink and they touch, so each one starts a pixel back
-   over the one before it. A join landing between two device pixels is covered half
-   by each side, and the paper shows through it as a hairline across the header;
-   one pixel of overlap makes the same pixel whole. It costs the header nothing —
-   the fillet takes that pixel twice and still ends on the far edge. */
-
-/* The tab. Rounded at the outer top corner and nowhere else — one corner is what
-   makes it a tab. `nowrap` keeps it a single line: a tab that wraps is a paragraph
-   in a box. */
-.pasta-aba {
+/* One tab. Its width is the name's: a tab is as wide as what it carries. */
+.aba {
+  position: relative;
+  flex: none;
   display: flex;
   align-items: center;
+  block-size: var(--aba-h);
+  /* The slant leans out of the tab's own box, so the room for it is margin — and the
+     space between two tabs is twice the connector, because the two slants have to
+     reach the same point on the line. */
+  margin-inline: var(--conector-w);
   padding-inline: var(--aba-pad);
+  border: 0;
   border-start-start-radius: var(--raio);
   background: var(--tinta);
   color: var(--texto);
+  font: inherit;
   font-size: var(--aba-size);
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0.04em;
   white-space: nowrap;
+  cursor: pointer;
 }
 
-/* The connector. Four points and not three: the slant is the top edge — from the
-   tab's top down to the fillet's line — and the rest is filled to the header's
-   floor. Three points would cut that floor away and leave a hole with the paper
-   showing through it, right where the fillet has not reached yet. */
-.pasta-conector {
+/* The bar's ends: the plate is at the drawer's edge, so it needs no room before it,
+   and the last tab has nothing after it to make a valley with. The space between the
+   plate and the first tab is the two slants' own margins, which is why nothing here
+   removes the first tab's. */
+.abas > .aba:first-child { margin-inline-start: 0; }
+.aba-lista > .aba:last-child { margin-inline-end: 0; }
+
+/* The two slants: the tab's own connector on the right, and the one it makes a
+   valley with on the left. */
+.aba::after,
+.aba::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
   inline-size: var(--conector-w);
-  margin-inline-start: -1px;
-  background: var(--tinta);
-  clip-path: polygon(0 0, 100% calc(100% - var(--filete-h)), 100% 100%, 0 100%);
+  background: inherit;
 }
 
-/* The fillet takes whatever width is left and sits on the header's floor. */
-.pasta-filete {
-  flex: 1 1 auto;
-  align-self: flex-end;
-  margin-inline-start: -1px;
-  block-size: var(--filete-h);
-  background: var(--tinta);
+.aba::after {
+  inset-inline-start: 100%;
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
 }
 
-/* The tab can sit on either side: a stack of folders that keeps every name in one
-   column reads as a list, and the whole point of tabs is that they are not one
-   column. The right-hand folder is this one mirrored — the header runs the other
-   way, the curve goes to the other top corner, the slant turns around, and the
-   overlaps fall the other way. The page says which side each folder is on with the
-   class: .direita. */
-.pasta.direita .pasta-topo { flex-direction: row-reverse; }
-
-.pasta.direita .pasta-aba {
-  border-start-start-radius: 0;
-  border-start-end-radius: var(--raio);
+.aba::before {
+  inset-inline-end: 100%;
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
 }
 
-.pasta.direita .pasta-conector {
-  margin-inline-start: 0;
-  margin-inline-end: -1px;
-  clip-path: polygon(100% 0, 0 calc(100% - var(--filete-h)), 0 100%, 100% 100%);
+/* The bar's first tab has nothing before it and the last has nothing after it: the
+   drawer's outer edges are straight, with the one rounded corner. */
+.abas > .aba:first-child::before,
+.aba-lista > .aba:last-child::after { content: none; }
+
+/* The tab that is showing is the one in front, in its own colour. The others are the
+   same colour mixed back into the paper — they are behind the panel, and they read
+   that way. Without color-mix every tab is simply full colour, which is a fine way to
+   fail. */
+.aba[role="tab"][aria-selected="false"] {
+  background: color-mix(in srgb, var(--tinta) 38%, var(--paper));
 }
 
-.pasta.direita .pasta-filete {
-  margin-inline-start: 0;
-  margin-inline-end: -1px;
+.aba[role="tab"]:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
 }
 
-/* The pocket, shut.
+/* The body: the line the tabs stand on, the sides, the bottom, and the air.
 
-   `grid-template-rows: 0fr` is a row of no height, and the pocket is what fills it:
-   opening the folder is that row going to 1fr, and the pocket is clipped to it. The
-   height is never measured and never written, which is why the contents can be
-   anything at all.
-
-   Visibility rides along with it, on a delayed clock of its own: shut, the pocket is
-   out of the tab order and out of what a screen reader reads; opening, it is visible
-   from the first frame, because the growth is what there is to see.
-
-   The shut state hangs on `.pastas`, which site/src/scripts/pastas.js puts on the
-   section when it wires the headers up. A page without that script shows every
-   folder open and readable. */
-.portfolio.pastas .pasta-corpo {
-  display: grid;
-  grid-template-rows: 0fr;
-  overflow: hidden;
-  visibility: hidden;
-  transition: grid-template-rows var(--abre) ease,
-              visibility 0s linear var(--abre);
-}
-
-.portfolio.pastas .pasta.aberta .pasta-corpo {
-  grid-template-rows: 1fr;
-  visibility: visible;
-  transition: grid-template-rows var(--abre) ease,
-              visibility 0s;
-}
-
-/* The pocket itself: the hairline, the air, and the contents. Its ceiling is the
-   header's own bottom edge — the tab and the fillet both end there — so it draws
-   only the other three sides, and it starts a pixel up under the header so that the
-   two inks meet across whole pixels. */
-.pasta-bolso {
-  min-block-size: 0;
-  overflow: hidden;
-  margin-block-start: -1px;
-  border: 1px solid var(--tinta);
-  border-block-start: 0;
-  padding: var(--corpo-pad);
-}
-
-/* The master's body. Always open, because the drawer is not what opens — and the
-   same pocket as a folder's, with the one addition that makes the composition: below
-   the last folder it keeps a stretch of body of its own, so what is seen is tabs
-   inside something rather than tabs lying on the page. That stretch is the front of
-   the picture; the paper above and behind the tabs is its back. */
+   Its height follows the panel that is showing, and site/src/scripts/abas.js is what
+   writes it — for the length of one change, and then it lets it go. */
 .mestre-corpo {
-  margin-block-start: -1px;
-  border: 1px solid var(--tinta);
-  border-block-start: 0;
-  padding: var(--corpo-pad);
-  padding-block-end: var(--frente);
+  --corpo-pad: 22px;     /* the air inside the body */
+  --frente: 140px;       /* how much body lies below the content */
+  --abre: 320ms;         /* how long the body takes to change size */
+
+  border: 1px solid var(--ink);
+  padding: var(--corpo-pad) var(--corpo-pad) var(--frente);
+  overflow: hidden;
+  /* The one layout property this site animates, and it is contained.
+
+     The drawer growing to the panel it was given IS the interaction — a body that
+     grew by transform would stretch the words inside it, and one that faded would not
+     grow at all. `contain: layout` keeps the reflow inside this box, so what moves on
+     each frame is one container and its contents, not the page. */
+  contain: layout;
+  transition: height var(--abre) ease;
 }
 
-/* The same prose the rest of the page speaks in. When the real contents arrive this
-   is what they are read in; it is set here rather than in pagina.css because a
-   folder is not a page. */
-.pasta-bolso p {
+/* The panels are all in the page and none of them is hidden there, so a page without
+   the script shows every category, one after the other. The script is what hides the
+   ones that are not showing. */
+.painel[hidden] { display: none; }
+
+/* The prose the page speaks in. When the real contents arrive this is what they are
+   read in; it is set here rather than in pagina.css because a drawer is not a page. */
+.painel p {
   margin: 0;
   font-size: 17px;
   line-height: 1.65;
 }
 
-.pasta-bolso p + p { margin-block-start: var(--step); }
+.painel p + p { margin-block-start: var(--step); }
 
 /* Nothing travels for anyone who asked for no travelling. */
 @media (prefers-reduced-motion: reduce) {
-  .portfolio.pastas .pasta-corpo,
-  .portfolio.pastas .pasta.aberta .pasta-corpo { transition: none; }
+  .mestre-corpo { transition: none; }
 }
