@@ -22,6 +22,19 @@
   /* What the piece settles into once it steps behind the site: the watermark. */
   --mask-ink-faded: #d4d4d4;
 
+  /* Text and rhythm. The measure is how wide a line of prose wants to be; the
+     step is the one gap blocks use, so nothing invents a margin of its own. */
+  --measure: 62ch;
+  --step: 32px;
+
+  /* How much of the viewport the navigation takes — and therefore how much the
+     page has left for everything else. Two numbers, because there are two
+     layouts: a column on the left costs width, a navbar at the top costs height.
+     The navigation's other numbers (bar height, label size, reach) live in
+     site/src/estilos/aside.css. */
+  --bar-w: 390px;
+  --bar-h: 0px;
+
   /* The piece's stage: the box the site hands it. The piece measures this
      element and draws inside it, so this single number decides how big the
      drawing is. The vmin cap is only there to keep it from cropping on a small
@@ -31,4 +44,22 @@
   /* The fallback cell, so the box already has the right shape before the script
      runs: the stage divided by the mask's 84 columns. */
   --cell: calc(var(--frame) / 84);
+}
+
+/* Narrow. The column becomes a navbar: it takes no width at all, and it costs
+   56px of height at the top instead.
+
+   The breakpoint is 900px and not 720, because it is not about phones — it is
+   about arithmetic. The rail is 390px and the piece wants 450: below 900 there is
+   no longer room for both without one of them eating the other. A 702px window is
+   where this was found, and it is a perfectly ordinary window size. */
+@media (max-width: 900px) {
+  :root {
+    --bar-w: 0px;
+    /* The navbar is a row of lines stepping down to the right: one line, plus a
+       step for each item after the first (56 + 12 x 2 with three items). This is the
+       value before the script runs — site/src/scripts/aside.js measures the row and
+       publishes the exact one. */
+    --bar-h: 80px;
+  }
 }

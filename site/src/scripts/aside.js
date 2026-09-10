@@ -38,19 +38,15 @@
              default comes from --stretch in the CSS. It is what gives one item a
              length of its own. */
   var ITEMS = [
-    { title: 'início',    target: './' },
-    { title: 'portfolio', target: './portfolio/' },
     { title: 'sobre',     target: '#sobre' },
+    { title: 'portfolio', target: './portfolio/' },
     { title: 'contato',   target: '#contato' }
   ];
 
-  /* The build. DELAY is how far the mark goes ahead, PER_LINE is the gap between
-     one bar and the next — that is what makes the column rise line by line —
-     FLIGHT is how long one bar takes to arrive, and OFF is how far past the
-     screen edge it starts so it really is out of sight. */
-  var DELAY = 240;
-  var PER_LINE = 45;
-  var FLIGHT = 620;
+  /* OFF is how far past the screen edge a bar starts, so it really is out of
+     sight. The pacing of the arrival — the mark's head start, the gap between
+     bars, the length of one flight — is not here: it is --delay, --per-line and
+     --flight in aside.css, because the two layouts pace themselves differently. */
   var OFF = 8;
 
   /* If the piece never announces that it left (missing raw, broken script), the
@@ -69,6 +65,7 @@
   var bars = [];
   var line = 44, stretch = 56, empty = 0.4, hover = 12, reach = 90;
   var ease = 0.2, coolEase = 0.03;
+  var delayStep = 240, perLine = 45, flight = 620;
   var ink = [7, 7, 7], cool = [47, 107, 255];
   var last = 0;
   var entered = false;
@@ -80,25 +77,31 @@
 
   /* ---------- the numbers ---------- */
 
-  /* Every measurement comes from the CSS, as custom properties: one place to
-     tune. The two colours are read once, as rgb, because the gradient has to be
-     recomputed every frame and parsing two hex strings here is cheaper than
-     asking the browser to resolve a colour per bar per frame. */
+  /* One reader for the stylesheet, so every number this file uses comes from
+     there and nowhere else. It is asked again on every build, because a media
+     query can change the answer. */
+  function css(name, fallback) {
+    var v = parseFloat(getComputedStyle(aside).getPropertyValue(name));
+    return isFinite(v) ? v : fallback;
+  }
+
+  /* The numbers that never change with the layout. The two colours are read once,
+     as rgb, because the gradient is recomputed every frame and parsing two hex
+     strings here is cheaper than asking the browser to resolve a colour per bar
+     per frame. */
   function read() {
     var cs = getComputedStyle(aside);
 
-    function n(name, fallback) {
-      var v = parseFloat(cs.getPropertyValue(name));
-      return isFinite(v) ? v : fallback;
-    }
-
-    line = n('--line', 44);
-    stretch = n('--stretch', 56);
-    empty = n('--empty', 0.4);
-    hover = n('--hover', 12);
-    reach = n('--reach', 90);
-    ease = n('--ease', 0.2);
-    coolEase = n('--cool-ease', 0.03);
+    line = css('--line', 44);
+    delayStep = css('--delay', 240);
+    perLine = css('--per-line', 45);
+    flight = css('--flight', 620);
+    stretch = css('--stretch', 56);
+    empty = css('--empty', 0.4);
+    hover = css('--hover', 12);
+    reach = css('--reach', 90);
+    ease = css('--ease', 0.2);
+    coolEase = css('--cool-ease', 0.03);
 
     /* Nothing is animated frame by frame when motion is not wanted: both clocks
        answer in one frame. */
@@ -142,12 +145,28 @@
 
   /* ---------- the column ---------- */
 
-  /* How many bars fit, and how tall each one is — the remainder is spread over
-     all of them so the stack closes at exactly the column's height. */
+  /* The column's geometry.
+     On a wide screen the column is a fixed box and the bars divide its height.
+     Where the stylesheet says how many bars there are (--bars), the box is the bars
+     instead: they keep their own height and the column becomes as tall as the count
+     needs. Negative means one bar per item, no fillers — the navbar — and the count
+     follows the list, so adding an item is adding an item.
+
+     The division is done in whole pixels, and the remainder is handed out one pixel
+     at a time to the first bars. Fractional heights are what used to leave a
+     hairline of paper between two bars at some window sizes: two edges that should
+     touch landing on either side of a device pixel. */
   function column() {
-    var height = aside.getBoundingClientRect().height || line;
+    var fixed = Math.round(css('--bars', 0));
+
+    if (fixed < 0) return { count: ITEMS.length, base: css('--line', 44), extra: 0 };
+    if (fixed > 0) return { count: fixed, base: css('--line', 44), extra: 0 };
+
+    var height = Math.floor(aside.getBoundingClientRect().height || line);
     var count = Math.max(ITEMS.length, Math.round(height / line));
-    return { count: count, height: height / count };
+    var base = Math.floor(height / count);
+
+    return { count: count, base: base, extra: height - base * count };
   }
 
   function build() {
@@ -204,11 +223,16 @@
         el.setAttribute('aria-hidden', 'true');
       }
 
-      var delay = DELAY + index * PER_LINE;
+      var delay = delayStep + index * perLine;
       if (delay > last) last = delay;
-      el.style.height = c.height + 'px';
+      /* Whole pixels, and the remainder spent one pixel at a time: the stack adds
+         up to the column exactly, with no fractional edge anywhere in it. */
+      el.style.height = (c.base + (index < c.extra ? 1 : 0)) + 'px';
       el.style.animationDelay = delay + 'ms';
-      el.style.animationDuration = FLIGHT + 'ms';
+      el.style.animationDuration = flight + 'ms';
+      /* Where it stands in the sequence. The column ignores it; the navbar uses it
+         for the staircase, and the size of the step is the stylesheet's business. */
+      el.style.setProperty('--i', index);
       aside.appendChild(el);
 
       bars.push({
@@ -220,6 +244,17 @@
         temp: 0,
         x: 0, y: 0, w: 0, h: 0
       });
+    }
+
+    /* How tall the navbar is, is decided by the layout — one row of bars, however
+       many that turns out to be — so it is measured rather than calculated, and
+       published for the page to keep its room (base.css). Measuring instead of
+       counting is also what makes this survive a change of direction: the answer is
+       whatever the row actually is. */
+    if (Math.round(css('--bars', 0)) < 0) {
+      document.documentElement.style.setProperty(
+        '--bar-h', aside.getBoundingClientRect().height + 'px'
+      );
     }
   }
 
@@ -238,10 +273,13 @@
   }
 
   function boxes() {
-    /* The mark first: it arrives like the bars, so it needs the same start. */
+    /* The mark first: it arrives like the bars, so it needs the same starts.
+       Both axes are measured and written; which one is used is the layout's
+       business (see the arrivals in aside.css). */
     if (mark) {
       var m = mark.getBoundingClientRect();
-      mark.style.setProperty('--from', (-(m.left + m.width) - OFF) + 'px');
+      mark.style.setProperty('--from-x', (-(m.left + m.width) - OFF) + 'px');
+      mark.style.setProperty('--from-y', (-(m.top + m.height) - OFF) + 'px');
     }
 
     for (var i = 0; i < bars.length; i++) {
@@ -252,9 +290,11 @@
       bar.w = r.width;
       bar.h = r.height;
 
-      /* Where the bar comes from: far enough to be entirely off-screen on the
-         left, plus a little, so it never touches the edge. */
-      bar.el.style.setProperty('--from', (-(r.left + r.width) - OFF) + 'px');
+      /* Where the bar comes from: far enough to be entirely off-screen, on the
+         left for the column and above for the navbar, plus a little so it never
+         touches an edge. */
+      bar.el.style.setProperty('--from-x', (-(r.left + r.width) - OFF) + 'px');
+      bar.el.style.setProperty('--from-y', (-(r.top + r.height) - OFF) + 'px');
     }
   }
 
@@ -279,7 +319,7 @@
       rest();
       boxes();
       if (pointer.on) wake();
-    }, reduced.matches ? 0 : last + FLIGHT + 80);
+    }, reduced.matches ? 0 : last + flight + 80);
   }
 
   /* Leaving the page. The piece wipes out first and the page goes after it. If
@@ -457,7 +497,9 @@
     if (pending) return;
     pending = requestAnimationFrame(function () {
       pending = 0;
-      /* The height changed: the column needs a different number of bars. */
+      /* The layout changed, and a media query may have changed every number with
+         it: read again, then rebuild. */
+      read();
       build();
       rest();
       boxes();

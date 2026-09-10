@@ -90,7 +90,7 @@
      STEP is the speed of the wave, GROW the length of a single run's move.
      WAIT is how long the piece holds off before arriving at all; HOLD is how
      long it stands there before settling into the watermark. */
-  var STEP = 13;
+  var STEP = 25;
   var GROW = 320;
   var WAIT = 500;
   var HOLD = 500;

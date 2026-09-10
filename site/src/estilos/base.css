@@ -7,17 +7,31 @@
 html { height: 100%; }
 
 body {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
   background: var(--paper);
   color: var(--ink);
   /* The face the whole site speaks in. --font-mono is there for code and numbers. */
   font-family: var(--font-ui);
-  /* The content is centred in the viewport; a page that needs to scroll will. */
+  /* The page flows and scrolls: the opening owns the first screen, the content
+     follows it, and the navigation stays where it is (see aside.css).
+
+     Only sideways is it a corridor: the piece's swell bleeds past its own box and
+     the bars reach out of the column, and neither should ever produce a horizontal
+     scrollbar. */
+  overflow-x: hidden;
+  padding-inline-start: 0;
+  /* The navbar is fixed, so the page has to keep its height for it. On a wide
+     screen --bar-h is 0 and this does nothing. */
+  padding-block-start: var(--bar-h);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The opening: the piece owns the first screen, and nothing else is in it. */
+.abertura {
+  min-block-size: 100vh;
   display: grid;
   place-items: center;
-  overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
 }
 
 /* The stage: the box the site hands the piece. It is the contract between the
@@ -28,4 +42,18 @@ body {
   block-size: var(--frame);
   display: grid;
   place-items: center;
+}
+/* Only where the column and the piece would actually touch — the piece is
+   min(450px, 88vmin), so on a wide screen the two never meet. Below this the piece
+   is centred in what the column leaves, instead of half under it. */
+@media (max-width: 1240px) {
+  body { padding-inline-start: var(--bar-w); }
+}
+
+/* Narrow: the navigation is a navbar at the top, so the column costs no width —
+   and the opening, plus the navbar's room, is exactly one screen. */
+@media (max-width: 900px) {
+  body { padding-inline-start: 0; }
+
+  .abertura { min-block-size: calc(100vh - var(--bar-h)); }
 }

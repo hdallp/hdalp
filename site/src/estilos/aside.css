@@ -14,9 +14,21 @@
 
 .aside {
   /* ---- the column ---- */
-  --bar-w: 390px;
+  /* How WIDE the column is lives in tokens.css as --bar-w: it is a decision about
+     the page, not about the column — the body needs it too, to know how much space
+     the piece has left. */
   --bar-pad: 42px;        /* inner margin: the mark at the top, labels at the sides */
-  --bar-bg: transparent;  /* the column is the stack itself; this is only a fallback */
+  --bars: 0;              /* 0 = as many bars as the height takes; a positive
+                             number fixes the count; a negative one means one bar
+                             per item, which is what the navbar needs */
+  /* Transparent, and it has to stay that way: the bars arrive by travelling INTO
+     the column, so what makes the arrival visible is the contrast between a black
+     bar and the paper behind it. A black background here would swallow the whole
+     animation — the bars would still fly, and nobody would see it.
+
+     The hairline between two bars is not this variable's problem: it is fixed in
+     the JS, by giving every bar a whole number of pixels (see column()). */
+  --bar-bg: transparent;
 
   /* ---- the mark ---- */
   --mark-w: 156px;        /* the white SVG in site/assets/marca/ */
@@ -38,6 +50,14 @@
   --cool: #550000;        /* the colour every bar cools towards near the pointer */
   --ease: 0.2;            /* how fast a bar answers the pointer, per frame */
   --cool-ease: 0.03;      /* how slowly the colour lets go: lower is a longer tail */
+
+  /* ---- the arrival ---- */
+  /* How the assembly is paced. They live here and not in the JS because the two
+     layouts need different rhythms: the column is long and builds at a whisper,
+     the navbar is four bars and has to be seen landing one after the other. */
+  --delay: 240ms;         /* how far the mark goes ahead of the first bar */
+  --per-line: 45ms;       /* the gap between one bar and the next */
+  --flight: 620ms;        /* how long one bar takes to arrive */
 
   position: fixed;
   inset-block: 0;
@@ -107,29 +127,156 @@
   outline-offset: -6px;
 }
 
-/* The arrival: everything comes in from off-screen left — the mark first, then
-   the bars, one by one, top to bottom, until the column is closed. The starting
-   point (--from) is written inline by the JS, because it depends on where the
-   thing rests and how wide it is. When the arrival is over the JS drops the
-   class, so nothing stays animated or composited afterwards. */
-@keyframes arrive {
-  from { transform: translateX(var(--from, -100vw)); }
+/* The arrival. The starting points (--from-x and --from-y) are written inline by
+   the JS — they depend on where the thing rests and how big it is — and each
+   layout uses the axis that suits it. When the arrival is over the JS drops the
+   class, so nothing stays animated or composited afterwards.
+
+   The column comes in from the left: a stack of bars arriving sideways, one after
+   the next, top to bottom. */
+@keyframes arrive-x {
+  from { transform: translateX(var(--from-x, -100vw)); }
   to   { transform: translateX(0); }
+}
+
+/* The navbar drops. A row of bars arriving sideways would cross each other on the
+   way and pass under the mark; falling from above, each one lands where it stands. */
+@keyframes arrive-y {
+  from { transform: translateY(var(--from-y, -100vh)); }
+  to   { transform: translateY(0); }
 }
 
 .aside.arriving .mark,
 .aside.arriving .bar {
-  animation-name: arrive;
+  animation-name: arrive-x;
   animation-timing-function: cubic-bezier(0.2, 0.85, 0.2, 1);
   animation-fill-mode: both;
 }
 
-/* Each bar's delay is inline, written by the JS. The mark goes first. */
+/* Each bar's delay is inline, written by the JS from --delay and --per-line.
+   The mark goes first. */
 .aside.arriving .mark {
-  animation-duration: 620ms;
+  animation-duration: var(--flight);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .aside.arriving .mark,
   .aside.arriving .bar { animation: none; }
+}
+
+/* Narrow. The column becomes a navbar: the same bars, side by side in one row,
+   anchored at the top of the screen instead of stacked down the left edge.
+
+   What changes beyond the numbers:
+     position   fixed at the top instead of the left, with the page keeping the
+                row's height (--bar-h, measured by the JS and used by base.css);
+     direction  row, so the bars stand shoulder to shoulder;
+     --bars     negative: exactly one bar per item, no fillers — the column's
+                "as many as fit the height" belongs to a column with a height;
+     the axis   the arrival falls instead of sliding. A row of bars flying in from
+                the left would cross each other on the way and pass under the mark;
+                dropping from above, each one lands where it stands.
+     the pull   switched off: on a touch screen there is no pointer to come near. */
+@media (max-width: 900px) {
+  .aside {
+    position: fixed;
+    inset: 0 0 auto 0;
+    width: 100%;
+    /* One row: the row is the height. */
+    height: auto;
+    flex-direction: row;
+    align-items: stretch;
+    --bars: -1;
+    --line: 56px;
+    --bar-pad: 16px;
+    --label-size: 13px;
+    --line-pad: 18px;
+    --mark-w: 64px;
+    /* Every bar one step lower than the one on its left: the row reads as a
+       staircase, which is also what makes each item its own thing instead of a
+       piece of an even band. */
+    --step: 12px;
+    --tear: 2px;            /* how deep the torn bottom edge cuts */
+    /* Fewer bars, so each one has to be more clearly its own beat: a wider gap and
+       a shorter fall. Four bars at the column's 45ms landed almost together. */
+    --delay: 120ms;
+    --per-line: 130ms;
+    --flight: 460ms;
+    --stretch: 0px;
+    --hover: 0px;
+    --empty: 0;
+  }
+
+  /* The mark takes the head of the row — and it needs a bar of its own to sit on.
+     On the left of a column the mark floats over black; in a row it would float
+     over the paper, and a white logo on white is nothing at all. So it gets the
+     same black the bars have, with the logo held inside it. */
+  .mark {
+    position: static;
+    translate: none;
+    flex: none;
+    align-self: flex-start;
+    margin: 0;
+    inline-size: calc(var(--mark-w) + var(--bar-pad) * 2);
+    block-size: var(--line);
+    padding-inline: var(--bar-pad);
+    background: var(--line-bg);
+    object-fit: contain;
+  }
+
+  /* Side by side: flex-basis 0 wins over the width the JS writes, so the row
+     shares the width evenly — and the pull, off here, could not disturb it. */
+  .bar {
+    flex: 1 1 0;
+    /* The step happens at the BOTTOM. Every bar starts on the same line — aligned
+       tops, no hole above the ones on the right — and the further right a bar is,
+       the lower it reaches.
+
+       That is why this is padding and not a margin: a margin would push the top
+       down and leave the hole. And it is why the box is content-box here: the
+       height written by the JS is the bar itself (--line, the same for all of
+       them), and the padding is the extra length the staircase adds to it. */
+    box-sizing: content-box;
+    align-self: flex-start;
+    padding-block-end: calc(var(--i, 0) * var(--step));
+
+    /* And the bottom edge is torn, like the perforation of a ticket stub that you
+       could pull off. The pitch is a percentage, so it holds across the different
+       widths; the depth is a length, so it stays the same across the different
+       heights. Both corners end on a valley: the cut is the edge, not a decoration
+       sitting on it. */
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - var(--tear)),
+      93.75% 100%,
+      87.50% calc(100% - var(--tear)),
+      81.25% 100%,
+      75% calc(100% - var(--tear)),
+      68.75% 100%,
+      62.50% calc(100% - var(--tear)),
+      56.25% 100%,
+      50% calc(100% - var(--tear)),
+      43.75% 100%,
+      37.50% calc(100% - var(--tear)),
+      31.25% 100%,
+      25% calc(100% - var(--tear)),
+      18.75% 100%,
+      12.50% calc(100% - var(--tear)),
+      6.25% 100%,
+      0 calc(100% - var(--tear))
+    );
+  }
+
+  /* Centred in each cell: a column's label hangs on the right, a navbar's does not. */
+  .label {
+    right: auto;
+    left: 50%;
+    translate: -50% -50%;
+    text-align: center;
+  }
+
+  /* And the arrival keeps falling — now into a row. */
+  .aside.arriving .mark,
+  .aside.arriving .bar { animation-name: arrive-y; }
 }

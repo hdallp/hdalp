@@ -56,11 +56,19 @@
 
 /* The blob. Its fill never changes — 0.53 of a 0.85 white is exactly the 0.45
    white it used to be — so every state it has is transform and opacity, and both
-   of those are composited. */
+   of those are composited.
+
+   Its silhouette is not a circle: the JS writes --blob as a path whose sides are
+   shaped by a shallow wave, and that wave crawls with the scroll. The radius is
+   left out on purpose — a circle plus a clip would flatten the crests. */
 .cursor::before {
-  width: 30px;
-  height: 30px;
+  /* 40px, not 30: the body stretches with speed, and the box has to hold the
+     longest it can get (15 x 1.3 = 19.5 from the centre) without clipping it. */
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
   background-color: rgba(227, 243, 228, 0.85);
+  clip-path: var(--blob, none);
   opacity: 0.53;
   transition:
     transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -74,6 +82,11 @@
   background: url('../../assets/cursor/seal.svg') center / 100% 100% no-repeat;
   opacity: 0;
   transform: scale(0.55);
+  /* The lean, written by the JS as --tilt, read from the vertical move: down one
+     way, up the other. It goes on the rotate property — one of its own — so it
+     composes with the scale above instead of overwriting it, and the seal turns
+     about its own centre. */
+  rotate: var(--tilt, 0deg);
   transition:
     transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
     opacity 240ms ease;
@@ -87,7 +100,8 @@
    seal is not up. */
 .cursor.idle:not(.hover)::before {
   opacity: 1;
-  transform: scale(0.167);
+  /* 0.125 of 40px is the same 5px dot the 0.167 was on a 30px box. */
+  transform: scale(0.125);
   transition-duration: 500ms;
 }
 
