@@ -8,6 +8,17 @@
   /* Colours. Paper 254, ink 7. */
   --paper: #fefefe;
   --ink: #070707;
+  --blue: #0000ff;
+
+  /* The folders' palette: one colour per folder, and the folder carries it itself —
+     `style="--tinta: var(--aqua)"` in index.html, read by
+     site/src/estilos/portfolio.css. The ink that is read on a colour goes beside it,
+     as --texto on the folder: all four of these are light, so that ink is the page's
+     own black. Change a colour, check the ink next to it. */
+  --aqua: #97deda;
+  --iris: #8570f1;
+  --leaf: #94e66d;
+  --volt: #ebff00;
 
   /* Type. These family names are the ones site/src/estilos/fonts.css declares,
      so the file it points at and the name used here are always the same pair. */
@@ -17,10 +28,17 @@
   /* The piece's colour hook: changing this repaints the whole drawing without
      touching site/src/mask/mask.css. Without it the piece falls back to its own
      black — it is self-sufficient on purpose. */
-  --mask-ink: var(--ink);
+  --mask-ink: var(--blue);
 
   /* What the piece settles into once it steps behind the site: the watermark. */
-  --mask-ink-faded: #d4d4d4;
+  --mask-ink-faded: #cfcfff;
+
+  /* The piece's own clock. 1 is the opening as it was drawn; a visit that has
+     already seen the piece gets it halved, and then the whole sweep — the hold-off,
+     the step between columns and the length of one run — is over in half the time.
+     site/src/scripts/aside.js writes 0.5 here, and site/src/mask/mask.js reads it
+     at every sweep. */
+  --mask-pace: 1;
 
   /* Text and rhythm. The measure is how wide a line of prose wants to be; the
      step is the one gap blocks use, so nothing invents a margin of its own. */

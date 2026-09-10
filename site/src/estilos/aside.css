@@ -47,7 +47,7 @@
   --stretch: 84px;        /* how far a bar WITH an item stretches out, at most */
   --empty: 0.4;           /* how much of that a bar WITHOUT an item answers */
   --hover: 18px;          /* how much further the hovered bar stretches */
-  --cool: #550000;        /* the colour every bar cools towards near the pointer */
+  --cool: #000088;        /* the colour every bar cools towards near the pointer */
   --ease: 0.2;            /* how fast a bar answers the pointer, per frame */
   --cool-ease: 0.03;      /* how slowly the colour lets go: lower is a longer tail */
 
@@ -199,7 +199,7 @@
     /* Every bar one step lower than the one on its left: the row reads as a
        staircase, which is also what makes each item its own thing instead of a
        piece of an even band. */
-    --step: 12px;
+    --step: 0px;
     --tear: 2px;            /* how far the torn edge reaches below the bar */
     /* Fewer bars, so each one has to be more clearly its own beat: a wider gap and
        a shorter fall. Four bars at the column's 45ms landed almost together. */

@@ -524,11 +524,20 @@
   rest();
   boxes();
 
-  /* Who waits, and who does not. The navbar never waits: on a phone the row is the
-     first thing the page shows, so it lands with the page. The column waits for the
-     piece — but only on a first visit and then once a day after that (firstVisit, and
-     the day it writes down), so the opening is an opening and not a toll. */
-  if (Math.round(css('--bars', 0)) < 0 || !firstVisit()) enter();
+  /* The visit, asked once, and both the piece and the column take their cue from the
+     same answer.
+
+     The piece: a visit that has already seen the drawing does not need it at full
+     length, so it is handed half a clock. --mask-pace is written on the root here,
+     while the page is still being parsed, and the piece reads it when it starts —
+     which is always later, because the piece waits for its raw to be fetched. */
+  var first = firstVisit();
+  if (!first) document.documentElement.style.setProperty('--mask-pace', '0.5');
+
+  /* And the column: it waits for the piece to land on a first visit, and skips the
+     wait entirely on every visit after it. The navbar never waits — on a phone the
+     row is the first thing the page shows, so it lands with the page. */
+  if (Math.round(css('--bars', 0)) < 0 || !first) enter();
 
   /* The piece announces each sweep it lands. The column arrives when the drawing
      has arrived ('in') — and equally if it ever steps back first ('faded', the

@@ -45,6 +45,11 @@
                            callback for when the sweep has landed and, if you
                            want it, milliseconds of head start on the wave
 
+   And the page can ask for the whole clock at a different speed: --mask-pace, in
+   CSS, where the site keeps its decisions. 1 is the piece as drawn; 0.5 is the same
+   wave in half the time, which is what a visitor who has already seen it gets. The
+   piece reads it at every sweep and does not care who wrote it.
+
    And the piece opens itself: it holds off WAIT, arrives, stands HOLD, and then
    settles into the watermark — the same drawing in a grayer ink, staying where it
    is instead of leaving. That is the site's opening, not a loop. The out sweep is
@@ -346,15 +351,16 @@
      right. The delay lives inline because it is a property of the run's
      position, not of the stylesheet. lead is a head start for every column at
      once, which is how the piece waits before arriving without ever being seen
-     waiting. Returns how late the last column starts. */
-  function timing(lead) {
+     waiting. pace is the page's --mask-pace, already read. Returns how late the
+     last column starts. */
+  function timing(lead, pace) {
     var last = 0;
     for (var i = 0; i < runs.length; i++) {
       var run = runs[i];
-      var delay = lead + run.x * STEP;
+      var delay = Math.round((lead + run.x * STEP) * pace);
       if (delay > last) last = delay;
       run.inkEl.style.animationDelay = delay + 'ms';
-      run.inkEl.style.animationDuration = GROW + 'ms';
+      run.inkEl.style.animationDuration = Math.round(GROW * pace) + 'ms';
     }
     return last;
   }
@@ -380,7 +386,8 @@
       art.classList.remove('grow');
     }
 
-    var last = timing(lead || 0);
+    var pace = paceOf();
+    var last = timing(lead || 0, pace);
     art.classList.add(kind === 'in' ? 'grow' : 'out');
 
     setTimeout(function () {
@@ -399,7 +406,15 @@
 
       if (then) then();
       else if (!away && pointer.on) wake();
-    }, still.matches ? 0 : last + GROW + 100);
+    }, still.matches ? 0 : last + GROW * pace + 100);
+  }
+
+  /* The piece's own clock, as the page set it: --mask-pace in CSS, 1 when nobody
+     has said otherwise. Read at every sweep rather than once, because the answer is
+     the page's and the page can change it. */
+  function paceOf() {
+    var v = parseFloat(getComputedStyle(art).getPropertyValue('--mask-pace'));
+    return isFinite(v) && v > 0 ? v : 1;
   }
 
   /* The watermark: the drawing in a grayer ink, staying where it is instead of
