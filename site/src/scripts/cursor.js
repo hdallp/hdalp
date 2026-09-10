@@ -286,6 +286,24 @@
 
     if (!shown) {
       shown = true;
+
+      /* It appears where the pointer already is. The spring's home is the middle of
+         the page and the reveal happens on the same event that first moves the
+         target, so without this the first thing anyone sees is the cursor flying in
+         from the centre. Landing it on the hand first makes the reveal a plain
+         circle under the pointer — and it is also what drops the stretch and the
+         lean, which a return after a leave would otherwise show, because hide()
+         stops the loop where it stands. */
+      shape.x = at.x;
+      shape.y = at.y;
+      shape.vx = 0;
+      shape.vy = 0;
+      shape.sx = 1;
+      shape.sy = 1;
+      shape.angle = 0;
+      place();
+      silhouette();
+
       el.classList.add('ready');
     }
 
