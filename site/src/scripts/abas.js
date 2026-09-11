@@ -1,103 +1,122 @@
-/* abas — the portfolio's drawer.
+/* abas — the portfolio's folders.
 
-   The shape is all in site/src/estilos/portfolio.css. What a shape cannot do is
-   choose, so this file does the choosing: which tab is showing, and the body growing
-   from the height it had to the height it now has.
+   Ported from the folder lab (folder-effect-lab/index.html). What a shape cannot do
+   is decide, so this file decides: which folder is open, and the words on its handle.
 
-   The panels are all in the page and none of them is hidden there, so a page that
-   never runs this shows every category one after the other, read top to bottom.
-   Nothing here is load-bearing. */
+   Folded is the stylesheet's default, so a page that never runs this shows the case
+   and its title and nothing else. Nothing here is load-bearing.
+
+   One thing the lab got wrong and this does not: there, the click to open was bound
+   to the whole folder — so a click anywhere inside the open drawer closed it again,
+   which made the contents unusable. Here the handles are the tab and the header, and
+   the drawer's own contents are left alone.
+
+   The pile is two deep, and that is the one thing to keep in mind here. The folder in
+   front is the case and the four categories live inside it, so a plain search inside a
+   folder finds THEIR parts, not its own: the case has no tab, and searching for one
+   hands it the first category's. Both controls are therefore looked for where they
+   belong — the tab among the folder's own children, the handle inside its own header. */
 (function () {
   'use strict';
 
-  var drawer = document.querySelector('.portfolio .abas');
-  var body = document.querySelector('.portfolio .mestre-corpo');
-  if (!drawer || !body) return;
+  var portfolio = document.querySelector('.portfolio');
+  if (!portfolio) return;
 
-  var tabs = [].slice.call(drawer.querySelectorAll('[role="tab"]'));
-  if (!tabs.length) return;
+  var ABRIR = 'abrir ↓';
+  var FECHAR = 'fechar ✕';
 
-  var panels = [];
-  for (var i = 0; i < tabs.length; i++) {
-    panels.push(document.getElementById(tabs[i].getAttribute('aria-controls')));
-  }
-
-  var still = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var letGo = 0;
-
-  /* One reader for the stylesheet, so the clock this file waits on is the same clock
-     the CSS transitions on. */
-  function css(name, fallback) {
-    var v = parseFloat(getComputedStyle(body).getPropertyValue(name));
-    return isFinite(v) ? v : fallback;
-  }
-
-  /* Which one is showing.
-
-     The body is told the height it had, then the panels change, then it is told the
-     height it has: two numbers and the transition in the stylesheet between them.
-     That is the whole animation — nothing is measured except to know where the
-     growth starts. `silent` is the first call, which is not a change: the page is
-     already showing all of them, and collapsing that is not an animation, it is a
-     correction. */
-  function show(index, focus, silent) {
-    var before = silent ? 0 : body.getBoundingClientRect().height;
-
-    for (var i = 0; i < tabs.length; i++) {
-      var on = i === index;
-      tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
-      /* One tab is reachable with the tab key — the one that is showing. The arrow
-         keys are how the rest are reached, which is what a tab list is. */
-      tabs[i].tabIndex = on ? 0 : -1;
-      if (panels[i]) panels[i].hidden = !on;
+  /* A folder's own tab, which is a child of the folder itself. Not a querySelector:
+     the case wraps the four categories, so searching inside it finds THEIR tab — and
+     the case would then answer to the first category's tab, opening and closing with
+     it. The tab is always the folder's own child, so that is where it is looked for. */
+  function tabOf(folder) {
+    for (var i = 0; i < folder.children.length; i++) {
+      if (folder.children[i].classList.contains('pasta-aba')) return folder.children[i];
     }
-
-    if (focus) tabs[index].focus();
-
-    if (silent || still.matches) {
-      body.style.height = '';
-      return;
-    }
-
-    /* Ask for the height of the panel that has just arrived, then start from where
-       the body was: the browser has to see both, one frame apart, or there is nothing
-       to travel. */
-    body.style.height = 'auto';
-    var after = body.getBoundingClientRect().height;
-    body.style.height = before + 'px';
-    body.getBoundingClientRect();
-    body.style.height = after + 'px';
-
-    /* And the height is let go of once it has arrived, so the body is the page's
-       again and not this file's. */
-    clearTimeout(letGo);
-    letGo = setTimeout(function () { body.style.height = ''; }, css('--abre', 320) + 80);
+    return null;
   }
 
-  function wire(tab, index) {
-    tab.addEventListener('click', function () { show(index, false); });
-  }
-
-  for (var j = 0; j < tabs.length; j++) wire(tabs[j], j);
-
-  /* The keyboard: the arrows walk the tabs, Home and End go to the ends. A tab list
-     that can only be clicked is a tab list half built. */
-  drawer.addEventListener('keydown', function (event) {
-    var at = tabs.indexOf(document.activeElement);
-    if (at < 0) return;
-
-    var to = -1;
-    if (event.key === 'ArrowRight') to = at + 1;
-    else if (event.key === 'ArrowLeft') to = at - 1;
-    else if (event.key === 'Home') to = 0;
-    else if (event.key === 'End') to = tabs.length - 1;
-    else return;
-
-    event.preventDefault();
-    if (to < 0) to = tabs.length - 1;
-    if (to >= tabs.length) to = 0;
-    show(to, true);
+  var folders = [].slice.call(portfolio.querySelectorAll('.pasta')).map(function (folder) {
+    /* The folder's own header: the first one inside it, which is the case for every
+       folder, since a drawer only ever comes after it. */
+    var head = folder.querySelector('.pasta-cabeca');
+    return {
+      el: folder,
+      tab: tabOf(folder),
+      head: head,
+      /* And the handle is looked for inside that header, never inside the folder, for
+         the same reason the tab is: the first handle down there is a category's. */
+      handle: head ? head.querySelector('.pasta-alca') : null
+    };
+  }).filter(function (folder) {
+    /* A folder this file can work is a folder with something that works it: a tab above
+       it, a handle on it, or both. The case has only the handle. */
+    return !!(folder.tab || folder.handle);
   });
 
-  show(0, false, true);
+  if (!folders.length) return;
+
+  function define(folder, open) {
+    folder.el.classList.toggle('is-aberta', open);
+    if (folder.handle) folder.handle.textContent = open ? FECHAR : ABRIR;
+    /* Whichever control the folder has says which state it is in. A button that does not
+       announce what it does is a button that lies, and the case has no tab to announce
+       for it. */
+    [folder.tab, folder.handle].forEach(function (control) {
+      if (control && control.tagName === 'BUTTON') {
+        control.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+    });
+  }
+
+  function toggle(folder) {
+    define(folder, !folder.el.classList.contains('is-aberta'));
+  }
+
+  folders.forEach(function (folder) {
+    /* The tab opens it. The case has none: its handle below is its whole control. */
+    if (folder.tab) {
+      folder.tab.addEventListener('click', function () {
+        toggle(folder);
+      });
+    }
+
+    /* And so does the header — which is what makes the whole bar feel like the
+       handle. A control inside it is left out, because every control acts on its own:
+       the handle below, and the cover's two buttons, which open and close the lot. */
+    if (folder.head) {
+      folder.head.addEventListener('click', function (event) {
+        if (event.target.closest('a, button')) return;
+        toggle(folder);
+      });
+    }
+
+    /* Deliberately without stopPropagation: the click travels on, and the cursor is
+       listening for it to turn its own mark around. */
+    if (folder.handle) {
+      folder.handle.addEventListener('click', function () {
+        toggle(folder);
+      });
+    }
+
+  });
+
+  /* The first state: the case open, the four categories folded away inside it. */
+  folders.forEach(function (folder, index) {
+    define(folder, index === 0);
+  });
+
+
+  /* There are no buttons for this: the folders are opened one at a time, by hand. This
+     is for a page that wants to open one from elsewhere, and for watching the thing
+     work while it is being built. */
+  window.PASTAS = {
+    abrir: function () {
+      folders.forEach(function (folder) { define(folder, true); });
+    },
+    fechar: function () {
+      folders.forEach(function (folder) { define(folder, false); });
+    },
+    lista: folders
+  };
 })();

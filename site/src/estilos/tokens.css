@@ -33,6 +33,11 @@
   /* What the piece settles into once it steps behind the site: the watermark. */
   --mask-ink-faded: #cfcfff;
 
+  /* How much scroll it takes to get there, counted in screens: the drawing walks from
+     its own ink to the watermark over this much page, and comes back if the page does.
+     site/src/mask/mask.js reads it; 1 is one window's worth. */
+  --mask-fade-by: 1;
+
   /* The piece's own clock. 1 is the opening as it was drawn; a visit that has
      already seen the piece gets it halved, and then the whole sweep — the hold-off,
      the step between columns and the length of one run — is over in half the time.

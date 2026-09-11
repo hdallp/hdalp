@@ -14,13 +14,23 @@
    and this element is never built. */
 
 @media (hover: hover) and (pointer: fine) {
-  /* Every element, not just the body. The user agent gives links a pointer of
-     their own — and a specified value beats an inherited one, which is why the
-     native arrow kept showing up on links. */
-  * { cursor: none; }
+  /* Every element, and emphatically. The user agent gives links a pointer of its own,
+     and a specified value beats an inherited one — so one component that says
+     cursor: pointer brings the native arrow back over itself, which is exactly what
+     the folders did. There is no native pointer anywhere on this site by decision,
+     so the decision is written where nothing can weigh more than it. */
+  * { cursor: none !important; }
 }
 
 .cursor {
+  /* The marks the disc can carry, drawn in the disc's own 100 x 100 space so they
+     land where the punched arrow always did. They are black on purpose: the whole
+     cursor blends by difference, so black over the white disc leaves the page
+     showing through, and the mark reads as a hole in the seal — which is what the
+     arrow was when it was cut out of the drawing. */
+  --marca-fora: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><g fill='none' stroke='%23000' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'><path d='M38 62 62 38'/><path d='M47 38h15v15'/></g></svg>");
+  --marca-abre: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><g fill='none' stroke='%23000' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'><path d='M33 42 50 59 67 42'/></g></svg>");
+
   position: fixed;
   top: 0;
   left: 0;
@@ -75,26 +85,53 @@
     opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* The seal, waiting inside the same box: it arrives by scaling up. */
+/* The seal, waiting inside the same box: it arrives by scaling up.
+
+   Two layers: the mark the JS asked for, and the disc under it. With no mark asked
+   for, the first layer is none and what is left is the bare seal — which is what
+   something clickable that claims nothing gets. */
 .cursor::after {
   width: 58px;
   height: 58px;
-  background: url('../../assets/cursor/seal.svg') center / 100% 100% no-repeat;
+  background:
+    var(--glifo, none) center / 100% 100% no-repeat,
+    url('../../assets/cursor/seal.svg') center / 100% 100% no-repeat;
   opacity: 0;
-  transform: scale(0.55);
-  /* The lean, written by the JS as --tilt, read from the vertical move: down one
-     way, up the other. It goes on the rotate property — one of its own — so it
-     composes with the scale above instead of overwriting it, and the seal turns
-     about its own centre. */
+  /* Three motions, on three properties, so none of them can cancel another:
+       scale      it arrives by growing;
+       transform  it turns half a turn when the mark turns over;
+       rotate     it leans with the vertical move, written by the JS as --tilt, down
+                  one way and up the other — and never transitioned, because a lean
+                  that lags the pointer is a lean that lies.
+
+     The turn takes the whole seal with it and the disc does not mind: its edge is
+     scalloped twelve times over, so half a turn lands the scallops exactly where they
+     were. (Measured, not hoped: every point of the path has its pair at 180 degrees,
+     to the hundredth.) The mark inside does mind, and that is the point of it —
+     opening and closing are one chevron and a turn, never two drawings swapped, which
+     is what makes the change smooth. */
+  scale: 0.55;
+  transform: rotate(var(--volta, 0deg));
   rotate: var(--tilt, 0deg);
   transition:
+    scale 320ms cubic-bezier(0.16, 1, 0.3, 1),
     transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
     opacity 240ms ease;
 }
 
-/* Over a link: the blob folds away and the seal scales in. */
+/* Which mark, one state each. The JS writes the attribute; the drawing stays here, with
+   the rest of the seal.
+
+   The two chevrons are not two drawings: 'abre' is the chevron and 'fecha' is the same
+   chevron half a turn round, which the transition above animates. The arrow never turns
+   — a link is a link whichever way it goes. */
+.cursor[data-marca='fora']  { --glifo: var(--marca-fora); --volta: 0deg; }
+.cursor[data-marca='abre']  { --glifo: var(--marca-abre); --volta: 0deg; }
+.cursor[data-marca='fecha'] { --glifo: var(--marca-abre); --volta: 180deg; }
+
+/* Over anything clickable: the blob folds away and the seal scales in. */
 .cursor.hover::before { opacity: 0; transform: scale(0); }
-.cursor.hover::after { opacity: 1; transform: scale(1); }
+.cursor.hover::after { opacity: 1; scale: 1; }
 
 /* Nothing moved for a while: the blob shrinks to a dot. It only speaks while the
    seal is not up. */

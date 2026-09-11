@@ -26,14 +26,14 @@
 </head>
 <body>
 
-<!-- The opening. The stage is the box the CSS sizes and the piece draws itself
-     inside it; the two names — frame and art — are the contract between this page
-     and site/src/mask/mask.js. -->
-<section class="abertura">
-  <main class="frame" id="frame">
-    <div class="art" id="art" role="img" aria-label="A máscara, desenhada linha a linha em retângulos arredondados"></div>
-  </main>
-</section>
+<!-- The piece. The frame is the stage, and it is fixed: the drawing stands still and
+     the page moves over it, and it walks towards its own watermark as the work climbs.
+     Being fixed, it is also the ground rather than the opening — so the work is on the
+     first screen, and the drawing is behind it. The two names — frame and art — are the
+     contract between this page and site/src/mask/mask.js. -->
+<div class="frame" id="frame">
+  <div class="art" id="art" role="img" aria-label="A máscara, desenhada linha a linha em retângulos arredondados"></div>
+</div>
 
 <!-- The navigation: a fixed rail on a wide screen, a stack in the flow on a phone.
      The mark is a file, not data, and the bars come from the ITEMS list at the top
@@ -42,69 +42,248 @@
   <img class="mark" src="site/assets/marca/HDALP-branco.svg" alt="HDALP" width="52" height="14">
 </aside>
 
-<!-- The work, as a drawer: site/src/estilos/portfolio.css draws it and
-     site/src/scripts/abas.js works it.
+<!-- The site until the work arrives: the drawing, the navigation, and this line. -->
+<section class="espera">
+  <p>EM BREVE</p>
+</section>
 
-     There is one folder, the master. Its plate names the drawer, its body is the
-     whole content area, and the categories are tabs standing on the body's top edge
-     — only the tabs show above that line. Choosing a tab brings that category's
-     content into the body, and the body grows to hold it.
+<!-- The work, parked.
 
-     Each tab is told two things here, in its style attribute: --tinta, its colour,
-     and --texto, the ink that is read on it. The colour names live in
-     site/src/estilos/tokens.css.
+     This is the folder component we have been building — the case and the four
+     categories inside it. It is not deleted and it is not commented out, because it
+     cannot be: the markup carries custom properties in style attributes (--tinta,
+     --texto), and an HTML comment cannot contain a double hyphen. A template is the
+     honest way to park markup — the browser parses it and renders none of it — so
+     putting the work back is deleting one line above and one line below.
 
-     PLACEHOLDER. Four categories, and every name and every line inside them is
+     It wants site/src/estilos/portfolio.css and site/src/scripts/abas.js, and both are
+     still loaded: the script looks for .portfolio, finds none while this is parked, and
+     quietly does nothing. -->
+<template id="portfolio-parado">
+<!-- The work, as a stack of folders: the dynamic from the folder lab
+     (folder-effect-lab/index.html), ported. site/src/estilos/portfolio.css draws it
+     and site/src/scripts/abas.js works it.
+
+     The pile is two deep. The folder in front is the case: it is not filled, it is
+     drawn — a stroke, with its name written on it — and the four categories live inside
+     its drawer, so none of the work is on the page until the case is opened. Each of
+     those four is a folder of its own, solid, with its own tab and its own drawer.
+
+     The case has no tab. A tab is a fold, and a case is not folded: the label belongs
+     on the cover, which is where it is, and its handle is the button beside it.
+
+     The colours are the stylesheet's: the case is in ink, the four carry the palette.
+     --tinta is the folder and --texto is what is read on it, both decided in
+     site/src/estilos/portfolio.css and named in site/src/estilos/tokens.css.
+
+     With the script, the case is the folder that opens on arrival. Without it every
+     folder stays folded — that is the stylesheet, not this markup, so a scriptless page
+     shows the case and its title, and nothing is lost.
+
+     The four categories are placeholders: every name and every line inside them is
      standing in until the real work arrives. -->
-<section class="portfolio" aria-label="Portfólio">
+<main class="portfolio" aria-labelledby="titulo-portfolio">
 
-  <div class="abas">
-    <span class="aba aba-placa">Portfólio</span>
+  <div class="pastas">
 
-    <div class="aba-lista" role="tablist" aria-label="Categorias do portfólio">
-      <button class="aba" id="aba-1" type="button" role="tab" aria-selected="true" aria-controls="painel-1" style="--tinta: var(--aqua); --texto: var(--ink)">Lorem ipsum</button>
-      <button class="aba" id="aba-2" type="button" role="tab" aria-controls="painel-2" style="--tinta: var(--iris); --texto: var(--ink)">Dolor sit amet</button>
-      <button class="aba" id="aba-3" type="button" role="tab" aria-controls="painel-3" style="--tinta: var(--leaf); --texto: var(--ink)">Consectetur</button>
-      <button class="aba" id="aba-4" type="button" role="tab" aria-controls="painel-4" style="--tinta: var(--volt); --texto: var(--ink)">Adipiscing elit</button>
-    </div>
+    <article class="pasta pasta-mae">
+      <div class="pasta-corpo">
+        <div class="pasta-cabeca">
+          <div class="pasta-esquerda">
+            <div class="pasta-titulos">
+              <h2 class="pasta-titulo" id="titulo-portfolio">Portfólio</h2>
+              <span class="pasta-sub">clique para abrir a pasta</span>
+            </div>
+          </div>
+          <div class="pasta-direita">
+            <span class="pasta-conta">4 categorias</span>
+            <button class="pasta-alca" type="button" aria-expanded="false" aria-controls="gaveta-mae">abrir ↓</button>
+          </div>
+        </div>
+        <div class="pasta-gaveta" id="gaveta-mae">
+          <div class="gaveta-dentro">
+            <div class="gaveta-conteudo">
+              <div class="gaveta-fio"></div>
+              <div class="pastas">
+
+                <article class="pasta" style="--i: 1; --tinta: var(--aqua); --texto: var(--ink)">
+                  <button class="pasta-aba" type="button" style="--at: 3%" aria-expanded="false" aria-controls="gaveta-1">Lorem ipsum</button>
+                  <div class="pasta-corpo">
+                    <div class="pasta-cabeca">
+                      <div class="pasta-esquerda">
+                        <span class="pasta-numero">01</span>
+                        <span class="pasta-titulos">
+                          <span class="pasta-titulo">Lorem ipsum</span>
+                          <span class="pasta-sub">categoria • ano</span>
+                        </span>
+                      </div>
+                      <div class="pasta-direita">
+                        <span class="pasta-conta">2 itens</span>
+                        <button class="pasta-alca" type="button">abrir ↓</button>
+                        <span class="pasta-selo" aria-hidden="true"><span>l</span><span>i</span></span>
+                      </div>
+                    </div>
+                    <div class="pasta-gaveta" id="gaveta-1">
+                      <div class="gaveta-dentro">
+                        <div class="gaveta-conteudo">
+                          <div class="gaveta-fio"></div>
+                          <div class="item-card">
+                            <div class="item-header">
+                              <span class="item-title">Item sem título</span>
+                              <span class="item-tag">Tag</span>
+                            </div>
+                            <p class="item-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                          </div>
+
+                          <div class="item-card">
+                            <div class="item-header">
+                              <span class="item-title">Outro item</span>
+                              <span class="item-tag">Tag</span>
+                            </div>
+                            <p class="item-body">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="pasta" style="--i: 2; --tinta: var(--iris); --texto: var(--ink)">
+                  <button class="pasta-aba" type="button" style="--at: 27%" aria-expanded="false" aria-controls="gaveta-2">Dolor sit amet</button>
+                  <div class="pasta-corpo">
+                    <div class="pasta-cabeca">
+                      <div class="pasta-esquerda">
+                        <span class="pasta-numero">02</span>
+                        <span class="pasta-titulos">
+                          <span class="pasta-titulo">Dolor sit amet</span>
+                          <span class="pasta-sub">categoria • ano</span>
+                        </span>
+                      </div>
+                      <div class="pasta-direita">
+                        <span class="pasta-conta">1 item</span>
+                        <button class="pasta-alca" type="button">abrir ↓</button>
+                        <span class="pasta-selo" aria-hidden="true"><span>d</span><span>s</span></span>
+                      </div>
+                    </div>
+                    <div class="pasta-gaveta" id="gaveta-2">
+                      <div class="gaveta-dentro">
+                        <div class="gaveta-conteudo">
+                          <div class="gaveta-fio"></div>
+                          <div class="item-card">
+                            <div class="item-header">
+                              <span class="item-title">Item sem título</span>
+                              <span class="item-tag">Tag</span>
+                            </div>
+                            <p class="item-body">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="pasta" style="--i: 3; --tinta: var(--leaf); --texto: var(--ink)">
+                  <button class="pasta-aba" type="button" style="--at: 51%" aria-expanded="false" aria-controls="gaveta-3">Consectetur</button>
+                  <div class="pasta-corpo">
+                    <div class="pasta-cabeca">
+                      <div class="pasta-esquerda">
+                        <span class="pasta-numero">03</span>
+                        <span class="pasta-titulos">
+                          <span class="pasta-titulo">Consectetur</span>
+                          <span class="pasta-sub">categoria • ano</span>
+                        </span>
+                      </div>
+                      <div class="pasta-direita">
+                        <span class="pasta-conta">3 itens</span>
+                        <button class="pasta-alca" type="button">abrir ↓</button>
+                        <span class="pasta-selo" aria-hidden="true"><span>c</span><span>o</span></span>
+                      </div>
+                    </div>
+                    <div class="pasta-gaveta" id="gaveta-3">
+                      <div class="gaveta-dentro">
+                        <div class="gaveta-conteudo">
+                          <div class="gaveta-fio"></div>
+                          <div class="item-card">
+                            <div class="item-header">
+                              <span class="item-title">Item sem título</span>
+                              <span class="item-tag">Tag</span>
+                            </div>
+                            <p class="item-body">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+                          </div>
+
+                          <div class="item-card">
+                            <div class="item-header">
+                              <span class="item-title">Outro item</span>
+                              <span class="item-tag">Tag</span>
+                            </div>
+                            <p class="item-body">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</p>
+                          </div>
+
+                          <div class="item-card">
+                            <div class="item-header">
+                              <span class="item-title">Mais um</span>
+                              <span class="item-tag">Tag</span>
+                            </div>
+                            <p class="item-body">Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="pasta" style="--i: 4; --tinta: var(--volt); --texto: var(--ink)">
+                  <button class="pasta-aba" type="button" style="--at: 74%" aria-expanded="false" aria-controls="gaveta-4">Adipiscing elit</button>
+                  <div class="pasta-corpo">
+                    <div class="pasta-cabeca">
+                      <div class="pasta-esquerda">
+                        <span class="pasta-numero">04</span>
+                        <span class="pasta-titulos">
+                          <span class="pasta-titulo">Adipiscing elit</span>
+                          <span class="pasta-sub">categoria • ano</span>
+                        </span>
+                      </div>
+                      <div class="pasta-direita">
+                        <span class="pasta-conta">2 itens</span>
+                        <button class="pasta-alca" type="button">abrir ↓</button>
+                        <span class="pasta-selo" aria-hidden="true"><span>a</span><span>e</span></span>
+                      </div>
+                    </div>
+                    <div class="pasta-gaveta" id="gaveta-4">
+                      <div class="gaveta-dentro">
+                        <div class="gaveta-conteudo">
+                          <div class="gaveta-fio"></div>
+                          <div class="item-card">
+                            <div class="item-header">
+                              <span class="item-title">Item sem título</span>
+                              <span class="item-tag">Tag</span>
+                            </div>
+                            <p class="item-body">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti.</p>
+                          </div>
+
+                          <div class="item-card">
+                            <div class="item-header">
+                              <span class="item-title">Outro item</span>
+                              <span class="item-tag">Tag</span>
+                            </div>
+                            <p class="item-body">Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
   </div>
 
-  <div class="mestre-corpo">
-    <div class="painel" id="painel-1" role="tabpanel" aria-labelledby="aba-1">
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-    </div>
-    <div class="painel" id="painel-2" role="tabpanel" aria-labelledby="aba-2">
-      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-    </div>
-    <div class="painel" id="painel-3" role="tabpanel" aria-labelledby="aba-3">
-      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
-      <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
-      <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.</p>
-    </div>
-    <div class="painel" id="painel-4" role="tabpanel" aria-labelledby="aba-4">
-      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>
-      <p>Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.</p>
-    </div>
-  </div>
-
-</section>
-
-<!-- ==========================================================================
-     PLACEHOLDER. Lorem ipsum, here for one reason: to give the page something
-     tall enough to scroll, so the fixed rail can be looked at on the move.
-     Delete this whole section when the real content arrives — nothing else on
-     the page depends on it.
-     ========================================================================== -->
-<section class="pagina">
-  <h2>Lorem ipsum</h2>
-  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-  <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-  <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
-  <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.</p>
-  <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>
-  <p>Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est.</p>
-</section>
+</main>
+</template>
 
 <script src="site/src/mask/mask-data.js"></script>
 <script src="site/src/mask/mask.js"></script>

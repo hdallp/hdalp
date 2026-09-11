@@ -31,11 +31,13 @@
    body, never the wave.
 
    The shape is a spring, so it trails and can overshoot, and it skews with speed.
-   Over anything clickable it becomes the seal of a link — the scalloped disc in
-   site/assets/cursor/seal.svg, with an arrow through it. As a seal it stops skewing
-   and stops spinning with the direction of travel, and instead leans: it tips a few
-   degrees with the vertical move, down one way and up the other, and rights itself
-   when the pointer stops.
+   Over anything clickable it becomes the seal — the scalloped disc in
+   site/assets/cursor/seal.svg — and the seal answers the question the pointer is
+   asking: the arrow for a link, which goes somewhere, and a chevron for something
+   that opens, pointing the way it will move and turned round once it is open. As a
+   seal it stops skewing and stops spinning with the direction of travel, and instead
+   leans: it tips a few degrees with the vertical move, down one way and up the
+   other, and rights itself when the pointer stops.
 
    On a touch screen none of this runs and the native pointer stays. */
 (function () {
@@ -265,7 +267,10 @@
 
   /* ---------- the pointer ---------- */
 
-  var CLICKABLE = 'a, button, [role="button"], input, textarea, select, label, summary';
+  /* The last one is this site's own: a folder's header is a click target that is not
+     a control — no button, no role — and it is the one that says the most, because
+     the seal over it carries the chevron. */
+  var CLICKABLE = 'a, button, [role="button"], input, textarea, select, label, summary, .pasta-cabeca';
 
   /* Something happened: the pointer moved, or the page did. Either one postpones
      the moment the cursor shrinks. */
@@ -320,13 +325,68 @@
     wake();
   }, { passive: true });
 
+  /* ---------- what the seal carries ----------
+
+     The arrow has always meant "this goes somewhere" and that is all it means now: a
+     link is a link. Everything else that can be clicked says what it will do, in the
+     middle of the same seal —
+
+       fora   it goes somewhere
+       abre   it opens, so the chevron points the way it will move
+       fecha  it is open, so the chevron is turned round
+       nothing  it is clickable and claims nothing
+
+     — and the answer is read off the element under the pointer. Nothing is guessed: an
+     element that announces whether it is open is asked directly, and a folder is asked
+     the same question through the class its script keeps. */
+  function mark(target) {
+    if (!target || !target.closest) return '';
+
+    if (target.closest('a[href]')) return 'fora';
+
+    var owner = target.closest('[aria-expanded]') || target.closest('.pasta');
+    if (owner) {
+      var open = owner.hasAttribute('aria-expanded')
+        ? owner.getAttribute('aria-expanded') === 'true'
+        : owner.classList.contains('is-aberta');
+      return open ? 'fecha' : 'abre';
+    }
+
+    return '';
+  }
+
+  var marked = '';
+
+  /* Writing an attribute is a DOM write, so it happens only when the answer has
+     actually changed — the same rule the silhouette follows. */
+  function sign(target) {
+    var want = over ? mark(target) : '';
+    if (want === marked) return;
+    marked = want;
+    if (want) el.setAttribute('data-marca', want);
+    else el.removeAttribute('data-marca');
+  }
+
   /* The hover test comes from the events, never from elementFromPoint(). */
   document.addEventListener('pointerover', function (event) {
     var target = event.target;
     var clickable = !!(target && target.closest && target.closest(CLICKABLE));
-    if (clickable === over) return;
-    over = clickable;
-    el.classList.toggle('hover', over);
+    if (clickable !== over) {
+      over = clickable;
+      el.classList.toggle('hover', over);
+    }
+    /* The mark is read from whatever the pointer landed on even when that did not
+       change the hover state: moving from one link to the next changes the question
+       without changing the answer to "is something hovered". */
+    sign(target);
+  }, { passive: true });
+
+  /* A thing can change what it is on a click — a folder opens, and its chevron has to
+     turn round — and no pointer event is coming to say so. The listeners that know
+     are on the elements, and a click reaches them before it reaches the document, so
+     by the time this runs the new state is already written. */
+  document.addEventListener('click', function (event) {
+    sign(event.target);
   }, { passive: true });
 
   /* The pointer is not over the page any more, so neither is this: it goes, the

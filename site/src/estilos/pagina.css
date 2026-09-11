@@ -1,7 +1,8 @@
-/* pagina — the page's content column: what comes after the opening.
+/* pagina — the page's content column, and the line that stands in for it.
 
-   Placeholder land for now. This is where the case studies will live, so it holds
-   only the measure, the rhythm and the type — nothing else. */
+   Placeholder land for now: the work is parked (index.html) and all this holds is the
+   draw of a line of type under the drawing. When the case studies arrive they land in
+   .pagina, which is the measure, the rhythm and the type and nothing else. */
 
 .pagina {
   /* The measure: how wide a line of prose wants to be, and never wider than the
@@ -9,6 +10,25 @@
   inline-size: min(100% - 2 * var(--step), var(--measure));
   margin-inline: auto;
   padding-block: var(--step) calc(var(--step) * 3);
+}
+
+/* The line that stands in for the site. It sits at the bottom of the window, clear of
+   the drawing, which is fixed and centred in the same column. */
+.espera {
+  min-block-size: calc(100vh - var(--bar-h));
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  padding-block-end: calc(var(--step) * 4);
+}
+
+.espera p {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  /* The tracking pushes its own space past the last letter and out of the word's box;
+     this takes it back, so the line is centred by its letters. */
+  text-indent: 0.24em;
 }
 
 .pagina h2 {

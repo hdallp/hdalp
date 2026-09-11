@@ -23,10 +23,13 @@
    — so it can be dropped into another page, at another depth, and still find it.
    Nothing here knows anything about the site around it.
 
-   Four things move, and all four are kept off the layout engine:
+   Five things move, and all of them are kept off the layout engine:
      in    the drawing grows in from the left, staggered one delay per column,
            as a scaleX on each run — no width, no layout, no reflow. A run grows
            out of its own left edge, so the cells travel rightwards;
+     walk  the page's own climb, read into the ink: the drawing walks from the ink it
+           is towards the ink it settles into, and the scroll's position, never its
+           speed, is what says how far;
      out   the same wave again, but every cell is swallowed into its own right
            edge: the columns leave from the left and the cells leave to the
            right, which is the way the piece arrived, run backwards;
@@ -95,7 +98,7 @@
      STEP is the speed of the wave, GROW the length of a single run's move.
      WAIT is how long the piece holds off before arriving at all; HOLD is how
      long it stands there before settling into the watermark. */
-  var STEP = 25;
+  var STEP = 30;
   var GROW = 320;
   var WAIT = 500;
   var HOLD = 500;
@@ -118,10 +121,12 @@
   var reach = 32;   // the pointer's reach, in CSS px
   var ox = 0;       // the drawing's own origin, for pointer maths
   var oy = 0;
+  var span = 0;     // how much scroll the whole walk takes, in px
 
   var busy = false; // a sweep owns every transform right now
   var away = false; // the drawing is out, and stays out until it is called back
   var faded = false; // the drawing has settled into the watermark ink
+  var lastFade = -1; // the last --mask-fade written, so a walk only writes changes
 
   var pointer = { x: -1e9, y: -1e9, on: false };
   var lastPointer = { x: -1e9, y: -1e9 };
@@ -382,6 +387,8 @@
       away = false;
       faded = false;
       art.classList.remove('out', 'faded');
+      /* Back in ink, and the walk starts again wherever the page is now. */
+      walkNow();
     } else {
       art.classList.remove('grow');
     }
@@ -412,6 +419,40 @@
   /* The piece's own clock, as the page set it: --mask-pace in CSS, 1 when nobody
      has said otherwise. Read at every sweep rather than once, because the answer is
      the page's and the page can change it. */
+  /* ---------- the walk to the watermark ----------
+
+     The page's own climb, read into the drawing's colour. --mask-fade is how far along
+     the way to the watermark the ink is, and --mask-fade-by is how much scroll that
+     takes, counted in screens; both live in the CSS, so the page decides and the piece
+     obeys, exactly as it does with --mask-pace.
+
+     It is the scroll's position, never its speed: scroll back and the ink comes back
+     with it, and stopping stops it. */
+  function walk() {
+    if (faded) return;
+    var t = span > 0 ? window.scrollY / span : 0;
+    if (t > 1) t = 1;
+    else if (t < 0) t = 0;
+    /* Two decimals: nobody can see finer than that, and every write is a style
+       recalculation for the whole drawing. */
+    t = Math.round(t * 100) / 100;
+    if (t === lastFade) return;
+    lastFade = t;
+    art.style.setProperty('--mask-fade', t);
+  }
+
+  /* How much page the walk takes, in px: --mask-fade-by screens of the window. Read
+     rather than remembered, so the page can change its mind. */
+  function measureWalk() {
+    var v = parseFloat(getComputedStyle(art).getPropertyValue('--mask-fade-by'));
+    span = (isFinite(v) && v > 0 ? v : 1) * window.innerHeight;
+  }
+
+  function walkNow() {
+    measureWalk();
+    walk();
+  }
+
   function paceOf() {
     var v = parseFloat(getComputedStyle(art).getPropertyValue('--mask-pace'));
     return isFinite(v) && v > 0 ? v : 1;
@@ -422,6 +463,10 @@
   function fade() {
     if (faded) return;
     faded = true;
+    /* The watermark is a decision and the walk is the page's; the class has to win
+       over whatever the walk left inline. */
+    art.style.removeProperty('--mask-fade');
+    lastFade = -1;
     art.classList.add('faded');
     announce('faded');
   }
@@ -498,8 +543,16 @@
       queued = requestAnimationFrame(function () {
         queued = 0;
         draw();
+        /* A new window height is a new walk: how much scroll it takes changed with
+           it. */
+        walkNow();
       });
     }
+
+    /* The walk to the watermark is the page's climb, so it is wired here with the
+       rest of the page's cues. */
+    walkNow();
+    window.addEventListener('scroll', walk, { passive: true });
 
     if (window.ResizeObserver) new ResizeObserver(requeue).observe(frame);
     window.addEventListener('resize', requeue);

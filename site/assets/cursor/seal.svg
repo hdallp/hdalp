@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <!-- The seal of a link: a disc with a soft scalloped edge and the arrow punched
-       out of it. Drawn in white on purpose — the cursor blends by difference, so
-       this reads dark over the paper and light over the black bars, and the arrow
-       (a hole) always reads against it.
+  <!-- The seal: a disc with a soft scalloped edge. Drawn in white on purpose — the
+       cursor blends by difference, so it reads dark over the paper and light over
+       the black bars.
 
-       To tune it: the two radii below are the crest and the trough of the edge,
-       and the three points in the mask are the shaft and the two barbs of the
-       arrow, which points up and to the right. -->
-  <defs>
-    <mask id="punch" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
-      <path d="M50.00 2.50C53.71 2.50 57.17 7.40 61.13 8.47C65.09 9.53 70.54 7.01 73.75 8.86C76.96 10.72 77.51 16.70 80.41 19.59C83.30 22.49 89.28 23.04 91.14 26.25C92.99 29.46 90.47 34.91 91.53 38.87C92.60 42.83 97.50 46.29 97.50 50.00C97.50 53.71 92.60 57.17 91.53 61.13C90.47 65.09 92.99 70.54 91.14 73.75C89.28 76.96 83.30 77.51 80.41 80.41C77.51 83.30 76.96 89.28 73.75 91.14C70.54 92.99 65.09 90.47 61.13 91.53C57.17 92.60 53.71 97.50 50.00 97.50C46.29 97.50 42.83 92.60 38.87 91.53C34.91 90.47 29.46 92.99 26.25 91.14C23.04 89.28 22.49 83.30 19.59 80.41C16.70 77.51 10.72 76.96 8.86 73.75C7.01 70.54 9.53 65.09 8.47 61.13C7.40 57.17 2.50 53.71 2.50 50.00C2.50 46.29 7.40 42.83 8.47 38.87C9.53 34.91 7.01 29.46 8.86 26.25C10.72 23.04 16.70 22.49 19.59 19.59C22.49 16.70 23.04 10.72 26.25 8.86C29.46 7.01 34.91 9.53 38.87 8.47C42.83 7.40 46.29 2.50 50.00 2.50Z" fill="#fff"/>
-      <g stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <path d="M38 62 L62 38"/>
-        <path d="M47 38 L62 38 L62 53"/>
-      </g>
-    </mask>
-  </defs>
-  <path d="M50.00 2.50C53.71 2.50 57.17 7.40 61.13 8.47C65.09 9.53 70.54 7.01 73.75 8.86C76.96 10.72 77.51 16.70 80.41 19.59C83.30 22.49 89.28 23.04 91.14 26.25C92.99 29.46 90.47 34.91 91.53 38.87C92.60 42.83 97.50 46.29 97.50 50.00C97.50 53.71 92.60 57.17 91.53 61.13C90.47 65.09 92.99 70.54 91.14 73.75C89.28 76.96 83.30 77.51 80.41 80.41C77.51 83.30 76.96 89.28 73.75 91.14C70.54 92.99 65.09 90.47 61.13 91.53C57.17 92.60 53.71 97.50 50.00 97.50C46.29 97.50 42.83 92.60 38.87 91.53C34.91 90.47 29.46 92.99 26.25 91.14C23.04 89.28 22.49 83.30 19.59 80.41C16.70 77.51 10.72 76.96 8.86 73.75C7.01 70.54 9.53 65.09 8.47 61.13C7.40 57.17 2.50 53.71 2.50 50.00C2.50 46.29 7.40 42.83 8.47 38.87C9.53 34.91 7.01 29.46 8.86 26.25C10.72 23.04 16.70 22.49 19.59 19.59C22.49 16.70 23.04 10.72 26.25 8.86C29.46 7.01 34.91 9.53 38.87 8.47C42.83 7.40 46.29 2.50 50.00 2.50Z" fill="#fff" mask="url(#punch)"/>
+       The mark inside it is not here. It is a layer of its own in
+       site/src/estilos/cursor.css, one drawing per state, so the same disc can carry
+       the arrow of a link or the chevron of a thing that opens. A mark drawn in this
+       same 100 x 100 space lands in the middle of the disc.
+
+       To tune the disc: the radius here is the trough of the edge, and the crests
+       sit at 47.5. -->
+  <path d="M50.00 2.50C53.71 2.50 57.17 7.40 61.13 8.47C65.09 9.53 70.54 7.01 73.75 8.86C76.96 10.72 77.51 16.70 80.41 19.59C83.30 22.49 89.28 23.04 91.14 26.25C92.99 29.46 90.47 34.91 91.53 38.87C92.60 42.83 97.50 46.29 97.50 50.00C97.50 53.71 92.60 57.17 91.53 61.13C90.47 65.09 92.99 70.54 91.14 73.75C89.28 76.96 83.30 77.51 80.41 80.41C77.51 83.30 76.96 89.28 73.75 91.14C70.54 92.99 65.09 90.47 61.13 91.53C57.17 92.60 53.71 97.50 50.00 97.50C46.29 97.50 42.83 92.60 38.87 91.53C34.91 90.47 29.46 92.99 26.25 91.14C23.04 89.28 22.49 83.30 19.59 80.41C16.70 77.51 10.72 76.96 8.86 73.75C7.01 70.54 9.53 65.09 8.47 61.13C7.40 57.17 2.50 53.71 2.50 50.00C2.50 46.29 7.40 42.83 8.47 38.87C9.53 34.91 7.01 29.46 8.86 26.25C10.72 23.04 16.70 22.49 19.59 19.59C22.49 16.70 23.04 10.72 26.25 8.86C29.46 7.01 34.91 9.53 38.87 8.47C42.83 7.40 46.29 2.50 50.00 2.50Z" fill="#fff"/>
 </svg>

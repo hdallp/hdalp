@@ -8,9 +8,27 @@
    All the piece needs from the page is an element with id="frame" and a defined
    size. Everything else it measures and writes itself. */
 
+/* The colour the drawing is right now — a real colour, not a token. The page's scroll
+   walks it from the ink it is to the ink it settles into, and every run inherits the
+   answer instead of working the same mix out again. Registered, so it is computed once
+   (on the frame) and so it can be transitioned as what it is.
+
+   A browser without @property still shows the right colour: the mix is simply resolved
+   on every run instead of once. Nothing else changes. */
+@property --mask-now {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #070707;
+}
+
 /* The drawing. Its real size is written inline by mask.js, in whole cells; the
    calc here is only the state before the script runs. */
 .art {
+  /* How far along the way to the watermark the drawing is, 0 to 1. The page writes it
+     from its own scroll position; mask.js reads --mask-fade-by, in CSS, to know how
+     much scroll that takes. */
+  --mask-fade: 0;
+  --mask-now: color-mix(in srgb, var(--mask-ink-faded, #d4d4d4) calc(var(--mask-fade) * 100%), var(--mask-ink, #070707));
   position: relative;
   width: calc(84 * var(--cell, 5px));
   height: calc(82 * var(--cell, 5px));
@@ -19,6 +37,10 @@
      the hand, and a run sitting against the edge of the box should swell past it
      rather than be cut off flat. */
   contain: layout;
+  /* One transition, on one element, instead of the same colour change on four hundred
+     runs: the walk to the watermark is eased here, and it keeps easing after the page
+     stops, which is the tail the piece has always had. */
+  transition: --mask-now 700ms ease;
 }
 
 /* The cell: the geometry (written inline by mask.js) and the pointer's swell,
@@ -39,19 +61,15 @@
 .ink {
   position: absolute;
   inset: 0;
-  background: var(--mask-ink, #070707);
+  background: var(--mask-now, var(--mask-ink, #070707));
   border-radius: 20px;
   transform-origin: center center;
-  /* The only colour the drawing has, so the watermark is one transition here and
-     not a per-run animation. */
-  transition: background-color 700ms ease;
 }
 
-/* The watermark: the same drawing, in a grayer ink, staying where it is instead
-   of leaving. The colour is a decision and lives in tokens.css. */
-.art.faded {
-  --mask-ink: var(--mask-ink-faded, #d4d4d4);
-}
+/* The watermark, all the way: the same drawing in the ink it settles into, staying
+   where it is instead of leaving. The colours are decisions and live in tokens.css;
+   the class only says "all the way there". */
+.art.faded { --mask-fade: 1; }
 
 /* The two sweeps: one wave each, both travelling left to right, both a scaleX —
    never a width, so neither costs the layout engine anything.

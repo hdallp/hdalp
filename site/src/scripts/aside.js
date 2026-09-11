@@ -39,10 +39,18 @@
      stretch optional: how far this bar stretches under the pointer, in px — the
              default comes from --stretch in the CSS. It is what gives one item a
              length of its own. */
+  /* One item while there is one thing to point at. It is a link off the site, so the
+     click takes the whole exit: the drawing leaves and then the page does (see leave,
+     below). A URL and not an anchor, which is why the cursor carries the arrow over it.
+
+     The three that belong here are parked with the sections they point at — the
+     portfolio is inside the template in index.html, and sobre and contato do not exist
+     yet — so putting the navigation back is uncommenting them and deleting this one. */
   var ITEMS = [
-    { title: 'portfolio', target: './portfolio/' },
-    { title: 'contato',   target: '#contato' },
-    { title: 'sobre',     target: '#sobre' }
+    { title: 'EM BREVE', target: 'https://www.instagram.com/hdalp.studio/' }
+    // { title: 'portfolio', target: './portfolio/' },
+    // { title: 'contato',   target: '#contato' },
+    // { title: 'sobre',     target: '#sobre' }
   ];
 
   /* OFF is how far past the screen edge a bar starts, so it really is out of

@@ -1,174 +1,364 @@
-/* portfolio — the work, as a drawer of tabs.
+/* portfolio — the work, as a stack of folders.
 
-   There is one folder here, the master, and its body is the whole thing: the content
-   area, with the categories standing on its top edge. Only the tabs show above that
-   line — that is the look — and whichever one is chosen is what the body holds.
+   Ported from the folder lab (folder-effect-lab/index.html), which is the version
+   that was right: folders that overlap, each with its own tab peeking above the one
+   below, each opening its own drawer of items.
 
-   A tab is two pieces, the same two the folder's own header was:
+   Two piles, not one. The folder in front is the case: it is not filled, it is drawn,
+   and it has no tab — a tab is a fold, and a case is not folded. Its name is written on
+   the cover and its one control sits beside it. The four categories live inside its
+   drawer. The case is an outline; the work is solid.
 
-     aba    the tab: a rectangle with its outer top corner rounded, the name inside
-            it;
-     fio    the slant that carries its top edge down to the line. It is a
-            pseudo-element, because a clip cannot round a corner and a rectangle
-            cannot slant one: the two pieces are the two halves of one silhouette.
-            Between two tabs the two slants meet at the line and make the valley.
+   The colours come from tokens.css, one pair per folder: --tinta is the folder and
+   --texto is what is read on it. Every tint inside a folder is mixed from --texto, so
+   the same card works on a light folder and on the case's paper.
 
-   The line is the body's own top border, so the tabs and the body are one drawing.
-
-   Everything about the shape is in the numbers below, and they live here and
-   nowhere else. */
+   One thing to know before adding a rule here. The categories are INSIDE the cover, so
+   a descendant selector that starts at a folder also reaches the pile below it — and
+   that is not a detail of style: `.pasta.is-aberta .pasta-gaveta` opens all four
+   drawers with the cover, and clicking their tabs then does nothing at all. That is
+   what the child combinators are for. */
 
 .portfolio {
-  /* The same column as the prose under it, so the drawer lines up with the words. */
-  inline-size: min(100% - 2 * var(--step), var(--measure));
-  margin-inline: auto;
-  padding-block: calc(var(--step) * 2) var(--step);
-}
-
-/* The drawer's bar. The master's own tab is a plate and not a control: it names the
-   drawer, and it is not one of the choices inside it. */
-.abas {
-  display: flex;
-  align-items: flex-end;
-
-  --aba-h: 30px;         /* a tab's height above the line */
-  --aba-pad: 16px;       /* the air on either side of a name */
-  --aba-size: 15px;      /* the name's size — a tab is read, never studied */
-  --raio: 10px;          /* the rounded corner of a tab */
-  --conector-w: 26px;    /* how far one slant travels on its way down */
-  --tinta: var(--ink);   /* the tab's colour: set in the page, one tab each */
-  --texto: var(--paper); /* and the ink that is read on it */
-}
-
-/* The choices, side by side on the line. A bar that wrapped would be two rows of
-   tabs, which is not a bar: if the names are wider than the column it scrolls
-   sideways instead, and the plate stays where it is. */
-.aba-lista {
-  display: flex;
-  align-items: flex-end;
-  /* A flex item will not shrink below its contents unless it is allowed to, and this
-     one has to: scrolling is how the bar survives names that are wider than the
-     column. */
-  min-inline-size: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.aba-lista::-webkit-scrollbar { display: none; }
-
-/* The master's plate is not a control: it is the drawer's name, and the pointer says
-   so. */
-.aba-placa { cursor: default; }
-
-/* One tab. Its width is the name's: a tab is as wide as what it carries. */
-.aba {
+  /* Where the top of the work sits in the window, measured from the top: a fifth of the
+     way down, every time. Nothing below it is fixed — the pile grows downwards from
+     here, and the page is as tall as the work needs. */
+  --topo: 20vh;
+  /* Over the piece, which is fixed and behind the page. */
   position: relative;
-  flex: none;
+  z-index: 1;
+  /* The same gap to the navigation on the left and to the edge of the window on the
+     right: the body keeps the rail's width (base.css), so one number gives both. */
+  margin-inline: var(--step);
+  /* The navbar's room is already taken by the body, so it comes off the fifth: the
+     number is measured to the work, not to the page's own edge. */
+  padding-block-start: max(0px, calc(var(--topo) - var(--bar-h)));
+  padding-block-end: calc(var(--step) * 2);
+  /* And the section fills the rest of the window, so a page whose work is small still
+     ends at the fold and not above it. */
+  min-block-size: calc(100vh - var(--bar-h));
+}
+
+/* ── the pile, with the overlap ── */
+
+.pastas {
+  /* How far every folder slides up under the one above it, which is the same thing as
+     the gap between them: the bigger this is, the smaller the gap. Both piles read it,
+     so the cover and the categories inside it stay in step. */
+  --sobrepostas: 78px;
+  position: relative;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* A folder. Each one below overlaps the one above it, which is what puts every tab
+   above a body that is a different colour — and a tab is visible because of that
+   difference. The z-index climbs so the later folders sit in front. */
+.pasta {
+  --tinta: var(--aqua);
+  --texto: var(--ink);
+  /* What a drawer keeps below its last card. A folder with another one under it has to
+     leave room for the overlap, or its cards end up covered; the last folder of a pile
+     has nothing under it, and says so on the next line. */
+  --gaveta-fim: calc(var(--sobrepostas) + 48px);
+  position: relative;
+  inline-size: 100%;
+  z-index: var(--i, 1);
+  transition: filter 0.2s ease;
+}
+
+.pasta:hover { filter: brightness(1.03); }
+
+.pasta:last-child { --gaveta-fim: 36px; }
+
+.pasta:not(:first-child) { margin-block-start: calc(-1 * var(--sobrepostas)); }
+
+/* ── the tab, standing above the body's top edge ── */
+
+.pasta-aba {
+  appearance: none;
+  border: 0;
+  font: inherit;
+  position: absolute;
+  inset-block-start: -34px;
+  /* Its place across the pile is the markup's (--at); the clamp only keeps a tab from
+     hanging out of the pile on a narrow window. */
+  left: min(var(--at, 24px), calc(100% - 145px));
+  block-size: 36px;
+  inline-size: 145px;
+  border-radius: 12px 12px 0 0;
   display: flex;
   align-items: center;
-  block-size: var(--aba-h);
-  /* The slant leans out of the tab's own box, so the room for it is margin — and the
-     space between two tabs is twice the connector, because the two slants have to
-     reach the same point on the line. */
-  margin-inline: var(--conector-w);
-  padding-inline: var(--aba-pad);
-  border: 0;
-  border-start-start-radius: var(--raio);
+  justify-content: center;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto);
+  background: var(--tinta);
+}
+
+/* ── the body ── */
+
+.pasta-corpo {
+  position: relative;
+  inline-size: 100%;
+  border-radius: 18px;
   background: var(--tinta);
   color: var(--texto);
-  font: inherit;
-  font-size: var(--aba-size);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0.04em;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pasta-cabeca {
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-block-size: 125px;
+}
+
+.pasta-esquerda {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-inline-size: 0;
+}
+
+.pasta-numero {
+  font-size: 82px;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  flex: none;
+}
+
+.pasta-titulos {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.pasta-titulo {
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.pasta-sub {
+  font-size: 13px;
+  margin-block-start: 4px;
+  opacity: 0.72;
+}
+
+.pasta-direita {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.pasta-conta {
+  font-size: 11px;
+  background: color-mix(in srgb, var(--texto) 18%, transparent);
+  padding: 6px 12px;
+  border-radius: 12px;
   white-space: nowrap;
-  cursor: pointer;
 }
 
-/* The bar's ends: the plate is at the drawer's edge, so it needs no room before it,
-   and the last tab has nothing after it to make a valley with. The space between the
-   plate and the first tab is the two slants' own margins, which is why nothing here
-   removes the first tab's. */
-.abas > .aba:first-child { margin-inline-start: 0; }
-.aba-lista > .aba:last-child { margin-inline-end: 0; }
-
-/* The two slants: the tab's own connector on the right, and the one it makes a
-   valley with on the left. */
-.aba::after,
-.aba::before {
-  content: '';
-  position: absolute;
-  inset-block: 0;
-  inline-size: var(--conector-w);
-  background: inherit;
+.pasta-alca {
+  appearance: none;
+  border: 0;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--texto) 28%, transparent);
+  color: inherit;
+  padding: 8px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition: background 0.2s ease;
 }
 
-.aba::after {
-  inset-inline-start: 100%;
-  clip-path: polygon(0 0, 100% 100%, 0 100%);
+.pasta:hover > .pasta-corpo > .pasta-cabeca .pasta-alca {
+  background: color-mix(in srgb, var(--texto) 42%, transparent);
 }
 
-.aba::before {
-  inset-inline-end: 100%;
-  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+.pasta-selo {
+  inline-size: 36px;
+  block-size: 36px;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  line-height: 0.9;
+  flex: none;
 }
 
-/* The bar's first tab has nothing before it and the last has nothing after it: the
-   drawer's outer edges are straight, with the one rounded corner. */
-.abas > .aba:first-child::before,
-.aba-lista > .aba:last-child::after { content: none; }
+/* ── the case ──
 
-/* The tab that is showing is the one in front, in its own colour. The others are the
-   same colour mixed back into the paper — they are behind the panel, and they read
-   that way. Without color-mix every tab is simply full colour, which is a fine way to
-   fail. */
-.aba[role="tab"][aria-selected="false"] {
-  background: color-mix(in srgb, var(--tinta) 38%, var(--paper));
+   The folder the categories live in, and the only one that is not filled: the case is
+   drawn and what is inside it is solid, so the pile that comes out of it reads as the
+   work in a case. It is the one folder in ink, because paper is what it is drawn on.
+
+   Every selector below stops at the case's own face. Reach one level deeper and it
+   redraws the four categories as well. */
+.pasta-mae {
+  --tinta: transparent;
+  --texto: var(--ink);
 }
 
-.aba[role="tab"]:focus-visible {
-  outline: 1px solid var(--ink);
+/* A drawn folder does not brighten when the pointer crosses it: there is nothing to
+   brighten, and the filter would land on the categories inside it. */
+.pasta-mae:hover { filter: none; }
+
+/* The case's handle is the one control it has, and it carries the state on its own
+   because there is no tab to carry it. Drawn, not filled, like the case. */
+.pasta-mae > .pasta-corpo > .pasta-cabeca .pasta-alca {
+  border: 1px solid color-mix(in srgb, var(--texto) 30%, transparent);
+}
+
+.pasta-mae > .pasta-corpo {
+  background: transparent;
+  border: 2px solid var(--texto);
+  border-radius: 22px;
+}
+
+.pasta-mae > .pasta-corpo > .pasta-cabeca { min-block-size: 140px; }
+
+.pasta-mae > .pasta-corpo > .pasta-cabeca .pasta-titulo {
+  font-size: 34px;
+  letter-spacing: -0.03em;
+}
+
+/* ── the drawer ──
+
+   A grid row going from 0fr to 1fr: the one way to open a height nobody has measured.
+   The inner element clips, and carries the extra room at the bottom that the
+   overlapping folder below needs. */
+
+.pasta-gaveta {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--abre, 420ms) var(--curva, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+/* This folder's own drawer, and only it. */
+.pasta.is-aberta > .pasta-corpo > .pasta-gaveta { grid-template-rows: 1fr; }
+
+.gaveta-dentro {
+  overflow: hidden;
+  /* Folded, the drawer's contents are not merely invisible: they are out of reach of
+     the keyboard and of anything that reads the page. */
+  visibility: hidden;
+  transition: visibility 0s linear var(--abre, 420ms);
+}
+
+.pasta.is-aberta > .pasta-corpo > .pasta-gaveta > .gaveta-dentro {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.gaveta-conteudo {
+  padding: 0 32px var(--gaveta-fim);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* The case's drawer holds the other pile, and the first tab of that pile stands above
+   it — so it keeps the room, the same way a folder keeps room for the one below. */
+.gaveta-conteudo > .pastas { margin-block-start: 22px; }
+
+.gaveta-fio {
+  inline-size: 100%;
+  block-size: 1px;
+  background: color-mix(in srgb, var(--texto) 22%, transparent);
+  margin-block-end: 4px;
+}
+
+/* ── an item ── */
+
+.item-card {
+  background: color-mix(in srgb, var(--texto) 20%, transparent);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.item-title {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.item-tag {
+  font-size: 11px;
+  background: color-mix(in srgb, var(--paper) 60%, transparent);
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex: none;
+}
+
+.item-body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.85;
+  /* The case is as wide as the window; a line of prose is not. */
+  max-inline-size: var(--measure);
+}
+
+/* ── the keyboard ── */
+
+.pasta-aba:focus-visible,
+.pasta-alca:focus-visible {
+  outline: 2px solid currentColor;
   outline-offset: 3px;
 }
 
-/* The body: the line the tabs stand on, the sides, the bottom, and the air.
+/* ── narrow ── */
 
-   Its height follows the panel that is showing, and site/src/scripts/abas.js is what
-   writes it — for the length of one change, and then it lets it go. */
-.mestre-corpo {
-  --corpo-pad: 22px;     /* the air inside the body */
-  --frente: 140px;       /* how much body lies below the content */
-  --abre: 320ms;         /* how long the body takes to change size */
+@media (max-width: 900px) {
+  .portfolio { padding-block: var(--step) calc(var(--step) * 3); }
 
-  border: 1px solid var(--ink);
-  padding: var(--corpo-pad) var(--corpo-pad) var(--frente);
-  overflow: hidden;
-  /* The one layout property this site animates, and it is contained.
+  /* The overlap is what a phone cannot afford: the tabs would land on top of each
+     other. So they stop overlapping and the stack becomes a list — which is the honest
+     thing for a narrow screen. */
+  .pasta:not(:first-child) { margin-block-start: 26px; }
+  .pasta-aba { position: static; inset-block-start: auto; inline-size: 100%; border-radius: 12px 12px 0 0; }
+  .pasta-corpo { border-start-start-radius: 0; border-start-end-radius: 0; }
 
-     The drawer growing to the panel it was given IS the interaction — a body that
-     grew by transform would stretch the words inside it, and one that faded would not
-     grow at all. `contain: layout` keeps the reflow inside this box, so what moves on
-     each frame is one container and its contents, not the page. */
-  contain: layout;
-  transition: height var(--abre) ease;
+  .pasta { --gaveta-fim: 30px; }
+  .pasta:last-child { --gaveta-fim: 24px; }
+
+  .pasta-cabeca { padding: 20px; min-block-size: 0; gap: 14px; flex-wrap: wrap; }
+  .pasta-numero { font-size: 44px; }
+  .pasta-titulo { font-size: 17px; }
+  .pasta-mae > .pasta-corpo > .pasta-cabeca .pasta-titulo { font-size: 26px; }
+  .pasta-sub { font-size: 12px; }
+  .pasta-conta { display: none; }
+  .gaveta-conteudo { padding-inline: 20px; }
+  .gaveta-conteudo > .pastas { margin-block-start: 0; }
+  .item-card { padding: 16px 18px; }
 }
 
-/* The panels are all in the page and none of them is hidden there, so a page without
-   the script shows every category, one after the other. The script is what hides the
-   ones that are not showing. */
-.painel[hidden] { display: none; }
-
-/* The prose the page speaks in. When the real contents arrive this is what they are
-   read in; it is set here rather than in pagina.css because a drawer is not a page. */
-.painel p {
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.65;
-}
-
-.painel p + p { margin-block-start: var(--step); }
-
-/* Nothing travels for anyone who asked for no travelling. */
 @media (prefers-reduced-motion: reduce) {
-  .mestre-corpo { transition: none; }
+  .pasta-gaveta,
+  .gaveta-dentro { transition: none; }
 }
