@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Folder Categories Lab</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #000000;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', sans-serif;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px 20px 140px;
+      user-select: none;
+    }
+
+    .top-bar {
+      text-align: center;
+      margin-bottom: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .top-bar h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .top-bar p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .global-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn {
+      background: #18181c;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+      background: #282830;
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* ── STACK STAGE WITH OVERLAP ── */
+    #folder-system {
+      position: relative;
+      width: 740px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── FOLDER COMPONENT (OVERLAPPING STACK) ── */
+    .folder {
+      position: relative;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: none !important;
+      transition: filter 0.2s ease;
+    }
+
+    .folder:hover {
+      filter: brightness(1.03);
+    }
+
+    /* OVERLAP: Each folder below overlaps the folder above it by default */
+    .folder:not(:first-child) {
+      margin-top: -65px;
+    }
+
+    /* Z-INDEX STACKING (01 is at the top, 02 overlaps 01, 03 overlaps 02, 04 overlaps 03) */
+    .folder[data-id="sec-01"] { z-index: 1; }
+    .folder[data-id="sec-02"] { z-index: 2; }
+    .folder[data-id="sec-03"] { z-index: 3; }
+    .folder[data-id="sec-04"] { z-index: 4; }
+
+    /* ── FOLDER TAB (EXACT SAME COLOR AS BODY) ── */
+    .folder-tab {
+      position: absolute;
+      top: -34px;
+      height: 36px;
+      width: 145px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #ffffff;
+      background: var(--folder-color);
+      box-shadow: none !important;
+      border: none !important;
+      cursor: pointer;
+    }
+
+    /* Staggered tab positions across the 740px width */
+    .folder[data-id="sec-01"] .folder-tab { left: 24px;  }
+    .folder[data-id="sec-02"] .folder-tab { left: 200px; }
+    .folder[data-id="sec-03"] .folder-tab { left: 376px; }
+    .folder[data-id="sec-04"] .folder-tab { left: 550px; }
+
+    /* ── FOLDER BODY (EXACT SAME COLOR AS TAB - FLAT - NO SHADOWS) ── */
+    .folder-body {
+      position: relative;
+      width: 100%;
+      border-radius: 18px;
+      background: var(--folder-color);
+      display: flex;
+      flex-direction: column;
+      box-shadow: none !important;
+      border: none !important;
+      overflow: hidden;
+    }
+
+    /* ── DISTINCT MATTE PALETTE (TAB & BODY IDENTICAL) ── */
+    .folder[data-id="sec-01"] { --folder-color: #E2584D; } /* 01: Coral Red */
+    .folder[data-id="sec-02"] { --folder-color: #35769D; } /* 02: Steel Ocean */
+    .folder[data-id="sec-03"] { --folder-color: #2F927D; } /* 03: Pine Jade */
+    .folder[data-id="sec-04"] { --folder-color: #7B5491; } /* 04: Muted Purple */
+
+    /* ── FOLDER HEADER ── */
+    .folder-header {
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 125px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .folder-number {
+      font-size: 82px;
+      font-weight: 800;
+      line-height: 0.85;
+      color: #ffffff;
+      letter-spacing: -0.04em;
+    }
+
+    .folder-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .folder-title {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+
+    .folder-sub {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.72);
+      margin-top: 4px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .items-count-pill {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.85);
+      background: rgba(0, 0, 0, 0.18);
+      padding: 6px 12px;
+      border-radius: 12px;
+    }
+
+    .toggle-pill {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.28);
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: #ffffff;
+      transition: background 0.2s ease;
+    }
+
+    .folder:hover .toggle-pill {
+      background: rgba(0, 0, 0, 0.42);
+    }
+
+    .folder-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #111111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 800;
+      line-height: 0.9;
+    }
+
+    /* ── FULL CONTENT EXPANSION (NO SCROLL - OPENS EVERYTHING) ── */
+    .folder-drawer {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .folder.is-open .folder-drawer {
+      grid-template-rows: 1fr;
+    }
+
+    .drawer-inner {
+      overflow: hidden;
+    }
+
+    /* 
+      EXTRA PADDING AT THE BOTTOM (125px):
+      Compensates for the -65px margin-top + 34px tab height of the next folder,
+      ensuring that all cards and texts are 100% visible and never covered by the overlapping folder below!
+    */
+    .content-container {
+      padding: 0 32px 125px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* The last folder (Section 04) has nothing below it, so standard padding is sufficient */
+    .folder:last-child .content-container {
+      padding-bottom: 36px;
+    }
+
+    .content-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.25);
+      margin-bottom: 4px;
+    }
+
+    /* Content Cards */
+    .item-card {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .item-tag {
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.22);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #ffffff;
+    }
+
+    .item-body {
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.88);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <h1>Folder Categories Lab</h1>
+    <p>Overlapping Stack • Section 01 &rarr; Section 04 • Click any to expand</p>
+    <div class="global-actions">
+      <button class="action-btn" id="openAllBtn">Expand All</button>
+      <button class="action-btn" id="closeAllBtn">Collapse All</button>
+    </div>
+  </div>
+
+  <div id="folder-system">
+
+    <!-- SECTION 01 (CORAL RED) -->
+    <div class="folder" data-id="sec-01">
+      <div class="folder-tab">Section 01</div>
+      <div class="folder-body">
+        <div class="folder-header">
+          <div class="header-left">
+            <div class="folder-number">11</div>
+            <div class="folder-titles">
+              <div class="folder-title">Untitled Folder Slideshow</div>
+              <div class="folder-sub">Design & Art Direction • 4:3</div>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="items-count-pill">4 Projects</span>
+            <span class="toggle-pill">Open &#x2193;</span>
+            <div class="folder-badge">
+              <span>vv</span>
+              <span>e</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="folder-drawer">
+          <div class="drawer-inner">
+            <div class="content-container">
+              <div class="content-divider"></div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Editorial Slideshow 01</span>
+                  <span class="item-tag">Layout</span>
+                </div>
+                <p class="item-body">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+              </div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Typography & Grid Rules</span>
+                  <span class="item-tag">Spec</span>
+                </div>
+                <p class="item-body">
+                  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+              </div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Color Palette & Identity Tokens</span>
+                  <span class="item-tag">Branding</span>
+                </div>
+                <p class="item-body">
+                  Curabitur sodales ligula in libero. Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas mattis.
+                </p>
+              </div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">High-Res Plates & Vector Exports</span>
+                  <span class="item-tag">Assets</span>
+                </div>
+                <p class="item-body">
+                  Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis vel, suscipit quis, luctus non, massa. Fusce ac turpis quis ligula.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 02 (STEEL BLUE) -->
+    <div class="folder" data-id="sec-02">
+      <div class="folder-tab">Section 02</div>
+      <div class="folder-body">
+        <div class="folder-header">
+          <div class="header-left">
+            <div class="folder-number">02</div>
+            <div class="folder-titles">
+              <div class="folder-title">Component System Library</div>
+              <div class="folder-sub">Frontend Architecture • 4:3</div>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="items-count-pill">3 Modules</span>
+            <span class="toggle-pill">Open &#x2193;</span>
+            <div class="folder-badge">
+              <span>vv</span>
+              <span>e</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="folder-drawer">
+          <div class="drawer-inner">
+            <div class="content-container">
+              <div class="content-divider"></div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Design Tokens & Primitives</span>
+                  <span class="item-tag">Styles</span>
+                </div>
+                <p class="item-body">
+                  Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla.
+                </p>
+              </div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Spring Physics & Animation Hooks</span>
+                  <span class="item-tag">Motion</span>
+                </div>
+                <p class="item-body">
+                  Praesent blandit laoreet nibh. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Phasellus viverra nulla ut metus varius laoreet.
+                </p>
+              </div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Accessible Focus & Keyboard Navigation</span>
+                  <span class="item-tag">A11y</span>
+                </div>
+                <p class="item-body">
+                  Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 03 (PINE JADE) -->
+    <div class="folder" data-id="sec-03">
+      <div class="folder-tab">Section 03</div>
+      <div class="folder-body">
+        <div class="folder-header">
+          <div class="header-left">
+            <div class="folder-number">03</div>
+            <div class="folder-titles">
+              <div class="folder-title">Interactive 3D Prototypes</div>
+              <div class="folder-sub">WebGL & Shaders • 4:3</div>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="items-count-pill">3 Experiments</span>
+            <span class="toggle-pill">Open &#x2193;</span>
+            <div class="folder-badge">
+              <span>vv</span>
+              <span>e</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="folder-drawer">
+          <div class="drawer-inner">
+            <div class="content-container">
+              <div class="content-divider"></div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Volumetric Particle Shaders</span>
+                  <span class="item-tag">GLSL</span>
+                </div>
+                <p class="item-body">
+                  Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
+                </p>
+              </div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Realtime PBR Environment Map</span>
+                  <span class="item-tag">Lighting</span>
+                </div>
+                <p class="item-body">
+                  Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue.
+                </p>
+              </div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Physics Engine Collision Bounds</span>
+                  <span class="item-tag">Compute</span>
+                </div>
+                <p class="item-body">
+                  Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 04 (MUTED PURPLE) -->
+    <div class="folder" data-id="sec-04">
+      <div class="folder-tab">Section 04</div>
+      <div class="folder-body">
+        <div class="folder-header">
+          <div class="header-left">
+            <div class="folder-number">04</div>
+            <div class="folder-titles">
+              <div class="folder-title">Deep Archive Documentation</div>
+              <div class="folder-sub">Historical Releases & Specs • 4:3</div>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="items-count-pill">2 Items</span>
+            <span class="toggle-pill">Open &#x2193;</span>
+            <div class="folder-badge">
+              <span>vv</span>
+              <span>e</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="folder-drawer">
+          <div class="drawer-inner">
+            <div class="content-container">
+              <div class="content-divider"></div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Legacy Blueprints & Schematics</span>
+                  <span class="item-tag">Archive</span>
+                </div>
+                <p class="item-body">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+              </div>
+
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-title">Changelog & Deprecated Endpoints</span>
+                  <span class="item-tag">Notes</span>
+                </div>
+                <p class="item-body">
+                  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  const folders = document.querySelectorAll('.folder');
+
+  function updateToggleText(folder) {
+    const pill = folder.querySelector('.toggle-pill');
+    const isOpen = folder.classList.contains('is-open');
+    if (pill) {
+      pill.textContent = isOpen ? 'Close ✕' : 'Open ↓';
+    }
+  }
+
+  // Click any folder to toggle independently
+  folders.forEach(folder => {
+    folder.addEventListener('click', () => {
+      folder.classList.toggle('is-open');
+      updateToggleText(folder);
+    });
+  });
+
+  // Top action buttons
+  document.getElementById('openAllBtn').addEventListener('click', () => {
+    folders.forEach(folder => {
+      folder.classList.add('is-open');
+      updateToggleText(folder);
+    });
+  });
+
+  document.getElementById('closeAllBtn').addEventListener('click', () => {
+    folders.forEach(folder => {
+      folder.classList.remove('is-open');
+      updateToggleText(folder);
+    });
+  });
+</script>
+</body>
+</html>
