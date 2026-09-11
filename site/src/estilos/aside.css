@@ -251,6 +251,22 @@
     align-self: flex-start;
     padding-block-end: calc(var(--i, 0) * var(--step));
 
+    /* One pixel of overlap with the neighbour on the left, and this is the fix for
+       the hairlines that show up BETWEEN the bars while they fall.
+
+       Why they appear: during the arrival each bar sits at a fractional height, so
+       the browser rasterises its edges with partial coverage — and two vertical
+       edges that mathematically touch end up each contributing half a pixel, which
+       reads as a line of paper. The moment the animation lands, the positions are
+       whole pixels, the coverage is total, and the line is gone. Which is exactly
+       the symptom: lines while it falls, none when it stops.
+
+       Why overlapping fixes it: it stops depending on the positions being whole. One
+       pixel of a black bar over another black bar is invisible, at any position and
+       at any pixel ratio — and the flex row absorbs it, so the row still spans the
+       width exactly. */
+    margin-inline-start: -1px;
+
     /* The bottom edge itself stays straight: the tear does not cut into the bar. The
        bar stops where its box stops, and the torn strip hangs below, past that edge —
        .bar::after, just underneath. */
