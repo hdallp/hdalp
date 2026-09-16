@@ -422,157 +422,10 @@
       color: #ff7b72;
       border-color: #7a2828;
     }
-    .emoji-modal-bulk-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 4px 10px;
-      background: #191919;
-      border-bottom: 1px solid #282828;
-      font-size: 10px;
-      color: #888888;
-      gap: 8px;
-    }
-
-    .emoji-modal-bulk-actions {
-      display: flex;
-      gap: 5px;
-    }
-
-    .bulk-btn {
-      background: #282828;
-      border: 1px solid #383838;
-      border-radius: 2px;
-      color: #cccccc;
-      font-size: 10px;
-      font-family: inherit;
-      padding: 2px 7px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .bulk-btn:hover {
-      background: #383838;
-      color: #ffffff;
-    }
-    .bulk-btn-block {
-      color: #ff7b72;
-      border-color: #552222;
-    }
-    .bulk-btn-block:hover {
-      background: #4a1c1c;
-      color: #ffffff;
-    }
-    .bulk-btn-force {
-      color: #7ee787;
-      border-color: #1f512b;
-    }
-    .bulk-btn-force:hover {
+    .emoji-btn-force.btn-active {
       background: #15381e;
-      color: #ffffff;
-    }
-
-    .emoji-variations-badge {
-      font-size: 8px;
-      color: #58a6ff;
-      background: #17263c;
-      border: 1px solid #264366;
-      border-radius: 2px;
-      padding: 1px 4px;
-      cursor: pointer;
-      margin-top: 1px;
-      user-select: none;
-    }
-    .emoji-variations-badge:hover {
-      background: #1f385c;
-      color: #79c0ff;
-    }
-
-    /* Inspector de Variacoes e Misturas */
-    .emoji-modal-inspector {
-      display: none;
-      flex-direction: column;
-      background: #181818;
-      border-top: 1px solid #333333;
-      padding: 6px 10px;
-      gap: 6px;
-      max-height: 190px;
-      box-shadow: 0 -4px 12px rgba(0,0,0,0.5);
-    }
-
-    .inspector-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .inspector-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #58a6ff;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .inspector-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .inspector-grid {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-
-    .inspector-card {
-      min-width: 95px;
-      max-width: 95px;
-      background: #202020;
-      border: 1px solid #2d2d2d;
-      border-radius: 2px;
-      padding: 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-    .inspector-card.is-blocked {
-      border-color: #6e2727;
-      background: #261717;
-    }
-    .inspector-card.is-forced {
-      border-color: #1f512b;
-      background: #172619;
-    }
-
-    .inspector-card-img {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-    }
-
-    .inspector-card-name {
-      font-size: 9px;
-      color: #aaaaaa;
-      text-align: center;
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .inspector-card-actions {
-      display: flex;
-      gap: 2px;
-      width: 100%;
-      margin-top: 2px;
-    }
-
-    .inspector-card-actions .emoji-action-btn {
-      font-size: 8px;
-      padding: 2px 0;
+      color: #7ee787;
+      border-color: #246332;
     }
   </style>
 </head>
@@ -621,28 +474,8 @@
           <button class="tag-btn tag-filter-blocked" data-filter="__blocked">Bloqueados</button>
           <button class="tag-btn tag-filter-forced" data-filter="__forced">Forcados</button>
         </div>
-        <div class="emoji-modal-bulk-bar" id="emoji-modal-bulk-bar">
-          <span id="emoji-modal-bulk-text">Variações: 0</span>
-          <div class="emoji-modal-bulk-actions">
-            <button class="bulk-btn bulk-btn-block" id="bulk-block-btn">Bloquear Visíveis</button>
-            <button class="bulk-btn bulk-btn-force" id="bulk-force-btn">Forçar Visíveis</button>
-            <button class="bulk-btn" id="bulk-clear-btn">Limpar Visíveis</button>
-          </div>
-        </div>
         <div class="emoji-modal-status" id="emoji-modal-status">Carregando emojis...</div>
         <div class="emoji-modal-grid" id="emoji-modal-grid"></div>
-        <div class="emoji-modal-inspector" id="emoji-modal-inspector">
-          <div class="inspector-header">
-            <div class="inspector-title" id="inspector-title">Variações & Misturas</div>
-            <div class="inspector-actions">
-              <button class="bulk-btn bulk-btn-block" id="inspector-block-all-btn">Bloquear Todas</button>
-              <button class="bulk-btn bulk-btn-force" id="inspector-force-all-btn">Forçar Todas</button>
-              <button class="bulk-btn" id="inspector-clear-all-btn">Limpar</button>
-              <button class="bulk-btn" id="inspector-close-btn">&times; Fechar</button>
-            </div>
-          </div>
-          <div class="inspector-grid" id="inspector-grid"></div>
-        </div>
       </div>
     </div>
   </div>
@@ -692,7 +525,6 @@
 
       const params = {
         useEmojis: true,
-        useGaussianSplat: false,
         renderModeText: 'Emojis Coloridos',
         renderMode: 0,
         tintIntensity: 0.6,
@@ -717,7 +549,6 @@
           if (guiControllers.brightness) guiControllers.brightness.updateDisplay();
           if (guiControllers.contrast) guiControllers.contrast.updateDisplay();
           if (guiControllers.gamma) guiControllers.gamma.updateDisplay();
-          updateSHLockState(true);
           applyShaderParams();
         },
 
@@ -839,78 +670,32 @@
         if (guiControllers.pickerMode) guiControllers.pickerMode.updateDisplay();
       }
 
-      // 0a. gsplatEvalSHVS: Quando uLockSH > 0.5, retorna zero para os harmonicos superiores (mantem cor base fixa)
-      const customEvalSHGLSL = `
-#if SH_BANDS > 0
-	const float SH_C1 = 0.4886025119029199;
-	#if SH_BANDS > 1
-		const float SH_C2_0 = 1.0925484305920792;
-		const float SH_C2_1 = -1.0925484305920792;
-		const float SH_C2_2 = 0.31539156525252005;
-		const float SH_C2_3 = -1.0925484305920792;
-		const float SH_C2_4 = 0.5462742152960396;
-	#endif
-	#if SH_BANDS > 2
-		const float SH_C3_0 = -0.5900435899266435;
-		const float SH_C3_1 = 2.890611442640554;
-		const float SH_C3_2 = -0.4570457994644658;
-		const float SH_C3_3 = 0.3731763325901154;
-		const float SH_C3_4 = -0.4570457994644658;
-		const float SH_C3_5 = 1.445305721320277;
-		const float SH_C3_6 = -0.5900435899266435;
-	#endif
-	uniform float uLockSH;
-	vec3 evalSH(in vec3 sh[SH_COEFFS], in vec3 dir) {
-		if (uLockSH > 0.5) {
-			return vec3(0.0);
-		}
-		float x = dir.x;
-		float y = dir.y;
-		float z = dir.z;
-		vec3 result = SH_C1 * (-sh[0] * y + sh[1] * z - sh[2] * x);
-		#if SH_BANDS > 1
-			float xx = x * x;
-			float yy = y * y;
-			float zz = z * z;
-			float xy = x * y;
-			float yz = y * z;
-			float xz = x * z;
-			result +=
-				sh[3] * (SH_C2_0 * xy) +
-				sh[4] * (SH_C2_1 * yz) +
-				sh[5] * (SH_C2_2 * (2.0 * zz - xx - yy)) +
-				sh[6] * (SH_C2_3 * xz) +
-				sh[7] * (SH_C2_4 * (xx - yy));
-		#endif
-		#if SH_BANDS > 2
-			result +=
-				sh[8]  * (SH_C3_0 * y * (3.0 * xx - yy)) +
-				sh[9]  * (SH_C3_1 * xy * z) +
-				sh[10] * (SH_C3_2 * y * (4.0 * zz - xx - yy)) +
-				sh[11] * (SH_C3_3 * z * (2.0 * zz - 3.0 * xx - 3.0 * yy)) +
-				sh[12] * (SH_C3_4 * x * (4.0 * zz - xx - yy)) +
-				sh[13] * (SH_C3_5 * z * (xx - yy)) +
-				sh[14] * (SH_C3_6 * x * (xx - 3.0 * yy));
-		#endif
-		return result;
-	}
-#endif
-`;
-
-      // 0b. gsplatVS
+      // 0. gsplatVS: Desativa completamente o encolhimento de quads e coordenadas UV (clipCorner)
       const customVSGLSL = `
 #ifdef GSPLAT_USER_VARYINGS
 	#include "gsplatUserVaryingsVS"
 #endif
 #include "gsplatCommonVS"
-#include "gsplatOutputVS"
-
 varying mediump vec2 gaussianUV;
 varying mediump vec4 gaussianColor;
 #ifndef DITHER_NONE
 	varying float id;
 #endif
 mediump vec4 discardVec = vec4(0.0, 0.0, 2.0, 1.0);
+#ifdef PREPASS_PASS
+	varying float vLinearDepth;
+#endif
+#if defined(GSPLAT_UNIFIED_ID) && defined(PICK_PASS)
+	flat varying uint vPickId;
+#endif
+#ifdef GSPLAT_OVERDRAW
+	uniform sampler2D colorRamp;
+	uniform float colorRampIntensity;
+#endif
+
+uniform float uDensity;
+uniform float uMinOpacity;
+uniform float uLockSH;
 
 void main(void) {
 	SplatSource source;
@@ -918,6 +703,18 @@ void main(void) {
 		gl_Position = discardVec;
 		return;
 	}
+
+	if (uDensity < 0.999) {
+		uint h = splat.index * 747796405u + 2891336453u;
+		h = ((h >> ((h >> 28u) + 4u)) ^ h) * 277803737u;
+		h = (h >> 22u) ^ h;
+		float randVal = float(h & 0xFFFFFFu) / 16777215.0;
+		if (randVal > uDensity) {
+			gl_Position = discardVec;
+			return;
+		}
+	}
+
 	vec3 modelCenter = getCenter();
 	SplatCenter center;
 	center.modelCenterOriginal = modelCenter;
@@ -933,21 +730,89 @@ void main(void) {
 		gl_Position = discardVec;
 		return;
 	}
-	gl_Position = center.proj + vec4(corner.offset.xyz, 0.0);
-	gaussianUV = corner.uv;
-	gaussianColor = vec4(1.0, 0.8, 0.2, 1.0);
+	#ifdef GSPLAT_SEPARATE_OPACITY
+		float opacity = getOpacity();
+		vec4 clr = vec4(getColor(), opacity);
+	#else
+		vec4 clr = getColor();
+	#endif
+	#if GSPLAT_AA
+		clr.a *= corner.aaFactor;
+	#endif
+	#if SH_BANDS > 0
+		vec3 dir;
+		if (uLockSH > 0.5) {
+			dir = vec3(0.0, 0.0, 1.0);
+		} else {
+			dir = normalize(center.view * mat3(center.modelView));
+		}
+		vec3 sh[SH_COEFFS];
+		float scale;
+		readSHData(sh, scale);
+		clr.xyz += evalSH(sh, dir) * scale;
+	#endif
+	modifySplatColor(modelCenter, clr);
+
+	if (clr.w < uMinOpacity) {
+		gl_Position = discardVec;
+		return;
+	}
+
+	#if GSPLAT_2DGS
+		vec3 modelCorner = center.modelCenterModified + corner.offset;
+		gl_Position = matrix_projection * center.modelView * vec4(modelCorner, 1.0);
+	#else
+		gl_Position = center.proj + vec4(corner.offset.xyz, 0);
+	#endif
+	gaussianUV = source.cornerUV;
+
+	#ifdef GSPLAT_OVERDRAW
+		float t = clamp(modelCenter.y / 20.0, 0.0, 1.0);
+		vec3 rampColor = textureLod(colorRamp, vec2(t, 0.5), 0.0).rgb;
+		clr.a *= (1.0 / 32.0) * colorRampIntensity;
+		gaussianColor = vec4(rampColor, clr.a);
+	#else
+		gaussianColor = vec4(prepareOutputFromGamma(max(clr.xyz, 0.0), -center.view.z), clr.w);
+	#endif
+	#ifndef DITHER_NONE
+		id = float(splat.index);
+	#endif
+	#ifdef PREPASS_PASS
+		vLinearDepth = -center.view.z;
+	#endif
+	#if defined(GSPLAT_UNIFIED_ID) && defined(PICK_PASS)
+		vPickId = loadPcId().r;
+	#endif
 }
 `;
 
-      // 1. gsplatCornerVS: Suporte a Quads Billboard
+      // 1. gsplatCornerVS: Quadrados Billboard SEM ROTACAO
       const customCornerVSGLSL = `
 uniform float uSquareSize;
 uniform float uDepthThreshold;
 uniform float uMinDepth;
 uniform float uMaxDepth;
 
+void computeCovariance(vec4 rotation, vec3 scale, out vec3 covA, out vec3 covB) {
+	covA = vec3(0.0);
+	covB = vec3(0.0);
+}
+
+bool initCornerCov(SplatSource source, SplatCenter center, out SplatCorner corner, vec3 covA, vec3 covB) {
+	return true;
+}
+
 bool initCorner(SplatSource source, SplatCenter center, out SplatCorner corner) {
-	float s = max(0.0001, uSquareSize) * center.proj.w;
+	float depth = -center.view.z;
+	if (uDepthThreshold < 0.999) {
+		float depthRange = max(0.001, uMaxDepth - uMinDepth);
+		float normDepth = (depth - uMinDepth) / depthRange;
+		if (normDepth > uDepthThreshold) {
+			return false;
+		}
+	}
+
+	float s = max(0.0001, uSquareSize);
 	corner.offset = vec3(
 		matrix_projection[0][0] * source.cornerUV.x * s,
 		matrix_projection[1][1] * source.cornerUV.y * s,
@@ -993,17 +858,23 @@ fn initCorner(source: ptr<function, SplatSource>, center: ptr<function, SplatCen
 }
 `;
 
-      // 2. gsplatPS: Amostragem de Emoji Atlas ou Gaussian Splatting suave
+      // 2. gsplatPS: Amostragem precisa e orientada do Emoji Atlas
       const customPSGLSL = `
 varying mediump vec2 gaussianUV;
 varying mediump vec4 gaussianColor;
+
+#if defined(GSPLAT_UNIFIED_ID) && defined(PICK_PASS)
+	flat varying uint vPickId;
+#endif
+#ifdef PICK_PASS
+	#include "pickPS"
+#endif
 
 uniform sampler2D uEmojiAtlas;
 uniform sampler2D uColorLUT;
 uniform int uRenderMode;
 uniform float uAlphaCutoff;
 uniform float uTintIntensity;
-uniform float uUseGaussianSplat;
 
 uniform float uHueShift;
 uniform float uSaturation;
@@ -1011,26 +882,83 @@ uniform float uBrightness;
 uniform float uContrast;
 uniform float uGamma;
 
-const float EXP4 = exp(-4.0);
-const float INV_EXP4 = 1.0 / (1.0 - EXP4);
-float normExp(float x) {
-	return (exp(x * -4.0) - EXP4) * INV_EXP4;
+vec3 rgb2hsv(vec3 c) {
+	vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+	vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+	vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+	float d = q.x - min(q.w, q.y);
+	float e = 1.0e-10;
+	return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
-vec3 applyColorAdjustments(vec3 color) {
-	color += uBrightness;
-	color = (color - 0.5) * uContrast + 0.5;
-	float gray = dot(color, vec3(0.299, 0.587, 0.114));
-	color = mix(vec3(gray), color, uSaturation);
-	if (uGamma > 0.001) {
-		color = pow(max(color, 0.0), vec3(1.0 / uGamma));
+vec3 hsv2rgb(vec3 c) {
+	vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+	vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+	return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+vec3 applyColorGrading(vec3 col) {
+	vec3 hsv = rgb2hsv(clamp(col, 0.0, 1.0));
+	hsv.x = fract(hsv.x + uHueShift / 360.0);
+	hsv.y = clamp(hsv.y * uSaturation, 0.0, 1.0);
+	vec3 rgb = hsv2rgb(hsv);
+
+	rgb = (rgb - 0.5) * uContrast + 0.5 + uBrightness;
+	rgb = clamp(rgb, 0.0, 1.0);
+
+	if (uGamma > 0.01 && abs(uGamma - 1.0) > 0.005) {
+		rgb = pow(rgb, vec3(1.0 / uGamma));
 	}
-	return clamp(color, 0.0, 1.0);
+	return clamp(rgb, 0.0, 1.0);
 }
 
 void main(void) {
-	vec3 splatColor = clamp(gaussianColor.rgb, 0.0, 1.0);
-	gl_FragColor = vec4(splatColor, 1.0);
+	#if defined(SHADOW_PASS) || defined(PICK_PASS) || defined(PREPASS_PASS)
+		// pass
+	#elif SHADOW_PASS
+		gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+	#elif PREPASS_PASS
+		pcFragColor0 = floatAsUint(vLinearDepth);
+	#else
+		vec3 splatColor = applyColorGrading(gaussianColor.rgb);
+
+		if (uRenderMode == 2) {
+			gl_FragColor = vec4(splatColor, 1.0);
+			return;
+		}
+
+		// Coordenadas locais do billboard [0..1]
+		// gaussianUV.x: [-1..1] -> [0..1]
+		// gaussianUV.y: [+1..-1] (topo para base) -> [0..1]
+		vec2 localUV = vec2(gaussianUV.x * 0.5 + 0.5, -gaussianUV.y * 0.5 + 0.5);
+		vec2 clampedUV = clamp(localUV, 0.0, 1.0);
+
+		// Amostra a Color LUT 16x16x16
+		vec3 voxel = floor(splatColor * 15.0 + 0.5);
+		float lutX = (voxel.r * 16.0 + voxel.g + 0.5) / 256.0;
+		float lutY = (voxel.b + 0.5) / 16.0;
+
+		vec4 lutSample = texture2D(uColorLUT, vec2(lutX, lutY));
+		float col = floor(lutSample.r * 255.0 + 0.5);
+		float row = floor(lutSample.g * 255.0 + 0.5);
+
+		// Mapeamento correto e orientado no Atlas PlayCanvas (64 cols x 32 rows)
+		float atlasU = (col + clampedUV.x) / 64.0;
+		float atlasV = (row + clampedUV.y) / 32.0;
+
+		vec4 emojiColor = texture2D(uEmojiAtlas, vec2(atlasU, atlasV));
+
+		if (emojiColor.a < uAlphaCutoff) {
+			discard;
+		}
+
+		if (uRenderMode == 0) {
+			gl_FragColor = vec4(emojiColor.rgb, 1.0);
+		} else {
+			vec3 tinted = mix(emojiColor.rgb, emojiColor.rgb * splatColor * 1.5, uTintIntensity);
+			gl_FragColor = vec4(tinted, 1.0);
+		}
+	#endif
 }
 `;
 
@@ -1405,7 +1333,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         img.src = 'emoji_atlas.png';
         img.onload = () => {
           if (!app || !app.graphicsDevice) return;
-          const loadedTex = new pc.Texture(app.graphicsDevice, {
+          atlasTexture = new pc.Texture(app.graphicsDevice, {
             width: img.width,
             height: img.height,
             format: pc.PIXELFORMAT_RGBA8,
@@ -1415,8 +1343,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             addressU: pc.ADDRESS_CLAMP_TO_EDGE,
             addressV: pc.ADDRESS_CLAMP_TO_EDGE
           });
-          loadedTex.setSource(img);
-          atlasTexture = loadedTex;
+          atlasTexture.setSource(img);
           console.log('[Effect Lab] Texture Atlas carregado e instanciado na GPU.');
           applyShaderParams();
         };
@@ -1435,25 +1362,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           addressU: pc.ADDRESS_CLAMP_TO_EDGE,
           addressV: pc.ADDRESS_CLAMP_TO_EDGE
         });
-      }
-
-      function createPlaceholderAtlasTexture() {
-        if (!app || !app.graphicsDevice || atlasTexture) return;
-        atlasTexture = new pc.Texture(app.graphicsDevice, {
-          width: 64,
-          height: 32,
-          format: pc.PIXELFORMAT_RGBA8,
-          mipmaps: false,
-          minFilter: pc.FILTER_NEAREST,
-          magFilter: pc.FILTER_NEAREST,
-          addressU: pc.ADDRESS_CLAMP_TO_EDGE,
-          addressV: pc.ADDRESS_CLAMP_TO_EDGE
-        });
-        const data = new Uint8Array(64 * 32 * 4);
-        data.fill(255);
-        const px = atlasTexture.lock();
-        px.set(data);
-        atlasTexture.unlock();
       }
 
       function initPlayCanvas() {
@@ -1481,14 +1389,10 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           });
         }
 
-        createLUTTexture();
-        createPlaceholderAtlasTexture();
-
         if (pc.ShaderChunks) {
           try {
             const glslChunks = pc.ShaderChunks.get(app.graphicsDevice, 'glsl');
             if (glslChunks) {
-              glslChunks.set('gsplatEvalSHVS', customEvalSHGLSL);
               glslChunks.set('gsplatVS', customVSGLSL);
               glslChunks.set('gsplatCornerVS', customCornerVSGLSL);
               glslChunks.set('gsplatPS', customPSGLSL);
@@ -1516,14 +1420,12 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             console.log('[Effect Lab] material:created interceptado.');
             try {
               if (material.shaderChunks && material.shaderChunks.glsl) {
-                material.shaderChunks.glsl.set('gsplatEvalSHVS', customEvalSHGLSL);
                 material.shaderChunks.glsl.set('gsplatVS', customVSGLSL);
                 material.shaderChunks.glsl.set('gsplatCornerVS', customCornerVSGLSL);
                 material.shaderChunks.glsl.set('gsplatPS', customPSGLSL);
               }
               material.setParameter('alphaClipForward', 0.0);
               material.setParameter('alphaClip', 0.0);
-              material.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
               material.blendType = pc.BLEND_NONE;
               material.depthWrite = true;
               material.update();
@@ -1539,7 +1441,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         cameraEntity = new pc.Entity('MainCamera');
         cameraEntity.addComponent('camera', {
-          clearColor: new pc.Color(0.08, 0.09, 0.12, 1),
+          clearColor: new pc.Color(1, 1, 1, 1),
           nearClip: 0.01,
           farClip: 500,
           fov: 45
@@ -1690,8 +1592,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           orbit.targetYaw = 25;
           orbit.targetPitch = 12;
 
-          lastAppliedLockSH = null;
-          updateSHLockState(true);
           applyShaderParams();
 
           params.fileName = filename;
@@ -1840,160 +1740,10 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
       }
 
       let currentActiveModalTag = '';
-      let currentVisibleEmojiTokens = [];
-      let currentInspectorEmoji = null;
-
-      function isWordMatch(p, op) {
-        if (p === op) return true;
-        if (p.length >= 4 && op.length >= 4) {
-          if (op.startsWith(p) || p.startsWith(op)) return true;
-        }
-        return false;
-      }
-
-      function findEmojiVariations(emoji) {
-        if (!atlasMetadata || !atlasMetadata.emojis || !emoji) return [];
-        const name = emoji.name.toLowerCase();
-        const rawParts = name.split('_').filter(p => p.length >= 3 && !['and', 'with', 'the', 'for', 'sign', 'symbol', 'button', 'selector'].includes(p));
-        if (rawParts.length === 0) return [emoji];
-
-        const results = [];
-        for (let i = 0; i < atlasMetadata.emojis.length; i++) {
-          const other = atlasMetadata.emojis[i];
-          const otherParts = other.name.toLowerCase().split('_');
-          const matches = rawParts.filter(p => otherParts.some(op => isWordMatch(p, op)));
-          if (matches.length > 0) {
-            results.push({ emoji: other, index: i, matchCount: matches.length });
-          }
-        }
-        results.sort((a, b) => b.matchCount - a.matchCount || a.emoji.name.localeCompare(b.emoji.name));
-        return results.map(r => r.emoji);
-      }
-
-      function renderEmojiVariationsInspector(emojiIndex) {
-        const inspector = document.getElementById('emoji-modal-inspector');
-        const title = document.getElementById('inspector-title');
-        const grid = document.getElementById('inspector-grid');
-        if (!inspector || !grid || !atlasMetadata || !atlasMetadata.emojis) return;
-
-        const target = atlasMetadata.emojis[emojiIndex];
-        if (!target) return;
-        currentInspectorEmoji = target;
-
-        const variations = findEmojiVariations(target);
-        if (variations.length === 0) return;
-
-        inspector.style.display = 'flex';
-        title.textContent = `Variações de ${target.name} (${variations.length})`;
-
-        const excludedIndices = parseTokenIndices(params.excludedText);
-        const forcedIndices = parseTokenIndices(params.forcedText);
-
-        let html = '';
-        for (const v of variations) {
-          const token = v.surrogates || v.name;
-          const isBlocked = excludedIndices.has(v.id);
-          const isForced = forcedIndices.has(v.id);
-
-          let cardClass = 'inspector-card';
-          if (isBlocked) cardClass += ' is-blocked';
-          if (isForced) cardClass += ' is-forced';
-
-          let badgeHtml = '<span class="emoji-badge badge-idle">Ativo</span>';
-          if (isBlocked) badgeHtml = '<span class="emoji-badge badge-blocked">Bloqueado</span>';
-          else if (isForced) badgeHtml = '<span class="emoji-badge badge-forced">Forçado</span>';
-
-          html += `
-            <div class="${cardClass}">
-              ${badgeHtml}
-              <img class="inspector-card-img" src="emojis/${v.filename}" alt="${v.name}" loading="lazy" />
-              <div class="inspector-card-name" title="${v.name}">${v.name}</div>
-              <div class="inspector-card-actions">
-                <button class="emoji-action-btn emoji-btn-block ${isBlocked ? 'btn-active' : ''}" onclick="window.__toggleExclusion('${token}')">
-                  ${isBlocked ? 'X' : 'Bloq'}
-                </button>
-                <button class="emoji-action-btn emoji-btn-force ${isForced ? 'btn-active' : ''}" onclick="window.__toggleForced('${token}')">
-                  ${isForced ? 'X' : 'Forc'}
-                </button>
-              </div>
-            </div>
-          `;
-        }
-        grid.innerHTML = html;
-      }
-
-      function closeEmojiInspector() {
-        const inspector = document.getElementById('emoji-modal-inspector');
-        if (inspector) inspector.style.display = 'none';
-        currentInspectorEmoji = null;
-      }
-
-      window.__openVariations = function (emojiIndex) {
-        renderEmojiVariationsInspector(emojiIndex);
-      };
-
-      window.__bulkExclude = function (tokens) {
-        if (!tokens || tokens.length === 0) return;
-        let currentTokens = params.excludedText
-          ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
-          : [];
-        for (const t of tokens) {
-          if (!currentTokens.includes(t)) currentTokens.push(t);
-        }
-        params.excludedText = currentTokens.join(', ');
-        if (guiControllers.excludedText) guiControllers.excludedText.setValue(params.excludedText);
-        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
-        const searchInput = document.getElementById('emoji-modal-search-input');
-        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
-      };
-
-      window.__bulkForce = function (tokens) {
-        if (!tokens || tokens.length === 0) return;
-        let currentTokens = params.forcedText
-          ? params.forcedText.split(',').map(s => s.trim()).filter(Boolean)
-          : [];
-        for (const t of tokens) {
-          if (!currentTokens.includes(t)) currentTokens.push(t);
-        }
-        params.forcedText = currentTokens.join(', ');
-        params.useForced = true;
-        if (guiControllers.forcedText) guiControllers.forcedText.setValue(params.forcedText);
-        if (guiControllers.useForced) guiControllers.useForced.setValue(true);
-        const toggle = document.getElementById('emoji-modal-use-forced-toggle');
-        if (toggle) toggle.checked = true;
-        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
-        const searchInput = document.getElementById('emoji-modal-search-input');
-        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
-      };
-
-      window.__bulkClear = function (tokens) {
-        if (!tokens || tokens.length === 0) return;
-        const tokenSet = new Set(tokens);
-        let exTokens = params.excludedText
-          ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
-          : [];
-        let foTokens = params.forcedText
-          ? params.forcedText.split(',').map(s => s.trim()).filter(Boolean)
-          : [];
-
-        params.excludedText = exTokens.filter(t => !tokenSet.has(t)).join(', ');
-        params.forcedText = foTokens.filter(t => !tokenSet.has(t)).join(', ');
-
-        if (guiControllers.excludedText) guiControllers.excludedText.setValue(params.excludedText);
-        if (guiControllers.forcedText) guiControllers.forcedText.setValue(params.forcedText);
-
-        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
-        const searchInput = document.getElementById('emoji-modal-search-input');
-        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
-      };
 
       function renderEmojiModal(query = '', categoryFilter = '') {
         const grid = document.getElementById('emoji-modal-grid');
         const status = document.getElementById('emoji-modal-status');
-        const bulkText = document.getElementById('emoji-modal-bulk-text');
         if (!grid || !atlasMetadata || !atlasMetadata.emojis) return;
 
         const q = (query || '').toLowerCase().trim();
@@ -2005,8 +1755,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         const forcedIndices = parseTokenIndices(params.forcedText);
 
         const matched = [];
-        currentVisibleEmojiTokens = [];
-
         for (let i = 0; i < atlasMetadata.emojis.length; i++) {
           const e = atlasMetadata.emojis[i];
           const name = e.name.toLowerCase();
@@ -2032,7 +1780,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           }
 
           matched.push({ emoji: e, index: i, isBlocked, isForced });
-          currentVisibleEmojiTokens.push(surrogates || e.name);
         }
 
         const forcedStatusHtml = params.useForced
@@ -2046,10 +1793,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             <span style="color: #7ee787;">Forcados: <strong>${forcedIndices.size}</strong></span>
             <span>${forcedStatusHtml}</span>
           `;
-        }
-
-        if (bulkText) {
-          bulkText.textContent = `Variações correspondentes: ${matched.length}`;
         }
 
         const displayList = matched.slice(0, 200);
@@ -2075,20 +1818,14 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           if (isBlocked) cardClass += ' is-blocked';
           if (isForced) cardClass += ' is-forced';
 
-          const varCount = findEmojiVariations(e).length;
-          const varBadgeHtml = varCount > 1
-            ? `<button class="emoji-variations-badge" onclick="event.stopPropagation(); window.__openVariations(${e.id})">${varCount} variações</button>`
-            : '';
-
           html += `
-            <div class="${cardClass}" onclick="window.__openVariations(${e.id})" style="cursor: pointer;">
+            <div class="${cardClass}">
               <div class="emoji-card-header">
                 <span class="emoji-badge ${badgeClass}">${badgeText}</span>
               </div>
               <img class="emoji-grid-img" src="emojis/${e.filename}" alt="${e.name}" loading="lazy" />
               <div class="emoji-grid-name" title="${e.name}">${e.name}</div>
-              ${varBadgeHtml}
-              <div class="emoji-grid-actions" onclick="event.stopPropagation()">
+              <div class="emoji-grid-actions">
                 <button class="emoji-action-btn emoji-btn-block ${isBlocked ? 'btn-active' : ''}" onclick="window.__toggleExclusion('${token}')">
                   ${isBlocked ? 'Desbloquear' : 'Bloquear'}
                 </button>
@@ -2121,7 +1858,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
         const searchInput = document.getElementById('emoji-modal-search-input');
         renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
       };
 
       window.__toggleForced = function (token) {
@@ -2148,7 +1884,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
         const searchInput = document.getElementById('emoji-modal-search-input');
         renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
       };
 
       // Retrocompatibilidade
@@ -2162,53 +1897,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         const clearBtn = document.getElementById('emoji-modal-clear-search');
         const tagsContainer = document.getElementById('emoji-modal-tags');
         const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
-
-        const bulkBlockBtn = document.getElementById('bulk-block-btn');
-        const bulkForceBtn = document.getElementById('bulk-force-btn');
-        const bulkClearBtn = document.getElementById('bulk-clear-btn');
-
-        const inspectorCloseBtn = document.getElementById('inspector-close-btn');
-        const inspectorBlockAllBtn = document.getElementById('inspector-block-all-btn');
-        const inspectorForceAllBtn = document.getElementById('inspector-force-all-btn');
-        const inspectorClearAllBtn = document.getElementById('inspector-clear-all-btn');
-
-        if (bulkBlockBtn) {
-          bulkBlockBtn.addEventListener('click', () => window.__bulkExclude(currentVisibleEmojiTokens));
-        }
-        if (bulkForceBtn) {
-          bulkForceBtn.addEventListener('click', () => window.__bulkForce(currentVisibleEmojiTokens));
-        }
-        if (bulkClearBtn) {
-          bulkClearBtn.addEventListener('click', () => window.__bulkClear(currentVisibleEmojiTokens));
-        }
-
-        if (inspectorCloseBtn) {
-          inspectorCloseBtn.addEventListener('click', closeEmojiInspector);
-        }
-        if (inspectorBlockAllBtn) {
-          inspectorBlockAllBtn.addEventListener('click', () => {
-            if (currentInspectorEmoji) {
-              const vars = findEmojiVariations(currentInspectorEmoji).map(v => v.surrogates || v.name);
-              window.__bulkExclude(vars);
-            }
-          });
-        }
-        if (inspectorForceAllBtn) {
-          inspectorForceAllBtn.addEventListener('click', () => {
-            if (currentInspectorEmoji) {
-              const vars = findEmojiVariations(currentInspectorEmoji).map(v => v.surrogates || v.name);
-              window.__bulkForce(vars);
-            }
-          });
-        }
-        if (inspectorClearAllBtn) {
-          inspectorClearAllBtn.addEventListener('click', () => {
-            if (currentInspectorEmoji) {
-              const vars = findEmojiVariations(currentInspectorEmoji).map(v => v.surrogates || v.name);
-              window.__bulkClear(vars);
-            }
-          });
-        }
 
         if (headerToggle) {
           headerToggle.addEventListener('change', (e) => {
@@ -2268,35 +1956,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         }
       }
 
-      let lastAppliedLockSH = null;
-
-      function updateSHLockState(force = false) {
-        if (!app) return;
-        const isLocked = !!params.lockSH;
-        if (!force && lastAppliedLockSH === isLocked) return;
-        lastAppliedLockSH = isLocked;
-
-        console.log('[Effect Lab] Atualizando estado de Bloqueio SH:', isLocked);
-
-        const device = app.graphicsDevice;
-        if (device && device.scope) {
-          device.scope.resolve('uLockSH')?.setValue(isLocked ? 1.0 : 0.0);
-        }
-
-        if (app.scene && app.scene.gsplat) {
-          app.scene.gsplat.colorUpdateAngle = isLocked ? 1e9 : 10;
-        }
-
-        if (splatEntity && splatEntity.gsplat) {
-          try {
-            splatEntity.gsplat.setParameter('uLockSH', isLocked ? 1.0 : 0.0);
-            if (splatEntity.gsplat.material) {
-              splatEntity.gsplat.material.setParameter('uLockSH', isLocked ? 1.0 : 0.0);
-            }
-          } catch (e) {}
-        }
-      }
-
       function applyShaderParams() {
         const camPos = cameraEntity ? cameraEntity.getPosition() : new pc.Vec3(0, 0, orbit.distance);
         const camDist = camPos.length();
@@ -2305,8 +1964,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         const maxDepth = camDist + radius;
 
         const activeRenderMode = params.useEmojis ? params.renderMode : 2;
-
-        updateSHLockState(false);
 
         const device = app ? app.graphicsDevice : null;
         if (device && device.scope) {
@@ -2320,7 +1977,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           device.scope.resolve('uAlphaCutoff')?.setValue(params.alphaCutoff);
           device.scope.resolve('uTintIntensity')?.setValue(params.tintIntensity);
           device.scope.resolve('uLockSH')?.setValue(params.lockSH ? 1.0 : 0.0);
-          device.scope.resolve('uUseGaussianSplat')?.setValue(params.useGaussianSplat ? 1.0 : 0.0);
           device.scope.resolve('alphaClipForward')?.setValue(1e-12);
           device.scope.resolve('alphaClip')?.setValue(1e-12);
 
@@ -2350,7 +2006,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             splatEntity.gsplat.setParameter('uAlphaCutoff', params.alphaCutoff);
             splatEntity.gsplat.setParameter('uTintIntensity', params.tintIntensity);
             splatEntity.gsplat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
-            splatEntity.gsplat.setParameter('uUseGaussianSplat', params.useGaussianSplat ? 1.0 : 0.0);
             splatEntity.gsplat.setParameter('alphaClipForward', 1e-12);
             splatEntity.gsplat.setParameter('alphaClip', 1e-12);
             splatEntity.gsplat.setParameter('uHueShift', params.hueShift);
@@ -2375,7 +2030,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
               mat.setParameter('uAlphaCutoff', params.alphaCutoff);
               mat.setParameter('uTintIntensity', params.tintIntensity);
               mat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
-              mat.setParameter('uUseGaussianSplat', params.useGaussianSplat ? 1.0 : 0.0);
               mat.setParameter('alphaClipForward', 1e-12);
               mat.setParameter('alphaClip', 1e-12);
               mat.setParameter('uHueShift', params.hueShift);
@@ -2385,10 +2039,8 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
               mat.setParameter('uGamma', params.gamma);
               if (atlasTexture) mat.setParameter('uEmojiAtlas', atlasTexture);
               if (lutTexture) mat.setParameter('uColorLUT', lutTexture);
-
-              const isPureGaussian = params.useGaussianSplat && (params.renderMode === 2 || !params.useEmojis);
-              mat.blendType = isPureGaussian ? pc.BLEND_NORMAL : pc.BLEND_NONE;
-              mat.depthWrite = isPureGaussian ? false : true;
+              mat.blendType = pc.BLEND_NONE;
+              mat.depthWrite = true;
             }
           } catch (e) {}
         }
@@ -2401,17 +2053,10 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         const gui = new lil.GUI({ title: 'Configuracoes' });
 
-        // Botao de acesso direto no topo do menu
-        gui.add(params, 'openEmojiModal').name('Escolher Emojis (Painel)');
-
         const effectFolder = gui.addFolder('Modo & Emojis');
 
         guiControllers.useEmojis = effectFolder.add(params, 'useEmojis')
           .name('Exibir Emojis')
-          .onChange(() => applyShaderParams());
-
-        guiControllers.useGaussianSplat = effectFolder.add(params, 'useGaussianSplat')
-          .name('Ativar Gaussian Splat')
           .onChange(() => applyShaderParams());
 
         effectFolder.add(params, 'renderModeText', ['Emojis Coloridos', 'Emojis Tintados', 'Cores Originais'])
@@ -2439,10 +2084,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         guiControllers.lockSH = colorFolder.add(params, 'lockSH')
           .name('Travar S.H. (Cores Fixas)')
-          .onChange(() => {
-            updateSHLockState(true);
-            applyShaderParams();
-          });
+          .onChange(() => applyShaderParams());
 
         guiControllers.hueShift = colorFolder.add(params, 'hueShift', -180, 180, 1)
           .name('Hue Shift (°)')
@@ -2468,7 +2110,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         const filterFolder = gui.addFolder('Filtros, Bloqueio & Forcar');
 
-        filterFolder.add(params, 'openEmojiModal').name('Escolher Emojis (Painel)');
+        filterFolder.add(params, 'openEmojiModal').name('Painel / Catalogo Emojis');
 
         guiControllers.pickerMode = filterFolder.add(params, 'pickerMode')
           .name('Modo Picker (Clique na Nuvem)')
@@ -2526,8 +2168,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           .listen()
           .disable();
 
-        filterFolder.open();
-
         guiControllers.excludedCount = filterFolder.add(params, 'excludedCount')
           .name('Bloqueados')
           .listen()
@@ -2539,11 +2179,6 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           .disable();
 
         const geoFolder = gui.addFolder('Geometria & Cena');
-
-        geoFolder.add(params, 'useGaussianSplat')
-          .name('Ativar Gaussian Splat')
-          .listen()
-          .onChange(() => applyShaderParams());
 
         geoFolder.add(params, 'squareSize', 0.0005, 0.03, 0.0002)
           .name('Tamanho')
