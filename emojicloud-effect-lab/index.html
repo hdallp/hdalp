@@ -14,6 +14,8 @@
     html, body {
       width: 100%;
       height: 100%;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
       background-color: #ffffff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
@@ -44,74 +46,80 @@
       cursor: crosshair !important;
     }
 
-    /* lil-gui positioning as a fixed aside sidebar */
-    .lil-gui {
-      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
-      --font-size: 11px;
-      --title-background-color: #242424;
-      --background-color: #1a1a1a;
-      --widget-color: #2e2e2e;
-      --hover-color: #3e3e3e;
-      --focus-color: #4a4a4a;
-      --number-color: #58a6ff;
-      --string-color: #7ee787;
-      font-weight: 500;
-      z-index: 100 !important;
-    }
-
-    .lil-gui.root {
+    /* Tweakpane como painel FLUTUANTE (tema escuro do lab) */
+    .tp-dfwv {
       position: fixed !important;
-      top: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      height: 100vh !important;
-      max-height: 100vh !important;
-      width: 320px !important;
-      border-left: 1px solid #2e2e2e;
-      border-radius: 0 !important;
-      /*box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);*/
-      display: flex;
-      flex-direction: column;
+      top: 10px !important;
+      right: 10px !important;
+      bottom: auto !important;
+      width: 300px !important;
+      max-height: calc(100vh - 20px) !important;
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 100 !important;
+      padding: 0 !important;
+      border-radius: 6px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+      --tp-base-background-color: #1a1a1a;
+      --tp-base-border-radius: 0px;
+      --tp-base-shadow-color: rgba(0, 0, 0, 0.5);
+      --tp-base-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
+      --tp-blade-border-radius: 3px;
+      --tp-button-background-color: #2e2e2e;
+      --tp-button-background-color-hover: #3e3e3e;
+      --tp-button-background-color-focus: #3e3e3e;
+      --tp-button-background-color-active: #4a4a4a;
+      --tp-button-foreground-color: #d5dae1;
+      --tp-container-background-color: #242424;
+      --tp-container-background-color-hover: #2c2c2c;
+      --tp-container-background-color-focus: #2c2c2c;
+      --tp-container-background-color-active: #333333;
+      --tp-container-foreground-color: #c8ced6;
+      --tp-container-horizontal-padding: 6px;
+      --tp-input-background-color: #2e2e2e;
+      --tp-input-background-color-hover: #383838;
+      --tp-input-background-color-focus: #3e3e3e;
+      --tp-input-background-color-active: #4a4a4a;
+      --tp-input-foreground-color: #58a6ff;
+      --tp-label-foreground-color: rgba(200, 206, 214, 0.78);
+      --tp-monitor-background-color: #161616;
+      --tp-monitor-foreground-color: #7ee787;
+      --tp-groove-foreground-color: #333333;
+      font-size: 11px;
     }
 
-    .lil-gui.root > .title {
-      border-radius: 0 !important;
-      flex-shrink: 0;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
+    /* Barra de título do painel */
+    .tp-dfwv .tp-rotv_b {
+      border-radius: 6px 6px 0 0 !important;
+      background-color: #242424;
+      height: 32px;
+      line-height: 32px;
       font-weight: 700;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       border-bottom: 1px solid #2e2e2e;
+      text-align: left;
     }
 
-    .lil-gui.root > .children {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      max-height: none !important;
-    }
-
-    /* Custom sleek scrollbar for lil-gui aside */
-    .lil-gui.root > .children::-webkit-scrollbar {
+    /* Scrollbar discreta da sidebar */
+    .tp-dfwv::-webkit-scrollbar {
       width: 6px;
     }
-    .lil-gui.root > .children::-webkit-scrollbar-track {
+    .tp-dfwv::-webkit-scrollbar-track {
       background: #161616;
     }
-    .lil-gui.root > .children::-webkit-scrollbar-thumb {
+    .tp-dfwv::-webkit-scrollbar-thumb {
       background: #333333;
       border-radius: 3px;
     }
-    .lil-gui.root > .children::-webkit-scrollbar-thumb:hover {
+    .tp-dfwv::-webkit-scrollbar-thumb:hover {
       background: #4a4a4a;
     }
 
-    .lil-gui .lil-string input {
-      font-size: 13px !important;
-      padding: 4px 6px !important;
+    /* Campos de texto (excluir/restringir emojis) */
+    .tp-dfwv .tp-txtv_i {
+      font-size: 12px;
+      padding: 4px 6px;
     }
 
     /* Loading Overlay */
@@ -183,14 +191,15 @@
       display: none;
     }
 
-    /* Emoji Catalog & Search Modal - Exact lil-gui aesthetic */
+    /* Emoji Catalog & Search Modal - Sleek Dark UI */
     .emoji-modal-backdrop {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
       z-index: 150;
       display: flex;
       align-items: center;
@@ -198,16 +207,16 @@
     }
 
     .emoji-modal-card {
-      width: 680px;
-      max-width: 95vw;
-      height: 580px;
-      max-height: 90vh;
+      width: 960px;
+      max-width: 96vw;
+      height: 640px;
+      max-height: 92vh;
       background: #1a1a1a;
       border: 1px solid #333333;
-      border-radius: 2px;
+      border-radius: 4px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
       overflow: hidden;
       color: #e0e0e0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
@@ -221,7 +230,8 @@
       padding: 6px 12px;
       background: #242424;
       border-bottom: 1px solid #2e2e2e;
-      height: 32px;
+      height: 34px;
+      flex-shrink: 0;
     }
 
     .emoji-modal-title {
@@ -230,6 +240,21 @@
       color: #ffffff;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-count-tag {
+      font-size: 10px;
+      font-weight: 500;
+      color: #58a6ff;
+      background: rgba(88, 166, 255, 0.12);
+      border: 1px solid rgba(88, 166, 255, 0.25);
+      padding: 1px 6px;
+      border-radius: 10px;
+      letter-spacing: 0;
+      text-transform: none;
     }
 
     .emoji-modal-header-right {
@@ -258,13 +283,236 @@
       background: transparent;
       border: none;
       color: #888888;
-      font-size: 18px;
+      font-size: 20px;
       line-height: 1;
       cursor: pointer;
       padding: 0 4px;
+      transition: color 0.15s;
     }
     .emoji-modal-close:hover {
       color: #ffffff;
+    }
+
+    /* Modal 2-Column Layout */
+    .emoji-modal-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar: Always Active Color Picker */
+    .emoji-modal-sidebar {
+      width: 216px;
+      flex-shrink: 0;
+      background: #171717;
+      border-right: 1px solid #282828;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      gap: 8px;
+      overflow-y: auto;
+    }
+
+    .sidebar-section-title {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #888888;
+    }
+
+    /* 2D Color Box & Crosshair */
+    .color-picker-box-container {
+      position: relative;
+      width: 194px;
+      height: 126px;
+      border: 1px solid #383838;
+      border-radius: 3px;
+      overflow: hidden;
+      cursor: crosshair;
+      user-select: none;
+      flex-shrink: 0;
+      background: #000;
+    }
+
+    #color-box-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .crosshair-h {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #ffffff;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.95), 0 0 1px #000;
+      pointer-events: none;
+      top: 0px;
+    }
+
+    .crosshair-v {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: #ffffff;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.95), 0 0 1px #000;
+      pointer-events: none;
+      left: 194px;
+    }
+
+    .crosshair-ring {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.95);
+      pointer-events: none;
+      left: 194px;
+      top: 0px;
+    }
+
+    /* Hue Rainbow Bar */
+    .hue-bar-container {
+      position: relative;
+      width: 194px;
+      height: 14px;
+      border: 1px solid #383838;
+      border-radius: 3px;
+      cursor: pointer;
+      user-select: none;
+      flex-shrink: 0;
+      background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    }
+
+    .hue-cursor {
+      position: absolute;
+      top: -1px;
+      bottom: -1px;
+      width: 4px;
+      background: #ffffff;
+      border: 1px solid #000000;
+      border-radius: 1px;
+      transform: translateX(-50%);
+      pointer-events: none;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.9);
+      left: 0px;
+    }
+
+    /* Active Color Indicator & Reset */
+    .color-preview-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: #202020;
+      border: 1px solid #2e2e2e;
+      border-radius: 3px;
+      padding: 4px 6px;
+      flex-shrink: 0;
+    }
+
+    .color-preview-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-preview-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      display: inline-block;
+      flex-shrink: 0;
+      background: #ff0000;
+    }
+
+    .color-preview-hex {
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .color-reset-btn {
+      background: #2a2a2a;
+      border: 1px solid #3e3e3e;
+      border-radius: 2px;
+      color: #cccccc;
+      font-size: 10px;
+      padding: 2px 7px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: all 0.12s;
+    }
+    .color-reset-btn:hover {
+      background: #383838;
+      color: #ffffff;
+      border-color: #58a6ff;
+    }
+
+    /* Quick Swatches Palette */
+    .sidebar-swatches-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .swatch-btn {
+      width: 28px;
+      height: 20px;
+      border-radius: 2px;
+      border: 1px solid #2e2e2e;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.1s;
+    }
+    .swatch-btn:hover {
+      transform: scale(1.12);
+      border-color: #ffffff;
+      z-index: 2;
+    }
+
+    /* Sidebar Actions */
+    .sidebar-actions-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-action-btn {
+      background: #222222;
+      border: 1px solid #303030;
+      border-radius: 2px;
+      color: #aaaaaa;
+      font-size: 10px;
+      padding: 4px 6px;
+      cursor: pointer;
+      text-align: center;
+      font-family: inherit;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .sidebar-action-btn:hover {
+      background: #2c2c2c;
+      color: #ffffff;
+      border-color: #4a4a4a;
+    }
+
+    /* Right Main Panel */
+    .emoji-modal-main {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      background: #141414;
     }
 
     .emoji-modal-search-row {
@@ -273,6 +521,7 @@
       gap: 6px;
       background: #1e1e1e;
       border-bottom: 1px solid #2e2e2e;
+      flex-shrink: 0;
     }
 
     #emoji-modal-search-input {
@@ -312,6 +561,7 @@
       background: #181818;
       border-bottom: 1px solid #282828;
       overflow-x: auto;
+      flex-shrink: 0;
     }
 
     .tag-btn {
@@ -325,6 +575,7 @@
       cursor: pointer;
       white-space: nowrap;
       user-select: none;
+      transition: all 0.1s;
     }
     .tag-btn:hover {
       color: #ffffff;
@@ -345,86 +596,6 @@
       color: #7ee787;
     }
 
-    /* Emoji Color Filter Bar */
-    .emoji-modal-colors {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 5px 10px;
-      background: #141414;
-      border-bottom: 1px solid #282828;
-      overflow-x: auto;
-    }
-
-    .color-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: #202020;
-      border: 1px solid #333333;
-      border-radius: 2px;
-      color: #bbbbbb;
-      font-size: 10px;
-      font-family: inherit;
-      padding: 2px 7px;
-      cursor: pointer;
-      white-space: nowrap;
-      user-select: none;
-      transition: all 0.1s;
-    }
-    .color-btn:hover {
-      color: #ffffff;
-      background: #2a2a2a;
-      border-color: #444444;
-    }
-    .color-btn.active {
-      background: #2a2a2a;
-      border-color: #58a6ff;
-      color: #58a6ff;
-      font-weight: 600;
-    }
-
-    .color-swatch {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-      flex-shrink: 0;
-    }
-
-    .color-picker-wrapper {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #202020;
-      border: 1px solid #333333;
-      border-radius: 2px;
-      padding: 1px 6px;
-      cursor: pointer;
-      font-size: 10px;
-      color: #bbbbbb;
-      white-space: nowrap;
-      user-select: none;
-    }
-    .color-picker-wrapper:hover {
-      border-color: #58a6ff;
-      color: #ffffff;
-    }
-    .color-picker-wrapper.active {
-      border-color: #58a6ff;
-      color: #58a6ff;
-      font-weight: 600;
-    }
-    #emoji-modal-color-picker {
-      width: 16px;
-      height: 16px;
-      padding: 0;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      border-radius: 50%;
-    }
-
     .emoji-modal-status {
       padding: 5px 10px;
       font-size: 10px;
@@ -435,6 +606,7 @@
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
+      flex-shrink: 0;
     }
 
     .emoji-modal-grid {
@@ -442,9 +614,10 @@
       overflow-y: auto;
       padding: 8px 10px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
       gap: 6px;
       background: #141414;
+      align-content: start;
     }
 
     .emoji-grid-card {
@@ -457,6 +630,7 @@
       align-items: center;
       gap: 3px;
       position: relative;
+      transition: background 0.1s, border-color 0.1s;
     }
     .emoji-grid-card:hover {
       background: #242424;
@@ -560,13 +734,94 @@
       border-color: #246332;
     }
 
-    /* Picker Top HUD Banner */
-    .picker-hud-banner {
+    /* Top Toolbar inside Tweakpane Aside */
+    .gui-toolbar {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: space-between;
+      background: #181818;
+      border-bottom: 1px solid #2e2e2e;
+      padding: 8px 8px;
+      gap: 5px;
+      flex-shrink: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .gui-tool-btn {
+      flex: 1;
+      min-width: 0;
+      height: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 4px 2px 3px 2px;
+      background: #242424;
+      border: 1px solid #333333;
+      border-radius: 5px;
+      color: #9aa2ac;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .gui-tool-btn:hover {
+      background: #2f2f2f;
+      color: #ffffff;
+      border-color: #4f4f4f;
+    }
+
+    .gui-tool-btn.active {
+      background: rgba(88, 166, 255, 0.18);
+      color: #58a6ff;
+      border-color: #58a6ff;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.35), inset 0 0 4px rgba(88, 166, 255, 0.2);
+    }
+
+    .gui-tool-btn svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .gui-tool-btn span {
+      font-size: 9.5px;
+      font-weight: 600;
+      font-family: inherit;
+      line-height: 1;
+      letter-spacing: 0.1px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    /* Lasso Canvas Overlay */
+    .lasso-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Active Tool Top HUD Banner */
+    .tool-hud-banner {
       position: fixed;
       top: 14px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(18, 18, 18, 0.92);
+      background: rgba(18, 18, 18, 0.94);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(88, 166, 255, 0.4);
@@ -584,12 +839,16 @@
       animation: slideDownBanner 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    .tool-hud-banner.visible {
+      display: flex;
+    }
+
     @keyframes slideDownBanner {
       from { opacity: 0; transform: translate(-50%, -12px); }
       to { opacity: 1; transform: translate(-50%, 0); }
     }
 
-    .picker-hud-dot {
+    .tool-hud-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
@@ -603,7 +862,7 @@
       to { opacity: 1; transform: scale(1.2); }
     }
 
-    .picker-hud-close {
+    .tool-hud-close {
       background: transparent;
       border: none;
       color: #888;
@@ -614,7 +873,7 @@
       margin-left: 2px;
       transition: color 0.1s;
     }
-    .picker-hud-close:hover {
+    .tool-hud-close:hover {
       color: #ffffff;
     }
 
@@ -725,11 +984,249 @@
       justify-content: space-between;
       letter-spacing: 0.2px;
     }
+
+    /* Floating Action Card when clicking a 3D point in Inspector Mode */
+    .picker-action-card {
+      position: fixed;
+      z-index: 125;
+      background: rgba(22, 22, 22, 0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid #444444;
+      border-radius: 6px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2);
+      padding: 10px 12px;
+      color: #ffffff;
+      font-size: 11px;
+      min-width: 250px;
+      max-width: 290px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      user-select: none;
+      -webkit-user-select: none;
+      animation: popInAction 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popInAction {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .picker-action-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      position: relative;
+    }
+
+    .picker-action-img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .picker-action-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .picker-action-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .picker-action-name {
+      font-weight: 700;
+      font-size: 12px;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.2px;
+    }
+
+    .picker-action-sub {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: #bbbbbb;
+      flex-wrap: wrap;
+    }
+
+    .picker-action-coords {
+      font-size: 9px;
+      color: #888888;
+      font-family: monospace;
+      margin-top: 1px;
+    }
+
+    .picker-action-close {
+      background: transparent;
+      border: none;
+      color: #888888;
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 2px;
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      transition: color 0.1s;
+    }
+    .picker-action-close:hover {
+      color: #ffffff;
+    }
+
+    .picker-action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      border-top: 1px solid #2e2e2e;
+      padding-top: 6px;
+    }
+
+    .picker-action-btn {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1px solid #383838;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #2a2a2a;
+      color: #e0e0e0;
+      transition: all 0.1s ease;
+    }
+    .picker-action-btn:hover {
+      background: #383838;
+      color: #ffffff;
+      border-color: #555555;
+    }
+
+    .picker-btn-pin {
+      background: #1a324b;
+      color: #58a6ff;
+      border-color: #24517d;
+    }
+    .picker-btn-pin:hover {
+      background: #214467;
+      color: #79b8ff;
+      border-color: #388bfd;
+    }
+
+    .picker-btn-choose {
+      background: #252e3b;
+      color: #79c0ff;
+      border-color: #314a66;
+    }
+    .picker-btn-choose:hover {
+      background: #2e3a4a;
+      color: #a5d6ff;
+      border-color: #43648b;
+    }
+
+    .picker-btn-unpin {
+      background: #3e1b1b;
+      color: #ff7b72;
+      border-color: #6e2727;
+    }
+    .picker-btn-unpin:hover {
+      background: #542222;
+      color: #ffa198;
+      border-color: #8e3333;
+    }
+
+    .picker-btn-group {
+      display: flex;
+      gap: 4px;
+    }
+    .picker-btn-group .picker-action-btn {
+      flex: 1;
+    }
+
+    /* Modal Pin Banner */
+    .modal-pin-banner {
+      background: #1a324b;
+      border-bottom: 1px solid #24517d;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #79c0ff;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .modal-pin-banner code {
+      font-family: monospace;
+      background: rgba(0,0,0,0.3);
+      padding: 1px 4px;
+      border-radius: 2px;
+      color: #a5d6ff;
+    }
+    .modal-pin-cancel-btn {
+      background: #2e2e2e;
+      border: 1px solid #444444;
+      border-radius: 2px;
+      color: #ffffff;
+      padding: 2px 8px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .modal-pin-cancel-btn:hover {
+      background: #3e3e3e;
+    }
+
+    /* Floating Toast Notification */
+    .lab-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(20, 20, 20, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid #444444;
+      border-radius: 20px;
+      padding: 7px 18px;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+      z-index: 200;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .lab-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   </style>
 </head>
 <body>
   <div id="app-container">
     <canvas id="splat-canvas"></canvas>
+    <canvas id="lasso-canvas" class="lasso-canvas"></canvas>
 
     <div class="loading-overlay" id="loading-overlay">
       <div class="spinner"></div>
@@ -742,11 +1239,11 @@
 
     <input type="file" id="file-input" accept=".sog,.ply" />
 
-    <!-- Floating HUD Banner for Picker Mode -->
-    <div id="picker-hud-banner" class="picker-hud-banner">
-      <span class="picker-hud-dot"></span>
-      <span><strong>Modo Picker Ativo:</strong> Passe o mouse para inspecionar, clique para bloquear/desbloquear</span>
-      <button class="picker-hud-close" id="picker-hud-close-btn" title="Sair do Modo Picker">&times;</button>
+    <!-- Top HUD Banner for Active Tool (Inspector or Lasso) -->
+    <div id="tool-hud-banner" class="tool-hud-banner">
+      <span class="tool-hud-dot"></span>
+      <span id="tool-hud-text">Ferramenta Ativa</span>
+      <button class="tool-hud-close" id="tool-hud-close-btn" title="Voltar para Navegação (ESC)">&times;</button>
     </div>
 
     <!-- Picker Hover Reticle & Tooltip Highlight -->
@@ -764,67 +1261,158 @@
         </div>
       </div>
       <div id="picker-tooltip-hint" class="picker-tooltip-hint">
-        <span id="picker-tooltip-hint-text">Clique para Bloquear</span>
+        <span id="picker-tooltip-hint-text">Clique para Opções</span>
         <span style="opacity: 0.6; font-size: 8px;">ESC para sair</span>
       </div>
     </div>
 
+    <!-- Floating Action Card when clicking a 3D point in Inspector Mode -->
+    <div id="picker-action-card" class="picker-action-card" style="display: none;">
+      <div class="picker-action-header">
+        <img id="picker-action-img" class="picker-action-img" src="" alt="" />
+        <div class="picker-action-info">
+          <div class="picker-action-title-row">
+            <span id="picker-action-name" class="picker-action-name">Emoji</span>
+            <span id="picker-action-badge" class="emoji-badge badge-idle">Ativo</span>
+          </div>
+          <div class="picker-action-sub">
+            <span id="picker-action-dot" class="emoji-color-dot"></span>
+            <span id="picker-action-hex">#000000</span>
+            <span id="picker-action-coords" class="picker-action-coords">XYZ: [0, 0, 0]</span>
+          </div>
+        </div>
+        <button class="picker-action-close" id="picker-action-close-btn" title="Fechar Menu">&times;</button>
+      </div>
+      <div class="picker-action-buttons">
+        <button class="picker-action-btn picker-btn-pin" id="picker-btn-pin" title="Fixa este ponto 3D para renderizar sempre este emoji">
+          Fixar Ponto Neste Emoji
+        </button>
+        <button class="picker-action-btn picker-btn-choose" id="picker-btn-choose" title="Abre o catálogo para escolher outro emoji para este ponto">
+          Escolher Outro Emoji para este Ponto...
+        </button>
+        <div class="picker-btn-group">
+          <button class="picker-action-btn" id="picker-btn-block" title="Bloqueia este emoji globalmente">Bloquear Emoji</button>
+          <button class="picker-action-btn" id="picker-btn-force" title="Adiciona à lista de emojis restritos">Restringir a Este</button>
+        </div>
+        <button class="picker-action-btn picker-btn-unpin" id="picker-btn-unpin" style="display: none;" title="Remove a fixação deste ponto 3D">
+          Desfixar Ponto
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast Notification & Preset File Input -->
+    <div id="lab-toast" class="lab-toast"></div>
+    <input type="file" id="preset-file-input" accept=".json" style="display:none;" />
+
     <!-- Emoji Search & Catalog Modal -->
     <div class="emoji-modal-backdrop" id="emoji-modal" style="display: none;">
       <div class="emoji-modal-card">
+        <!-- Header -->
         <div class="emoji-modal-header">
-          <div class="emoji-modal-title">Catalogo de Emojis</div>
+          <div class="emoji-modal-title">
+            <span>Catálogo de Emojis</span>
+            <span id="emoji-modal-header-count" class="header-count-tag"></span>
+          </div>
           <div class="emoji-modal-header-right">
-            <label class="modal-toggle-label" title="Ativa ou desativa o uso exclusivo da lista de forcados">
+            <label class="modal-toggle-label" title="Ativa ou desativa o uso exclusivo da lista de restritos">
               <input type="checkbox" id="emoji-modal-use-forced-toggle" checked />
-              Ativar Forcados
+              Usar Restritos
             </label>
             <button class="emoji-modal-close" id="emoji-modal-close-btn" title="Fechar">&times;</button>
           </div>
         </div>
-        <div class="emoji-modal-search-row">
-          <input type="text" id="emoji-modal-search-input" placeholder="Buscar por nome ou emoji (ex: fire, skull, heart, flag)..." autocomplete="off" />
-          <button class="emoji-modal-clear-search" id="emoji-modal-clear-search">Limpar</button>
+
+        <!-- Banner de Fixação de Ponto ou Região -->
+        <div id="modal-pin-banner" class="modal-pin-banner" style="display: none;">
+          <span id="modal-pin-banner-text"><strong>Fixar Emoji:</strong> Clique em qualquer emoji abaixo para fixá-lo na posição selecionada.</span>
+          <button id="modal-pin-cancel-btn" class="modal-pin-cancel-btn">Cancelar</button>
         </div>
-        <div class="emoji-modal-tags" id="emoji-modal-tags">
-          <button class="tag-btn active" data-filter="">Todos</button>
-          <button class="tag-btn" data-filter="flag">Bandeiras</button>
-          <button class="tag-btn" data-filter="face,smile,grinning,laugh,tear,wink,kiss,tongue,eyebrow,mask,clown,devil,skull,ghost">Rostos</button>
-          <button class="tag-btn" data-filter="heart">Coracoes</button>
-          <button class="tag-btn" data-filter="food,fruit,vegetable,meat,bread,drink,cake,pizza,burger,coffee,tea,apple,banana">Comida</button>
-          <button class="tag-btn" data-filter="animal,cat,dog,monkey,bird,fish,bear,panda,lion,tiger,horse,pig,frog,snake,bug,bee,butterfly">Animais</button>
-          <button class="tag-btn" data-filter="plant,flower,tree,sun,moon,star,cloud,rain,snow,fire,water,leaf,earth">Natureza</button>
-          <button class="tag-btn" data-filter="object,tool,bulb,book,phone,camera,computer,clock,key,gem,bell,gift,money,dollar">Objetos</button>
-          <button class="tag-btn" data-filter="symbol,arrow,mark,circle,square,cross,warning,radioactive,hazard,plus,minus">Simbolos</button>
-          <button class="tag-btn tag-filter-blocked" data-filter="__blocked">Bloqueados</button>
-          <button class="tag-btn tag-filter-forced" data-filter="__forced">Forcados</button>
+
+        <!-- Body Layout (Left Sidebar + Right Main) -->
+        <div class="emoji-modal-layout">
+          <!-- Left Sidebar: Always Active Color Picker -->
+          <aside class="emoji-modal-sidebar">
+            <div class="sidebar-section-title">Filtro de Cor (Always Active)</div>
+
+            <!-- 2D Color Box (Saturation x Value) with Crosshair Reticle -->
+            <div class="color-picker-box-container" id="color-box-container" title="Clique ou arraste para selecionar saturação e brilho">
+              <canvas id="color-box-canvas" width="194" height="126"></canvas>
+              <div class="crosshair-h" id="crosshair-h"></div>
+              <div class="crosshair-v" id="crosshair-v"></div>
+              <div class="crosshair-ring" id="crosshair-ring"></div>
+            </div>
+
+            <!-- Hue Rainbow Bar -->
+            <div class="hue-bar-container" id="hue-bar-container" title="Arraste para selecionar a tonalidade (Hue)">
+              <div class="hue-cursor" id="hue-cursor"></div>
+            </div>
+
+            <!-- Active Color Indicator & Reset -->
+            <div class="color-preview-card">
+              <div class="color-preview-left">
+                <span class="color-preview-dot" id="color-preview-dot"></span>
+                <span class="color-preview-hex" id="color-preview-hex">Todas</span>
+              </div>
+              <button class="color-reset-btn" id="color-reset-btn" title="Exibir todas as cores (Limpar filtro de cor)">Todas as Cores</button>
+            </div>
+
+            <!-- Quick Swatches Palette -->
+            <div class="sidebar-section-title" style="margin-top: 2px;">Paleta Rápida</div>
+            <div class="sidebar-swatches-grid" id="sidebar-swatches-grid">
+              <button class="swatch-btn" data-color="#e53935" title="Vermelho" style="background:#e53935;"></button>
+              <button class="swatch-btn" data-color="#fb8c00" title="Laranja" style="background:#fb8c00;"></button>
+              <button class="swatch-btn" data-color="#fdd835" title="Amarelo" style="background:#fdd835;"></button>
+              <button class="swatch-btn" data-color="#43a047" title="Verde" style="background:#43a047;"></button>
+              <button class="swatch-btn" data-color="#00acc1" title="Ciano" style="background:#00acc1;"></button>
+              <button class="swatch-btn" data-color="#1e88e5" title="Azul" style="background:#1e88e5;"></button>
+              <button class="swatch-btn" data-color="#8e24aa" title="Roxo" style="background:#8e24aa;"></button>
+              <button class="swatch-btn" data-color="#d81b60" title="Rosa" style="background:#d81b60;"></button>
+              <button class="swatch-btn" data-color="#6d4c41" title="Marrom" style="background:#6d4c41;"></button>
+              <button class="swatch-btn" data-color="#111111" title="Preto" style="background:#111111; border: 1px solid #555;"></button>
+              <button class="swatch-btn" data-color="#ffffff" title="Branco" style="background:#ffffff; border: 1px solid #777;"></button>
+              <button class="swatch-btn" data-color="#757575" title="Cinza" style="background:#757575;"></button>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="sidebar-section-title" style="margin-top: auto;">Ações Rápidas</div>
+            <div class="sidebar-actions-col">
+              <button class="sidebar-action-btn" id="sidebar-unblock-all-btn">Desbloquear Todos</button>
+              <button class="sidebar-action-btn" id="sidebar-clear-forced-btn">Limpar Forçados</button>
+              <button class="sidebar-action-btn" id="sidebar-preset-flags-btn">Preset: Sem Bandeiras</button>
+            </div>
+          </aside>
+
+          <!-- Right Content: Search, Tags, Status & Infinite Scroll Grid -->
+          <main class="emoji-modal-main">
+            <div class="emoji-modal-search-row">
+              <input type="text" id="emoji-modal-search-input" placeholder="Buscar por nome ou emoji (ex: fire, skull, heart, flag, #ff0000)..." autocomplete="off" />
+              <button class="emoji-modal-clear-search" id="emoji-modal-clear-search">Limpar</button>
+            </div>
+
+            <div class="emoji-modal-tags" id="emoji-modal-tags">
+              <button class="tag-btn active" data-filter="">Todos</button>
+              <button class="tag-btn" data-filter="face,smile,grinning,laugh,tear,wink,kiss,tongue,eyebrow,mask,clown,devil,skull,ghost">Rostos</button>
+              <button class="tag-btn" data-filter="animal,cat,dog,monkey,bird,fish,bear,panda,lion,tiger,horse,pig,frog,snake,bug,bee,butterfly">Animais</button>
+              <button class="tag-btn" data-filter="food,fruit,vegetable,meat,bread,drink,cake,pizza,burger,coffee,tea,apple,banana">Comida</button>
+              <button class="tag-btn" data-filter="plant,flower,tree,sun,moon,star,cloud,rain,snow,fire,water,leaf,earth">Natureza</button>
+              <button class="tag-btn" data-filter="object,tool,bulb,book,phone,camera,computer,clock,key,gem,bell,gift,money,dollar">Objetos</button>
+              <button class="tag-btn" data-filter="symbol,arrow,mark,circle,square,cross,warning,radioactive,hazard,plus,minus">Símbolos</button>
+              <button class="tag-btn" data-filter="flag">Bandeiras</button>
+              <button class="tag-btn tag-filter-blocked" data-filter="__blocked">Bloqueados</button>
+              <button class="tag-btn tag-filter-forced" data-filter="__forced">Forçados</button>
+            </div>
+
+            <div class="emoji-modal-status" id="emoji-modal-status">Carregando emojis...</div>
+
+            <div class="emoji-modal-grid" id="emoji-modal-grid"></div>
+          </main>
         </div>
-        <div class="emoji-modal-colors" id="emoji-modal-colors">
-          <button class="color-btn active" data-color="" title="Todas as Cores">🌈 Todas</button>
-          <button class="color-btn" data-color="red" title="Vermelho"><span class="color-swatch" style="background:#e53935;"></span>Vermelho</button>
-          <button class="color-btn" data-color="orange" title="Laranja"><span class="color-swatch" style="background:#fb8c00;"></span>Laranja</button>
-          <button class="color-btn" data-color="yellow" title="Amarelo"><span class="color-swatch" style="background:#fdd835;"></span>Amarelo</button>
-          <button class="color-btn" data-color="green" title="Verde"><span class="color-swatch" style="background:#43a047;"></span>Verde</button>
-          <button class="color-btn" data-color="blue" title="Azul"><span class="color-swatch" style="background:#1e88e5;"></span>Azul</button>
-          <button class="color-btn" data-color="purple" title="Roxo"><span class="color-swatch" style="background:#8e24aa;"></span>Roxo</button>
-          <button class="color-btn" data-color="pink" title="Rosa"><span class="color-swatch" style="background:#d81b60;"></span>Rosa</button>
-          <button class="color-btn" data-color="brown" title="Marrom"><span class="color-swatch" style="background:#6d4c41;"></span>Marrom</button>
-          <button class="color-btn" data-color="black" title="Preto"><span class="color-swatch" style="background:#111111; border: 1px solid #555;"></span>Preto</button>
-          <button class="color-btn" data-color="white" title="Branco"><span class="color-swatch" style="background:#ffffff; border: 1px solid #777;"></span>Branco</button>
-          <button class="color-btn" data-color="gray" title="Cinza"><span class="color-swatch" style="background:#757575;"></span>Cinza</button>
-          <div class="color-picker-wrapper" id="color-picker-wrapper" title="Pesquisar por cor personalizada">
-            <input type="color" id="emoji-modal-color-picker" value="#ff0000" />
-            <span id="color-picker-label">🎨 Cor Exata</span>
-          </div>
-        </div>
-        <div class="emoji-modal-status" id="emoji-modal-status">Carregando emojis...</div>
-        <div class="emoji-modal-grid" id="emoji-modal-grid"></div>
       </div>
     </div>
   </div>
 
   <script src="js/playcanvas.min.js"></script>
-  <script src="js/lil-gui.min.js"></script>
+  <script src="js/tweakpane.js"></script>
 
   <script>
     (function () {
@@ -836,6 +1424,8 @@
       let splatEntity = null;
       let currentAsset = null;
       let modelRadius = 0.5;
+      let modelCenter = { x: 0, y: 0, z: 0 };
+      let splatCenters = null;
 
       let atlasTexture = null;
       let lutTexture = null;
@@ -859,17 +1449,19 @@
       const voxelLabB = new Float32Array(4096);
       const lutBuffer = new Uint8Array(256 * 16 * 4);
 
+      let currentActiveTool = 'navigate';
       let isPickerActive = false;
+      let isLassoActive = false;
 
       const renderModeMap = {
-        'Emojis Coloridos': 0,
-        'Emojis Tintados': 1,
-        'Cores Originais': 2
+        'Colorido': 0,
+        'Tintado': 1,
+        'Original': 2
       };
 
       const params = {
         useEmojis: true,
-        renderModeText: 'Emojis Coloridos',
+        renderModeText: 'Colorido',
         renderMode: 0,
         tintIntensity: 0.6,
         alphaCutoff: 0.10,
@@ -896,13 +1488,16 @@
           applyShaderParams();
         },
 
-        pickerMode: false,
         openEmojiModal: function () {
           const modal = document.getElementById('emoji-modal');
           if (modal) {
             modal.style.display = 'flex';
             const toggle = document.getElementById('emoji-modal-use-forced-toggle');
             if (toggle) toggle.checked = params.useForced;
+
+            drawColorBox(currentColorHue);
+            updateCrosshairUI();
+
             const searchInput = document.getElementById('emoji-modal-search-input');
             renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
             if (searchInput) {
@@ -926,7 +1521,6 @@
           rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
           const searchInput = document.getElementById('emoji-modal-search-input');
           renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
-          console.log('[Effect Lab] Preset: Bandeiras adicionadas as exclusoes.');
         },
         clearExclusions: function () {
           params.excludedText = '';
@@ -950,8 +1544,50 @@
         excludedCount: '0',
         forcedCount: '0',
 
+        // Presets
+        selectedPreset: 'Padrão',
+        savePresetAction: function () {
+          promptAndSavePreset();
+        },
+        loadPresetAction: function () {
+          loadPreset(params.selectedPreset);
+        },
+        deletePresetAction: function () {
+          deletePreset(params.selectedPreset);
+        },
+        exportPresetAction: function () {
+          exportPresetJSON();
+        },
+        importPresetAction: function () {
+          const input = document.getElementById('preset-file-input');
+          if (input) input.click();
+        },
+
+        // Pins de Emojis
+        pinRadius: 0.035,
+        pinEmojiScale: 1,
+        surfaceOrient: false,
+        surfaceSkew: false,
+        bakeRotation: false,
+        bakeColors: false,
+        // Capture: marcadores gerados em esfera ao redor de um ponto
+        captureShow: false,
+        captureX: 0,
+        captureY: 0,
+        captureZ: 0,
+        captureCount: 8,
+        captureRadius: 0.9,
+        captureSize: 0.08,
+        captureStartId: 0,
+        captureFaceFlip: true,
+        pinnedCountDisplay: '0 / 16 pins',
+        clearAllPinsAction: function () {
+          clearAllPinnedPoints();
+        },
+
         squareSize: 0.004,
         density: 100,
+        evenDensity: false,
         minOpacity: 0.0,
         depthThreshold: 1.0,
         autoSpin: false,
@@ -1003,17 +1639,6 @@
       const dropzone = document.getElementById('dropzone');
       const fileInput = document.getElementById('file-input');
 
-      function setPickerState(active) {
-        isPickerActive = active;
-        params.pickerMode = active;
-        if (active) {
-          canvas.classList.add('picker-active');
-        } else {
-          canvas.classList.remove('picker-active');
-        }
-        if (guiControllers.pickerMode) guiControllers.pickerMode.updateDisplay();
-      }
-
       // 0. gsplatVS: Desativa completamente o encolhimento de quads e coordenadas UV (clipCorner)
       const customVSGLSL = `
 #ifdef GSPLAT_USER_VARYINGS
@@ -1022,6 +1647,8 @@
 #include "gsplatCommonVS"
 varying mediump vec2 gaussianUV;
 varying mediump vec4 gaussianColor;
+varying vec3 vModelCenter;
+varying float vSplatIndex;
 #ifndef DITHER_NONE
 	varying float id;
 #endif
@@ -1038,8 +1665,13 @@ mediump vec4 discardVec = vec4(0.0, 0.0, 2.0, 1.0);
 #endif
 
 uniform float uDensity;
+uniform float uEvenDensity;
+uniform float uModelRadius;
+uniform vec3 uModelCenter;
 uniform float uMinOpacity;
 uniform float uLockSH;
+uniform float uBakePass;      // 1 = passe de bake: cada splat desenha 1 texel do mapa
+uniform vec3 uLockSHCamPos;   // camera congelada no espaco do modelo (Fixar Harmonicos)
 
 void main(void) {
 	SplatSource source;
@@ -1048,18 +1680,50 @@ void main(void) {
 		return;
 	}
 
-	if (uDensity < 0.999) {
-		uint h = splat.index * 747796405u + 2891336453u;
-		h = ((h >> ((h >> 28u) + 4u)) ^ h) * 277803737u;
-		h = (h >> 22u) ^ h;
-		float randVal = float(h & 0xFFFFFFu) / 16777215.0;
-		if (randVal > uDensity) {
-			gl_Position = discardVec;
-			return;
+	vec3 modelCenter = getCenter();
+	vModelCenter = modelCenter;
+	vSplatIndex = float(splat.index);
+
+	if (uDensity < 0.999 && uBakePass < 0.5) {
+		if (uEvenDensity > 0.5) {
+			// --- Modo Distribuição Igualitária (Evenly Spaced / Spatial Voxel Grid) ---
+			float rad = max(0.05, uModelRadius);
+			// Escala do grid espacial adaptativo que se ajusta com a densidade
+			float cellSize = rad * 0.012 / max(0.02, pow(uDensity, 0.42));
+			vec3 cell = floor((modelCenter - uModelCenter) / cellSize);
+
+			// Ponto alvo com jitter pseudo-aleatório estável por célula 3D.
+			// ATENÇÃO: a célula é relativa a uModelCenter, então o alvo também
+			// precisa ser (antes o alvo ficava na origem e tudo era descartado).
+			vec3 j = fract(sin(cell * mat3(vec3(127.1, 311.7, 74.7), vec3(269.5, 183.3, 246.1), vec3(113.5, 271.9, 124.6))) * 43758.5453);
+			vec3 cellTarget = uModelCenter + (cell + j * 0.6 + 0.2) * cellSize;
+			float distToTarget = length(modelCenter - cellTarget) / cellSize;
+
+			// Sequência quasi-randômica R3 (Razão áurea 3D) para descorrelação perfeita entre células vizinhas
+			float r3 = fract(dot(cell, vec3(0.754877666, 0.569840291, 0.400587784)));
+			float spatialRank = fract(r3 + distToTarget * 0.35);
+
+			// Mantém só os splats próximos do alvo da célula (grade uniforme).
+			// O raio de corte precisa ser >= meia diagonal da célula (0.866) para
+			// não esvaziar as células quando a densidade cai.
+			float keepRadius = 0.90;
+			if (spatialRank > uDensity || distToTarget > keepRadius) {
+				gl_Position = discardVec;
+				return;
+			}
+		} else {
+			// --- Modo Aleatório (Original) ---
+			uint h = splat.index * 747796405u + 2891336453u;
+			h = ((h >> ((h >> 28u) + 4u)) ^ h) * 277803737u;
+			h = (h >> 22u) ^ h;
+			float randVal = float(h & 0xFFFFFFu) / 16777215.0;
+			if (randVal > uDensity) {
+				gl_Position = discardVec;
+				return;
+			}
 		}
 	}
 
-	vec3 modelCenter = getCenter();
 	SplatCenter center;
 	center.modelCenterOriginal = modelCenter;
 	
@@ -1086,7 +1750,11 @@ void main(void) {
 	#if SH_BANDS > 0
 		vec3 dir;
 		if (uLockSH > 0.5) {
-			dir = vec3(0.0, 0.0, 1.0);
+			// "Fixar Harmônicos": usa a posição da câmera CONGELADA no espaço do
+			// modelo (no instante em que foi ligado) em vez de uma direção
+			// arbitrária. Assim a cor não muda ao orbitar, mas a aparência é a
+			// mesma que estava na tela quando travou (sem salto de iluminação).
+			dir = normalize(modelCenter - uLockSHCamPos);
 		} else {
 			dir = normalize(center.view * mat3(center.modelView));
 		}
@@ -1097,7 +1765,7 @@ void main(void) {
 	#endif
 	modifySplatColor(modelCenter, clr);
 
-	if (clr.w < uMinOpacity) {
+	if (clr.w < uMinOpacity && uBakePass < 0.5) {
 		gl_Position = discardVec;
 		return;
 	}
@@ -1109,6 +1777,18 @@ void main(void) {
 		gl_Position = center.proj + vec4(corner.offset.xyz, 0);
 	#endif
 	gaussianUV = source.cornerUV;
+
+	if (uBakePass > 0.5) {
+		// PASSE DE BAKE: a cor já foi calculada exatamente como no render normal
+		// (mesmo gaussianColor); aqui só redirecionamos o quad para o texel do
+		// próprio splat no mapa de bake (1 texel por splat).
+		float bIdx = float(splat.index);
+		vec2 bc = vec2(
+			(mod(bIdx, uPinMapParams.x) + 0.5) * uPinMapParams.z * 2.0 - 1.0,
+			(floor(bIdx * uPinMapParams.z) + 0.5) * uPinMapParams.w * 2.0 - 1.0
+		);
+		gl_Position = vec4(bc + source.cornerUV * uPinMapParams.zw, 0.0, 1.0);
+	}
 
 	#ifdef GSPLAT_OVERDRAW
 		float t = clamp(modelCenter.y / 20.0, 0.0, 1.0);
@@ -1136,6 +1816,45 @@ uniform float uSquareSize;
 uniform float uDepthThreshold;
 uniform float uMinDepth;
 uniform float uMaxDepth;
+uniform sampler2D uPinMap;
+uniform vec4 uPinMapParams;    // (width, height, 1/width, 1/height)
+uniform float uPinEmojiScale;  // multiplica o quadrado dos splats fixados
+uniform float uSurfaceOrient;  // 1 = emoji gira conforme a normal da superficie
+uniform float uSurfaceSkew;    // 1 = deita o emoji na superficie (sofre encurtamento)
+uniform float uRotBake;        // 1 = rotação do emoji CONGELADA (bake)
+uniform vec3 uBakeRight;       // base da câmera congelada (espaço do modelo)
+uniform vec3 uBakeUp;
+
+// 1.0 = splat normal; uPinEmojiScale = splat fixado
+float pinnedEmojiScale(uint splatIndex) {
+	float pinIdx = float(splatIndex);
+	vec2 pinUV = (vec2(mod(pinIdx, uPinMapParams.x), floor(pinIdx * uPinMapParams.z)) + 0.5) * uPinMapParams.zw;
+	if (texture2D(uPinMap, pinUV).b > 0.5) {
+		return max(1.0, uPinEmojiScale);
+	}
+	return 1.0;
+}
+
+// Normal da superficie do splat: o eixo de menor escala do elipsoide,
+// sempre virado para FORA (a partir do centro do modelo, que fica na origem)
+vec3 outwardSplatNormal(vec3 splatPos) {
+	vec4 rot = getRotation();
+	vec3 scl = getScale();
+	mat3 basis = quatToMat3(rot);
+	vec3 n;
+	if (scl.x <= scl.y && scl.x <= scl.z) {
+		n = basis[0];
+	} else if (scl.y <= scl.z) {
+		n = basis[1];
+	} else {
+		n = basis[2];
+	}
+	n = normalize(n);
+	if (dot(n, splatPos) < 0.0) {
+		n = -n;
+	}
+	return n;
+}
 
 void computeCovariance(vec4 rotation, vec3 scale, out vec3 covA, out vec3 covB) {
 	covA = vec3(0.0);
@@ -1156,12 +1875,65 @@ bool initCorner(SplatSource source, SplatCenter center, out SplatCorner corner) 
 		}
 	}
 
-	float s = max(0.0001, uSquareSize);
-	corner.offset = vec3(
-		matrix_projection[0][0] * source.cornerUV.x * s,
-		matrix_projection[1][1] * source.cornerUV.y * s,
-		0.0
-	);
+	float s = max(0.0001, uSquareSize) * pinnedEmojiScale(splat.index);
+
+	if (uSurfaceOrient > 0.5) {
+		// Normal da superficie (para fora) levada para o espaco da camera
+		vec3 n = outwardSplatNormal(center.modelCenterModified);
+		vec3 nView = (center.modelView * vec4(n, 0.0)).xyz;
+
+		if (uSurfaceSkew > 0.5) {
+			// OPCAO: emoji deitado na superficie (alinhado ao plano tangente).
+			// Como o quad deixa de olhar para a camera, ele sofre encurtamento.
+			// Tudo aqui em espaco de MODELO (a normal tambem).
+			vec3 nModel = normalize(n);
+			mat3 vm = mat3(center.modelView);
+			// com o bake ligado usa a base CONGELADA, senão o deitar gira junto
+			vec3 camRight = (uRotBake > 0.5) ? uBakeRight : vec3(vm[0][0], vm[1][0], vm[2][0]);
+			vec3 camUp = (uRotBake > 0.5) ? uBakeUp : vec3(vm[0][1], vm[1][1], vm[2][1]);
+
+			vec3 tangent = camRight - nModel * dot(camRight, nModel);
+			if (dot(tangent, tangent) < 0.0001) {
+				tangent = camUp - nModel * dot(camUp, nModel);
+			}
+			tangent = normalize(tangent);
+			vec3 bitangent = cross(nModel, tangent);
+
+			vec3 modelOffset = (tangent * source.cornerUV.x + bitangent * source.cornerUV.y) * s;
+			corner.offset = (matrix_projection * center.modelView * vec4(modelOffset, 0.0)).xyz;
+		} else {
+			// PADRAO: apenas ROTACAO. O billboard continua de frente para a camera
+			// (nao deforma, nunca fica de perfil), girando no plano da tela para o
+			// "up" do emoji apontar na direcao da normal projetada.
+			float theta = 0.0;
+			if (uRotBake > 0.5) {
+				// BAKE: o ângulo sai de uma base de câmera CONGELADA, então o emoji
+				// não gira mais quando a câmera orbita (fica fixo no modelo).
+				vec3 nModel = normalize(n);
+				theta = atan(-dot(nModel, uBakeRight), dot(nModel, uBakeUp));
+			} else if (dot(nView.xy, nView.xy) > 0.0001) {
+				theta = atan(-nView.x, nView.y);
+			}
+			float cs = cos(theta);
+			float sn = sin(theta);
+			vec2 uv = vec2(
+				source.cornerUV.x * cs - source.cornerUV.y * sn,
+				source.cornerUV.x * sn + source.cornerUV.y * cs
+			);
+			corner.offset = vec3(
+				matrix_projection[0][0] * uv.x * s,
+				matrix_projection[1][1] * uv.y * s,
+				0.0
+			);
+		}
+	} else {
+		corner.offset = vec3(
+			matrix_projection[0][0] * source.cornerUV.x * s,
+			matrix_projection[1][1] * source.cornerUV.y * s,
+			0.0
+		);
+	}
+
 	corner.uv = source.cornerUV;
 	#if GSPLAT_AA
 		corner.aaFactor = 1.0;
@@ -1202,10 +1974,12 @@ fn initCorner(source: ptr<function, SplatSource>, center: ptr<function, SplatCen
 }
 `;
 
-      // 2. gsplatPS: Amostragem precisa e orientada do Emoji Atlas
+      // 2. gsplatPS: Amostragem precisa e orientada do Emoji Atlas + Pinned Points + Position Pass
       const customPSGLSL = `
 varying mediump vec2 gaussianUV;
 varying mediump vec4 gaussianColor;
+varying vec3 vModelCenter;
+varying float vSplatIndex;
 
 #if defined(GSPLAT_UNIFIED_ID) && defined(PICK_PASS)
 	flat varying uint vPickId;
@@ -1219,12 +1993,25 @@ uniform sampler2D uColorLUT;
 uniform int uRenderMode;
 uniform float uAlphaCutoff;
 uniform float uTintIntensity;
+uniform float uModelRadius;
+uniform vec3 uModelCenter;
 
 uniform float uHueShift;
 uniform float uSaturation;
 uniform float uBrightness;
 uniform float uContrast;
 uniform float uGamma;
+
+// Mapa de pins: 1 texel por splat -> (col, row, ativo, ativo).
+// Permite trocar o emoji de um conjunto EXATO de splats (seleção do laço),
+// sem aproximação por raio e sem limite de splats por pin.
+uniform sampler2D uPinMap;
+uniform vec4 uPinMapParams;   // (width, height, 1/width, 1/height)
+
+// Bake de cor/emoji: mapa por splat (1 texel) com o slot congelado
+uniform float uBakePass;
+uniform float uBakeOn;
+uniform sampler2D uBakeMap;
 
 vec3 rgb2hsv(vec3 c) {
 	vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -1271,6 +2058,16 @@ void main(void) {
 			return;
 		}
 
+		if (uRenderMode == 4) {
+			// Mode 4: Exact 24-bit Splat Index Pass
+			float idx = floor(vSplatIndex + 0.5);
+			float r = mod(idx, 256.0) / 255.0;
+			float g = mod(floor(idx / 256.0), 256.0) / 255.0;
+			float b = mod(floor(idx / 65536.0), 256.0) / 255.0;
+			gl_FragColor = vec4(r, g, b, 1.0);
+			return;
+		}
+
 		// Coordenadas locais do billboard [0..1]
 		// gaussianUV.x: [-1..1] -> [0..1]
 		// gaussianUV.y: [+1..-1] (topo para base) -> [0..1]
@@ -1285,6 +2082,35 @@ void main(void) {
 		vec4 lutSample = texture2D(uColorLUT, vec2(lutX, lutY));
 		float col = floor(lutSample.r * 255.0 + 0.5);
 		float row = floor(lutSample.g * 255.0 + 0.5);
+
+		// Override exato por splat: só os splats selecionados no laço
+		{
+			float pinIdx = floor(vSplatIndex + 0.5);
+			vec2 pinUV = (vec2(mod(pinIdx, uPinMapParams.x), floor(pinIdx * uPinMapParams.z)) + 0.5) * uPinMapParams.zw;
+			vec4 pinSample = texture2D(uPinMap, pinUV);
+			if (pinSample.b > 0.5) {
+				col = floor(pinSample.r * 255.0 + 0.5);
+				row = floor(pinSample.g * 255.0 + 0.5);
+			}
+		}
+
+		// BAKE DE COR/EMOJI: usa o slot congelado por splat (independente de
+		// LUT, iluminação, câmera ou filtros), se estiver ligado.
+		if (uBakeOn > 0.5) {
+			float bakedIdx = floor(vSplatIndex + 0.5);
+			vec2 bakedUV = (vec2(mod(bakedIdx, uPinMapParams.x), floor(bakedIdx * uPinMapParams.z)) + 0.5) * uPinMapParams.zw;
+			vec4 baked = texture2D(uBakeMap, bakedUV);
+			if (baked.a > 0.5) {
+				col = floor(baked.r * 255.0 + 0.5);
+				row = floor(baked.g * 255.0 + 0.5);
+			}
+		}
+
+		if (uBakePass > 0.5) {
+			// passe de bake: grava o slot final (já com pins e bake anterior) no texel
+			gl_FragColor = vec4(col / 255.0, row / 255.0, 1.0, 1.0);
+			return;
+		}
 
 		// Mapeamento correto e orientado no Atlas PlayCanvas (64 cols x 32 rows)
 		float atlasU = (col + clampedUV.x) / 64.0;
@@ -1686,6 +2512,1142 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         return slotEmojiMap ? slotEmojiMap.get(bestRow * 64 + bestCol) : null;
       }
 
+      function samplePositionAt(clientX, clientY) {
+        // Usa raycasting (c\u00e2mera → esfera do modelo) para obter a posi\u00e7\u00e3o 3D sob o cursor
+        return screenToModelLocal(clientX, clientY);
+      }
+
+
+      // === Lasso Selection (Laço Poligonal / Freehand) ===
+      let lassoPoints = [];
+      let isDrawingLasso = false;
+
+      function clearLassoCanvas() {
+        const lc = document.getElementById('lasso-canvas');
+        if (!lc) return;
+        const ctx = lc.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, lc.width, lc.height);
+      }
+
+      function drawLassoPolygon(points) {
+        const lc = document.getElementById('lasso-canvas');
+        if (!lc || !points || points.length === 0) return;
+        const dpr = window.devicePixelRatio || 1;
+        const displayW = window.innerWidth;
+        const displayH = window.innerHeight;
+
+        if (lc.width !== Math.round(displayW * dpr) || lc.height !== Math.round(displayH * dpr)) {
+          lc.width = Math.round(displayW * dpr);
+          lc.height = Math.round(displayH * dpr);
+        }
+        const ctx = lc.getContext('2d');
+        if (!ctx) return;
+
+        ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, displayW, displayH);
+        if (points.length < 2) {
+          ctx.restore();
+          return;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        if (points.length >= 3) {
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(88, 166, 255, 0.20)';
+          ctx.fill();
+        }
+
+        ctx.strokeStyle = '#58a6ff';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([5, 5]);
+        ctx.shadowColor = 'rgba(88, 166, 255, 0.85)';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.setLineDash([]);
+        const step = Math.max(1, Math.floor(points.length / 15));
+        for (let i = 0; i < points.length; i += step) {
+          ctx.beginPath();
+          ctx.arc(points[i].x, points[i].y, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      function isPointInPolygon(px, py, polygon) {
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+          const xi = polygon[i].x, yi = polygon[i].y;
+          const xj = polygon[j].x, yj = polygon[j].y;
+          const intersect = ((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi);
+          if (intersect) inside = !inside;
+        }
+        return inside;
+      }
+
+      // Projeta um ponto de tela (CSS pixels) para coordenadas locais do modelo via raycasting
+      // Intersecta o raio com a esfera limitante do modelo e retorna a posição local resultante.
+      // Projeta um ponto de tela (CSS pixels) para coordenadas locais do modelo via raycasting
+      // Intersecta o raio com a esfera limitante do modelo e retorna a posição local resultante.
+      function screenToModelLocal(screenX, screenY, selectionRadiusPx) {
+        if (!cameraEntity || !splatEntity) return null;
+
+        const rect = canvas.getBoundingClientRect();
+        const canvasX = screenX - rect.left;
+        const canvasY = screenY - rect.top;
+
+        // Usa camera.screenToWorld do PlayCanvas para obter a direção exata do raio
+        const rayWorldPoint = new pc.Vec3();
+        cameraEntity.camera.screenToWorld(canvasX, canvasY, 1.0, rayWorldPoint);
+        const rayOrigin = cameraEntity.getPosition();
+        const rayDir = new pc.Vec3().sub2(rayWorldPoint, rayOrigin).normalize();
+
+        // Converte centro do modelo para world space
+        const worldMat = splatEntity.getWorldTransform();
+        const sphereWorldCenter = new pc.Vec3();
+        worldMat.transformPoint(new pc.Vec3(modelCenter.x, modelCenter.y, modelCenter.z), sphereWorldCenter);
+        const sphereRadius = modelRadius > 0 ? modelRadius : 0.5;
+
+        // Interseção raio-esfera
+        const oc = new pc.Vec3().sub2(rayOrigin, sphereWorldCenter);
+        const b = oc.dot(rayDir);
+        const c = oc.dot(oc) - sphereRadius * sphereRadius;
+        const disc = b * b - c;
+
+        let t;
+        if (disc >= 0) {
+          const tFront = -b - Math.sqrt(disc);
+          const tMid   = -b;
+          // Se for seleção grande (abrangendo a maior parte do modelo), projeta no centro;
+          // se for seleção pontual ou clique do picker, posiciona na superfície frontal
+          const isLargeSelection = selectionRadiusPx && (selectionRadiusPx > rect.height * 0.25);
+          t = isLargeSelection ? tMid : Math.max(0.001, tFront + Math.min(sphereRadius * 0.1, 0.05));
+        } else {
+          // Raio não intersecta: usa projeção perpendicular
+          t = Math.max(0.001, -b);
+        }
+
+        const hitWorld = new pc.Vec3(
+          rayOrigin.x + rayDir.x * t,
+          rayOrigin.y + rayDir.y * t,
+          rayOrigin.z + rayDir.z * t
+        );
+
+        // Converte de world para local do splatEntity
+        const invWorld = new pc.Mat4();
+        invWorld.copy(worldMat);
+        invWorld.invert();
+        const hitLocal = new pc.Vec3();
+        invWorld.transformPoint(hitWorld, hitLocal);
+
+        return hitLocal;
+      }
+
+      function sampleLassoRegion(polygon) {
+        if (!polygon || polygon.length < 3 || !cameraEntity || !splatEntity) return null;
+
+        // 1. Calcula bounding box 2D da seleção em pixels de CSS
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        polygon.forEach(pt => {
+          if (pt.x < minX) minX = pt.x;
+          if (pt.y < minY) minY = pt.y;
+          if (pt.x > maxX) maxX = pt.x;
+          if (pt.y > maxY) maxY = pt.y;
+        });
+        const boxW = maxX - minX;
+        const boxH = maxY - minY;
+        if (boxW < 4 || boxH < 4) return null;
+
+        const rect = canvas.getBoundingClientRect();
+
+        // 2. Método Principal: Se splatCenters estiver disponível, encontra os splats reais dentro do polígono
+        let centers = splatCenters;
+        if (!centers && splatEntity && splatEntity.gsplat) {
+          const res = splatEntity.gsplat.asset ? splatEntity.gsplat.asset.resource : null;
+          if (res) {
+            centers = res.centers || (res.gsplatData && res.gsplatData.getCenters ? res.gsplatData.getCenters() : null) || (res.gsplatData ? res.gsplatData.centers : null);
+          }
+        }
+
+        if (centers && centers.length > 0) {
+          try {
+            const cam = cameraEntity.camera;
+            const worldMat = splatEntity.getWorldTransform();
+            const vpMat = new pc.Mat4();
+            vpMat.mul2(cam.projectionMatrix, cam.viewMatrix);
+            const mvpMat = new pc.Mat4();
+            mvpMat.mul2(vpMat, worldMat);
+            const m = mvpMat.data;
+
+            const totalSplats = Math.floor(centers.length / 3);
+            const matched = [];
+
+            // Passa por TODOS os splats: a seleção é exata, sem amostragem
+            for (let i = 0; i < totalSplats; i++) {
+              const x = centers[i * 3];
+              const y = centers[i * 3 + 1];
+              const z = centers[i * 3 + 2];
+
+              const w = m[3] * x + m[7] * y + m[11] * z + m[15];
+              if (w <= 0.001) continue;
+
+              const invW = 1.0 / w;
+              const ndcX = (m[0] * x + m[4] * y + m[8] * z + m[12]) * invW;
+              const ndcY = (m[1] * x + m[5] * y + m[9] * z + m[13]) * invW;
+
+              const sx = (ndcX * 0.5 + 0.5) * rect.width + rect.left;
+              const sy = (-ndcY * 0.5 + 0.5) * rect.height + rect.top;
+
+              if (sx < minX || sx > maxX || sy < minY || sy > maxY) continue;
+
+              if (isPointInPolygon(sx, sy, polygon)) {
+                matched.push(i, x, y, z, w);
+              }
+            }
+
+            if (matched.length >= 5) { // Pelo menos 1 ponto encontrado
+              const numPts = matched.length / 5;
+
+              // Para seleções parciais (não o modelo inteiro), prioriza a superfície frontal que o usuário enxerga
+              const isWholeModel = (boxW > rect.width * 0.7) && (boxH > rect.height * 0.7);
+              let keepIdx;
+
+              if (!isWholeModel) {
+                // Ordena por profundidade (w) e mantém só a casca frontal visível
+                const order = new Array(numPts);
+                for (let j = 0; j < numPts; j++) order[j] = j;
+                order.sort((a, b) => matched[a * 5 + 4] - matched[b * 5 + 4]);
+
+                const minW = matched[order[0] * 5 + 4];
+                // Limite de profundidade proporcional ao tamanho da seleção na tela
+                const maxDepthSpan = Math.max(0.08, (Math.max(boxW, boxH) / rect.height) * orbit.distance * 0.7);
+
+                keepIdx = [];
+                for (let j = 0; j < numPts; j++) {
+                  const p = order[j];
+                  if ((matched[p * 5 + 4] - minW) > maxDepthSpan) break;
+                  keepIdx.push(p);
+                }
+              } else {
+                keepIdx = new Array(numPts);
+                for (let j = 0; j < numPts; j++) keepIdx[j] = j;
+              }
+
+              if (keepIdx.length > 0) {
+                let sumX = 0, sumY = 0, sumZ = 0;
+                for (let j = 0; j < keepIdx.length; j++) {
+                  const p = keepIdx[j] * 5;
+                  sumX += matched[p + 1];
+                  sumY += matched[p + 2];
+                  sumZ += matched[p + 3];
+                }
+                const cx = sumX / keepIdx.length;
+                const cy = sumY / keepIdx.length;
+                const cz = sumZ / keepIdx.length;
+
+                let maxDistSq = 0;
+                for (let j = 0; j < keepIdx.length; j++) {
+                  const p = keepIdx[j] * 5;
+                  const dx = matched[p + 1] - cx;
+                  const dy = matched[p + 2] - cy;
+                  const dz = matched[p + 3] - cz;
+                  const dSq = dx * dx + dy * dy + dz * dz;
+                  if (dSq > maxDistSq) maxDistSq = dSq;
+                }
+                const radius = Math.max(0.02, Math.sqrt(maxDistSq) * 1.08);
+
+                // Índices exatos: são esses splats (e apenas eles) que viram o emoji
+                const indices = new Uint32Array(keepIdx.length);
+                for (let j = 0; j < keepIdx.length; j++) indices[j] = matched[keepIdx[j] * 5];
+
+                console.log('[Pin] Laço exato: ' + indices.length.toLocaleString('pt-BR') + ' splats selecionados (de ' +
+                  numPts.toLocaleString('pt-BR') + ' dentro do polígono) | Centroide:', cx.toFixed(3), cy.toFixed(3), cz.toFixed(3), '| raio:', radius.toFixed(3));
+
+                return {
+                  x: cx,
+                  y: cy,
+                  z: cz,
+                  radius: radius,
+                  pointsCount: indices.length,
+                  indices: indices
+                };
+              }
+            }
+          } catch (err) {
+            console.warn('[Pin] Erro no teste de splats:', err);
+          }
+        }
+
+        // 3. Fallback geométrico proporcional à seleção de tela
+        let sumX = 0, sumY = 0;
+        polygon.forEach(p => { sumX += p.x; sumY += p.y; });
+        const screenCX = sumX / polygon.length;
+        const screenCY = sumY / polygon.length;
+
+        const avgScreenRadiusPx = Math.max(boxW, boxH) * 0.5;
+        const hitLocal = screenToModelLocal(screenCX, screenCY, avgScreenRadiusPx);
+        if (!hitLocal) return null;
+
+        const fov = cameraEntity.camera ? cameraEntity.camera.fov : 45;
+        const fovRad = (fov / 2) * (Math.PI / 180);
+        const screenRadius3D = (avgScreenRadiusPx / rect.height) * 2.0 * orbit.distance * Math.tan(fovRad);
+        const finalRadius = Math.max(0.02, screenRadius3D);
+
+        console.log('[Pin] Lasso fallback geométrico. Centroide:', hitLocal.x.toFixed(3), hitLocal.y.toFixed(3), hitLocal.z.toFixed(3), '| raio:', finalRadius.toFixed(3));
+
+        return {
+          x: hitLocal.x,
+          y: hitLocal.y,
+          z: hitLocal.z,
+          radius: finalRadius,
+          pointsCount: null
+        };
+      }
+
+      // === Pinned Points (Fixação de Pontos 3D) ===
+      // O laço guarda os ÍNDICES EXATOS dos splats que caíram dentro do polígono.
+      // Esses índices vão para uma textura (1 texel por splat) que o shader lê
+      // usando o índice do próprio splat: nenhuma aproximação por raio, nenhum
+      // limite de splats por pin. O raio existe apenas como pincel do Inspetor.
+      let pinnedPointsList = [];
+      let nextPinnedId = 1;
+      let pendingPinPoint = null;
+
+      let pinMapTexture = null;
+      let pinMapData = null;
+      let pinMapW = 0;
+      let pinMapH = 0;
+
+      const PIN_MAP_MAX_WIDTH = 2048;
+      const PIN_MAP_MAX_HEIGHT = 8192;
+
+      function splatCount() {
+        return (splatCenters && splatCenters.length) ? Math.floor(splatCenters.length / 3) : 0;
+      }
+
+      function ensurePinMapTexture() {
+        if (!app || !app.graphicsDevice) return false;
+        const total = Math.max(1, splatCount());
+        const w = Math.min(PIN_MAP_MAX_WIDTH, total);
+        const h = Math.max(1, Math.min(PIN_MAP_MAX_HEIGHT, Math.ceil(total / w)));
+        if (pinMapTexture && pinMapW === w && pinMapH === h) return true;
+
+        if (pinMapTexture) {
+          pinMapTexture.destroy();
+          pinMapTexture = null;
+        }
+        pinMapW = w;
+        pinMapH = h;
+        pinMapData = new Uint8Array(w * h * 4);
+
+        pinMapTexture = new pc.Texture(app.graphicsDevice, {
+          name: 'pinMap',
+          width: w,
+          height: h,
+          format: pc.PIXELFORMAT_RGBA8,
+          mipmaps: false,
+          minFilter: pc.FILTER_NEAREST,
+          magFilter: pc.FILTER_NEAREST,
+          addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+          addressV: pc.ADDRESS_CLAMP_TO_EDGE
+        });
+        return true;
+      }
+
+      // Splats de um pin: índices exatos (laço) ou os que caem na esfera (Inspetor)
+      function pinIndices(pin) {
+        if (pin.indices && pin.indices.length) return pin.indices;
+
+        const rad = pin.radius !== undefined ? pin.radius : (params.pinRadius || 0.035);
+        if (pin._sphereCache && pin._sphereRadius === rad) return pin._sphereCache;
+
+        const total = splatCount();
+        if (total === 0) return null;
+
+        const r2 = rad * rad;
+        const out = [];
+        let nearestSq = Infinity;
+        for (let i = 0; i < total; i++) {
+          const dx = splatCenters[i * 3] - pin.x;
+          const dy = splatCenters[i * 3 + 1] - pin.y;
+          const dz = splatCenters[i * 3 + 2] - pin.z;
+          const d = dx * dx + dy * dy + dz * dz;
+          if (d <= r2) out.push(i);
+          else if (d < nearestSq) nearestSq = d;
+        }
+
+        // O ponto do Inspetor vem de um raycast na esfera de bounding do modelo e
+        // pode cair FORA da superfície real — aí a esfera pega zero splats e nada
+        // é substituído. Nesse caso, usa os splats mais próximos do ponto.
+        if (out.length === 0 && nearestSq < Infinity) {
+          const fallbackR2 = Math.max(r2, nearestSq * 4);
+          for (let i = 0; i < total; i++) {
+            const dx = splatCenters[i * 3] - pin.x;
+            const dy = splatCenters[i * 3 + 1] - pin.y;
+            const dz = splatCenters[i * 3 + 2] - pin.z;
+            if (dx * dx + dy * dy + dz * dz <= fallbackR2) out.push(i);
+          }
+          console.log('[Pin] Esfera vazia nesse ponto — usando os splats mais próximos (raio ' + Math.sqrt(fallbackR2).toFixed(4) + ', ' + out.length + ' splats).');
+        }
+
+        pin._sphereCache = Uint32Array.from(out);
+        pin._sphereRadius = rad;
+        return pin._sphereCache;
+      }
+
+      function pinnedSplatCount() {
+        let n = 0;
+        for (let i = 0; i < pinnedPointsList.length; i++) {
+          const idx = pinIndices(pinnedPointsList[i]);
+          if (idx) n += idx.length;
+        }
+        return n;
+      }
+
+      // Versão enxuta para presets/export (sem os arrays de índices)
+      function serializePinnedPoints() {
+        return pinnedPointsList.map(p => ({
+          id: p.id,
+          x: p.x,
+          y: p.y,
+          z: p.z,
+          radius: p.radius,
+          emojiName: p.emojiName,
+          surrogates: p.surrogates,
+          filename: p.filename,
+          slot: p.slot,
+          col: p.col,
+          row: p.row
+        }));
+      }
+
+      // Reconstrói a textura do mapa de pins (só quando a lista muda)
+      function rebuildPinMap() {
+        if (!ensurePinMapTexture()) return;
+        pinMapData.fill(0);
+
+        for (let i = 0; i < pinnedPointsList.length; i++) {
+          const pin = pinnedPointsList[i];
+          const idxs = pinIndices(pin);
+          if (!idxs) continue;
+          const col = pin.col | 0;
+          const row = pin.row | 0;
+          for (let k = 0; k < idxs.length; k++) {
+            const o = idxs[k] * 4;
+            pinMapData[o] = col;
+            pinMapData[o + 1] = row;
+            pinMapData[o + 2] = 255;
+            pinMapData[o + 3] = 255;
+          }
+        }
+
+        try {
+          const pixels = pinMapTexture.lock();
+          pixels.set(pinMapData);
+          pinMapTexture.unlock();
+        } catch (err) {
+          console.warn('[Pin] Erro ao atualizar o mapa de pins:', err);
+        }
+      }
+
+      // Barato: só reenvia as referências (rodado a cada frame)
+      function applyPinnedParams() {
+        const device = app ? app.graphicsDevice : null;
+        if (!device) return;
+
+        const w = pinMapW || 1;
+        const h = pinMapH || 1;
+        const mapParams = [w, h, 1 / w, 1 / h];
+        const scale = Math.max(1, params.pinEmojiScale || 1);
+        const orient = params.surfaceOrient ? 1.0 : 0.0;
+        const skew = (params.surfaceOrient && params.surfaceSkew) ? 1.0 : 0.0;
+        const rotBake = (params.surfaceOrient && params.bakeRotation) ? 1.0 : 0.0;
+        const bakeOn = (params.bakeColors && bakeMapTexture) ? 1.0 : 0.0;
+        const tex = pinMapTexture;
+
+        if (device.scope) {
+          if (tex) device.scope.resolve('uPinMap')?.setValue(tex);
+          device.scope.resolve('uPinMapParams')?.setValue(mapParams);
+          device.scope.resolve('uPinEmojiScale')?.setValue(scale);
+          device.scope.resolve('uSurfaceOrient')?.setValue(orient);
+          device.scope.resolve('uSurfaceSkew')?.setValue(skew);
+          device.scope.resolve('uRotBake')?.setValue(rotBake);
+          device.scope.resolve('uBakeRight')?.setValue(bakeRight);
+          device.scope.resolve('uBakeUp')?.setValue(bakeUp);
+          device.scope.resolve('uBakeOn')?.setValue(bakeOn);
+          if (bakeMapTexture) device.scope.resolve('uBakeMap')?.setValue(bakeMapTexture);
+        }
+
+        const apply = (obj) => {
+          if (!obj || typeof obj.setParameter !== 'function') return;
+          try {
+            if (tex) obj.setParameter('uPinMap', tex);
+            obj.setParameter('uPinMapParams', mapParams);
+            obj.setParameter('uPinEmojiScale', scale);
+            obj.setParameter('uSurfaceOrient', orient);
+            obj.setParameter('uSurfaceSkew', skew);
+            obj.setParameter('uRotBake', rotBake);
+            obj.setParameter('uBakeRight', bakeRight);
+            obj.setParameter('uBakeUp', bakeUp);
+            obj.setParameter('uBakeOn', bakeOn);
+            if (bakeMapTexture) obj.setParameter('uBakeMap', bakeMapTexture);
+          } catch (e) {}
+        };
+
+        if (splatEntity && splatEntity.gsplat) {
+          apply(splatEntity.gsplat);
+          apply(splatEntity.gsplat.material);
+          if (splatEntity.gsplat.instance) apply(splatEntity.gsplat.instance.material);
+        }
+      }
+
+      function findPinnedPointNear(pos, threshold = 0.04) {
+        if (!pos) return null;
+        for (let i = 0; i < pinnedPointsList.length; i++) {
+          const p = pinnedPointsList[i];
+          const dist = Math.hypot(p.x - pos.x, p.y - pos.y, p.z - pos.z);
+          if (dist <= Math.min(threshold, (p.radius || 0.035) * 0.4)) {
+            return { point: p, index: i, dist: dist };
+          }
+        }
+        return null;
+      }
+
+      // opts.indices = seleção exata do laço; sem ela, o pin vira esfera (Inspetor)
+      function addOrUpdatePinnedPoint(x, y, z, emoji, radius, indices, pinId) {
+        if (!emoji) return null;
+        const rad = radius !== undefined ? radius : (params.pinRadius || 0.035);
+        const slot = { col: emoji.slot.col, row: emoji.slot.row };
+        const exact = (indices && indices.length) ? indices : null;
+
+        let target = null;
+        if (pinId) target = pinnedPointsList.find(p => p.id === pinId) || null;
+        if (!target && !exact) {
+          const near = findPinnedPointNear({ x, y, z }, rad);
+          if (near) target = near.point;
+        }
+
+        if (target) {
+          target.x = x;
+          target.y = y;
+          target.z = z;
+          target.emojiName = emoji.name;
+          target.surrogates = emoji.surrogates || '';
+          target.filename = emoji.filename || '';
+          target.slot = slot;
+          target.col = slot.col;
+          target.row = slot.row;
+          target.radius = rad;
+          target.indices = exact;
+          target._sphereCache = null;
+          showToast(`Pin atualizado: "${emoji.surrogates ? emoji.surrogates + ' ' : ''}${emoji.name}"${exact ? ' em ' + exact.length.toLocaleString('pt-BR') + ' pontos' : ''}.`);
+        } else {
+          if (pinnedPointsList.length >= 16) {
+            showToast('Limite de 16 pins atingido. Remova um pin antes.');
+            return null;
+          }
+          target = {
+            id: nextPinnedId++,
+            x: x,
+            y: y,
+            z: z,
+            emojiName: emoji.name,
+            surrogates: emoji.surrogates || '',
+            filename: emoji.filename || '',
+            slot: slot,
+            col: slot.col,
+            row: slot.row,
+            radius: rad,
+            indices: exact
+          };
+          pinnedPointsList.push(target);
+          showToast(`Pin criado: "${emoji.surrogates ? emoji.surrogates + ' ' : ''}${emoji.name}"${exact ? ' em ' + exact.length.toLocaleString('pt-BR') + ' pontos' : ''}.`);
+        }
+
+        updatePinnedUniforms();
+        return target;
+      }
+
+      function removePinnedPoint(id) {
+        const idx = pinnedPointsList.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          const removed = pinnedPointsList.splice(idx, 1)[0];
+          if (pendingPinPoint && pendingPinPoint.pinId === id) pendingPinPoint.pinId = undefined;
+          updatePinnedUniforms();
+          showToast(`Pin "${removed.emojiName}" removido.`);
+        }
+      }
+
+      function clearAllPinnedPoints() {
+        if (pinnedPointsList.length === 0) {
+          showToast('Nenhum ponto fixado para limpar.');
+          return;
+        }
+        const count = pinnedPointsList.length;
+        pinnedPointsList = [];
+        pendingPinPoint = null;
+        updatePinnedUniforms();
+        showToast(`${count} pin(s) removido(s).`);
+      }
+
+      function updatePinnedUniforms() {
+        const pinCount = pinnedPointsList.length;
+        rebuildPinMap();
+        applyPinnedParams();
+
+        if (pinCount > 0) {
+          const first = pinnedPointsList[0];
+          console.log('[Pin] Aplicando', pinCount, 'pin(s). Mapa', pinMapW + 'x' + pinMapH,
+            '| Splats fixados:', pinnedSplatCount().toLocaleString('pt-BR'),
+            '| Pin[0] emoji:', first.emojiName, 'slot:', first.col, first.row);
+        }
+
+        const total = pinnedSplatCount();
+        params.pinnedCountDisplay = pinCount === 0
+          ? '0 / 16 pins'
+          : `${pinCount} / 16 pins · ${total.toLocaleString('pt-BR')} pontos`;
+        if (guiControllers.pinnedCountDisplay) {
+          guiControllers.pinnedCountDisplay.updateDisplay();
+        }
+      }
+
+
+      // === Presets System (localStorage + JSON Export/Import) ===
+      const PRESET_STORAGE_KEY = 'emojicloud_presets_v2';
+      let savedPresets = {};
+
+      const defaultPresets = {
+        'Padrão': {
+          name: 'Padrão',
+          params: {
+            useEmojis: true,
+            renderModeText: 'Colorido',
+            renderMode: 0,
+            tintIntensity: 0.6,
+            alphaCutoff: 0.10,
+            lockSH: false,
+            hueShift: 0.0,
+            saturation: 1.0,
+            brightness: 0.0,
+            contrast: 1.0,
+            gamma: 1.0,
+            squareSize: 0.004,
+            density: 100,
+            evenDensity: false,
+            minOpacity: 0.0,
+            depthThreshold: 1.0,
+            autoSpin: false,
+            spinSpeed: 18,
+            invertX: true,
+            invertPitch: false,
+            invertYaw: false,
+            excludedText: '',
+            forcedText: '',
+            useForced: true,
+            pinRadius: 0.035,
+            pinEmojiScale: 1,
+            surfaceOrient: false,
+            surfaceSkew: false
+          },
+          pinnedPoints: []
+        },
+        'Cyber Neon': {
+          name: 'Cyber Neon',
+          params: {
+            useEmojis: true,
+            renderModeText: 'Colorido',
+            renderMode: 0,
+            tintIntensity: 0.75,
+            alphaCutoff: 0.15,
+            lockSH: true,
+            hueShift: 135.0,
+            saturation: 1.8,
+            brightness: 0.04,
+            contrast: 1.45,
+            gamma: 1.05,
+            squareSize: 0.0055,
+            density: 100,
+            evenDensity: false,
+            minOpacity: 0.12,
+            depthThreshold: 1.0,
+            autoSpin: true,
+            spinSpeed: 6,
+            invertX: true,
+            invertPitch: false,
+            invertYaw: false,
+            excludedText: '',
+            forcedText: '',
+            useForced: true,
+            pinRadius: 0.035,
+            pinEmojiScale: 1,
+            surfaceOrient: false,
+            surfaceSkew: false
+          },
+          pinnedPoints: []
+        },
+        'Retrô / Pastel': {
+          name: 'Retrô / Pastel',
+          params: {
+            useEmojis: true,
+            renderModeText: 'Colorido',
+            renderMode: 0,
+            tintIntensity: 0.35,
+            alphaCutoff: 0.08,
+            lockSH: false,
+            hueShift: -25.0,
+            saturation: 0.65,
+            brightness: 0.08,
+            contrast: 0.9,
+            gamma: 1.35,
+            squareSize: 0.0048,
+            density: 95,
+            evenDensity: false,
+            minOpacity: 0.08,
+            depthThreshold: 1.0,
+            autoSpin: false,
+            spinSpeed: 10,
+            invertX: true,
+            invertPitch: false,
+            invertYaw: false,
+            excludedText: '',
+            forcedText: '',
+            useForced: true,
+            pinRadius: 0.035,
+            pinEmojiScale: 1,
+            surfaceOrient: false,
+            surfaceSkew: false
+          },
+          pinnedPoints: []
+        },
+        'Esparso High-Tech': {
+          name: 'Esparso High-Tech',
+          params: {
+            useEmojis: true,
+            renderModeText: 'Colorido',
+            renderMode: 0,
+            tintIntensity: 0.5,
+            alphaCutoff: 0.18,
+            lockSH: true,
+            hueShift: 200.0,
+            saturation: 1.3,
+            brightness: -0.02,
+            contrast: 1.25,
+            gamma: 0.95,
+            squareSize: 0.0075,
+            density: 35,
+            evenDensity: true,
+            minOpacity: 0.2,
+            depthThreshold: 1.0,
+            autoSpin: true,
+            spinSpeed: 4,
+            invertX: true,
+            invertPitch: false,
+            invertYaw: false,
+            excludedText: '',
+            forcedText: '',
+            useForced: true,
+            pinRadius: 0.035,
+            pinEmojiScale: 1,
+            surfaceOrient: false,
+            surfaceSkew: false
+          },
+          pinnedPoints: []
+        }
+      };
+
+      function initPresets() {
+        try {
+          const raw = localStorage.getItem(PRESET_STORAGE_KEY);
+          if (raw) {
+            savedPresets = JSON.parse(raw);
+          } else {
+            savedPresets = JSON.parse(JSON.stringify(defaultPresets));
+            localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(savedPresets));
+          }
+        } catch (err) {
+          console.warn('[Effect Lab] Erro ao carregar presets do localStorage:', err);
+          savedPresets = JSON.parse(JSON.stringify(defaultPresets));
+        }
+      }
+
+      function savePresetsToStorage() {
+        try {
+          localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(savedPresets));
+        } catch (err) {
+          console.error('[Effect Lab] Erro ao gravar presets no localStorage:', err);
+        }
+      }
+
+      function promptAndSavePreset() {
+        const current = params.selectedPreset || 'Novo Preset';
+        const name = window.prompt('Digite o nome do preset:', current);
+        if (!name || !name.trim()) return;
+        saveCurrentPreset(name.trim());
+      }
+
+      function saveCurrentPreset(name) {
+        if (!name || !name.trim()) {
+          showToast('Digite um nome para o preset.');
+          return;
+        }
+        const cleanName = name.trim();
+
+        const presetObj = {
+          name: cleanName,
+          createdAt: Date.now(),
+          params: {
+            useEmojis: params.useEmojis,
+            renderModeText: params.renderModeText,
+            renderMode: params.renderMode,
+            tintIntensity: params.tintIntensity,
+            alphaCutoff: params.alphaCutoff,
+            lockSH: params.lockSH,
+            hueShift: params.hueShift,
+            saturation: params.saturation,
+            brightness: params.brightness,
+            contrast: params.contrast,
+            gamma: params.gamma,
+            squareSize: params.squareSize,
+            density: params.density,
+            evenDensity: params.evenDensity,
+            minOpacity: params.minOpacity,
+            depthThreshold: params.depthThreshold,
+            autoSpin: params.autoSpin,
+            spinSpeed: params.spinSpeed,
+            invertX: params.invertX,
+            invertPitch: params.invertPitch,
+            invertYaw: params.invertYaw,
+            excludedText: params.excludedText,
+            forcedText: params.forcedText,
+            useForced: params.useForced,
+            pinRadius: params.pinRadius,
+            pinEmojiScale: params.pinEmojiScale,
+            surfaceOrient: params.surfaceOrient,
+            surfaceSkew: params.surfaceSkew
+            // Pins/laço NÃO entram no preset: carregar preset não mexe nas
+            // substituições feitas com o laço ou com o inspetor.
+          }
+        };
+
+        savedPresets[cleanName] = presetObj;
+        savePresetsToStorage();
+        params.selectedPreset = cleanName;
+        updatePresetDropdownUI();
+        showToast(`Preset "${cleanName}" salvo localmente.`);
+      }
+
+      function loadPreset(name) {
+        const preset = savedPresets[name];
+        if (!preset) {
+          showToast(`Preset "${name}" não encontrado.`);
+          return;
+        }
+
+        const p = preset.params;
+        if (p) {
+          if (p.useEmojis !== undefined) params.useEmojis = p.useEmojis;
+          if (p.renderModeText !== undefined) {
+            if (p.renderModeText === 'Emojis Coloridos') params.renderModeText = 'Colorido';
+            else if (p.renderModeText === 'Emojis Tintados') params.renderModeText = 'Tintado';
+            else if (p.renderModeText === 'Cores Originais') params.renderModeText = 'Original';
+            else params.renderModeText = p.renderModeText;
+          }
+          if (p.renderMode !== undefined) params.renderMode = p.renderMode;
+          if (p.tintIntensity !== undefined) params.tintIntensity = p.tintIntensity;
+          if (p.alphaCutoff !== undefined) params.alphaCutoff = p.alphaCutoff;
+          if (p.lockSH !== undefined) params.lockSH = p.lockSH;
+          if (p.hueShift !== undefined) params.hueShift = p.hueShift;
+          if (p.saturation !== undefined) params.saturation = p.saturation;
+          if (p.brightness !== undefined) params.brightness = p.brightness;
+          if (p.contrast !== undefined) params.contrast = p.contrast;
+          if (p.gamma !== undefined) params.gamma = p.gamma;
+          if (p.squareSize !== undefined) params.squareSize = p.squareSize;
+          if (p.density !== undefined) params.density = p.density;
+          if (p.evenDensity !== undefined) params.evenDensity = p.evenDensity;
+          if (p.minOpacity !== undefined) params.minOpacity = p.minOpacity;
+          if (p.depthThreshold !== undefined) params.depthThreshold = p.depthThreshold;
+          if (p.autoSpin !== undefined) params.autoSpin = p.autoSpin;
+          if (p.spinSpeed !== undefined) params.spinSpeed = p.spinSpeed;
+          if (p.invertX !== undefined) params.invertX = p.invertX;
+          if (p.invertPitch !== undefined) params.invertPitch = p.invertPitch;
+          if (p.invertYaw !== undefined) params.invertYaw = p.invertYaw;
+          if (p.excludedText !== undefined) params.excludedText = p.excludedText;
+          if (p.forcedText !== undefined) params.forcedText = p.forcedText;
+          if (p.useForced !== undefined) params.useForced = p.useForced;
+          if (p.pinRadius !== undefined) params.pinRadius = p.pinRadius;
+          if (p.pinEmojiScale !== undefined) params.pinEmojiScale = p.pinEmojiScale;
+          if (p.surfaceOrient !== undefined) params.surfaceOrient = p.surfaceOrient;
+          if (p.surfaceSkew !== undefined) params.surfaceSkew = p.surfaceSkew;
+          if (p.bakeRotation !== undefined) params.bakeRotation = p.bakeRotation;
+        }
+
+        // Preset pode vir com lockSH ligado: congela a visão no estado atual
+        lockSHCamPos = computeLockSHCamPos();
+        computeBakeBasis();
+
+        if (Array.isArray(preset.pinnedPoints)) {
+          // Compatibilidade: presets antigos podem ter pins salvos, mas carregar
+          // preset não deve mexer nas substituições feitas com o laço.
+          console.log('[Pin] Preset possui', preset.pinnedPoints.length, 'pin(s) salvo(s) — ignorados (presets não alteram pins).');
+        }
+
+        params.selectedPreset = name;
+
+        if (splatEntity) {
+          splatEntity.setLocalEulerAngles(params.invertX ? 180 : 0, 0, 0);
+        }
+
+        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+        applyShaderParams();
+        updatePinnedUniforms();
+        updateSplatCountDisplay();
+
+        // Sincroniza todos os controllers da GUI
+        Object.keys(guiControllers).forEach(key => {
+          if (guiControllers[key] && typeof guiControllers[key].updateDisplay === 'function') {
+            guiControllers[key].updateDisplay();
+          }
+        });
+
+        // Sincroniza modal de emojis se estiver aberto
+        const searchInput = document.getElementById('emoji-modal-search-input');
+        const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
+        if (headerToggle) headerToggle.checked = params.useForced;
+        if (typeof renderEmojiModal === 'function') {
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+        }
+
+        showToast(`Preset "${name}" carregado.`);
+      }
+
+      function deletePreset(name) {
+        if (!savedPresets[name]) {
+          showToast(`Preset "${name}" não existe.`);
+          return;
+        }
+        delete savedPresets[name];
+        savePresetsToStorage();
+
+        const remaining = Object.keys(savedPresets);
+        params.selectedPreset = remaining.length > 0 ? remaining[0] : '';
+        updatePresetDropdownUI();
+        showToast(`Preset "${name}" excluído.`);
+      }
+
+      function updatePresetDropdownUI() {
+        if (!guiControllers.selectedPreset) return;
+        const names = Object.keys(savedPresets);
+        if (names.length === 0) names.push('(Nenhum salvo)');
+
+        guiControllers.selectedPreset.options(names);
+        if (names.includes(params.selectedPreset)) {
+          guiControllers.selectedPreset.setValue(params.selectedPreset);
+        } else {
+          params.selectedPreset = names[0];
+          guiControllers.selectedPreset.setValue(names[0]);
+        }
+      }
+
+      function exportPresetJSON() {
+        const curPresetName = params.selectedPreset || 'Meu Preset';
+        const exportData = {
+          appName: 'EmojiCloud Effect Lab',
+          version: '2.0',
+          preset: {
+            name: curPresetName,
+            createdAt: new Date().toISOString(),
+            params: {
+              useEmojis: params.useEmojis,
+              renderModeText: params.renderModeText,
+              renderMode: params.renderMode,
+              tintIntensity: params.tintIntensity,
+              alphaCutoff: params.alphaCutoff,
+              lockSH: params.lockSH,
+              hueShift: params.hueShift,
+              saturation: params.saturation,
+              brightness: params.brightness,
+              contrast: params.contrast,
+              gamma: params.gamma,
+              squareSize: params.squareSize,
+              density: params.density,
+              evenDensity: params.evenDensity,
+              minOpacity: params.minOpacity,
+              depthThreshold: params.depthThreshold,
+              autoSpin: params.autoSpin,
+              spinSpeed: params.spinSpeed,
+              invertX: params.invertX,
+              invertPitch: params.invertPitch,
+              invertYaw: params.invertYaw,
+              excludedText: params.excludedText,
+              forcedText: params.forcedText,
+              useForced: params.useForced,
+              pinRadius: params.pinRadius,
+              pinEmojiScale: params.pinEmojiScale,
+              surfaceOrient: params.surfaceOrient,
+              surfaceSkew: params.surfaceSkew
+            }
+            // sem pinnedPoints: o export não leva as substituições do laço
+          }
+        };
+
+        const jsonStr = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const filename = `preset_${curPresetName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.json`;
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`Exportado como "${filename}".`);
+      }
+
+      function importPresetJSON(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = JSON.parse(e.target.result);
+            const pData = data.preset || data;
+            const name = pData.name || file.name.replace(/\.json$/i, '');
+            savedPresets[name] = pData;
+            savePresetsToStorage();
+            params.selectedPreset = name;
+            updatePresetDropdownUI();
+            loadPreset(name);
+            showToast(`Preset "${name}" importado com sucesso.`);
+          } catch (err) {
+            console.error('[Effect Lab] Falha ao importar JSON:', err);
+            showToast('Erro: Arquivo JSON de preset inválido.');
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      // === Toast Helper ===
+      let toastTimeout = null;
+      function showToast(msg, duration = 2400) {
+        const toast = document.getElementById('lab-toast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.classList.remove('show');
+        }, duration);
+      }
+
+      // === Inspector Floating Action Menu & Tooltip ===
+      let activeActionMenuEmoji = null;
+      let activeActionMenuPos = null;
+
+      function showPickerActionMenu(clientX, clientY, emoji, localPos) {
+        activeActionMenuEmoji = emoji;
+        activeActionMenuPos = localPos;
+
+        const card = document.getElementById('picker-action-card');
+        const img = document.getElementById('picker-action-img');
+        const nameEl = document.getElementById('picker-action-name');
+        const dot = document.getElementById('picker-action-dot');
+        const hexEl = document.getElementById('picker-action-hex');
+        const badge = document.getElementById('picker-action-badge');
+        const coordsEl = document.getElementById('picker-action-coords');
+        const unpinBtn = document.getElementById('picker-btn-unpin');
+
+        if (!card) return;
+
+        const hex = emoji.avgColor ? emoji.avgColor.hex : '#888888';
+        if (img) img.src = `emojis/${emoji.filename}`;
+        if (nameEl) nameEl.textContent = emoji.surrogates ? `${emoji.surrogates} ${emoji.name}` : emoji.name;
+        if (dot) dot.style.backgroundColor = hex;
+        if (hexEl) hexEl.textContent = hex;
+
+        if (coordsEl && localPos) {
+          coordsEl.textContent = `XYZ: [${localPos.x.toFixed(3)}, ${localPos.y.toFixed(3)}, ${localPos.z.toFixed(3)}]`;
+        }
+
+        const nearPinned = localPos ? findPinnedPointNear(localPos) : null;
+        const excludedIndices = parseTokenIndices(params.excludedText);
+        const forcedIndices = parseTokenIndices(params.forcedText);
+        const isBlocked = emoji._atlasIndex !== undefined ? excludedIndices.has(emoji._atlasIndex) : false;
+        const isForced = emoji._atlasIndex !== undefined ? forcedIndices.has(emoji._atlasIndex) : false;
+
+        if (badge) {
+          if (nearPinned) {
+            badge.className = 'emoji-badge badge-forced';
+            badge.textContent = 'Fixado';
+          } else if (isBlocked) {
+            badge.className = 'emoji-badge badge-blocked';
+            badge.textContent = 'Bloqueado';
+          } else if (isForced) {
+            badge.className = 'emoji-badge badge-forced';
+            badge.textContent = 'Restrito';
+          } else {
+            badge.className = 'emoji-badge badge-idle';
+            badge.textContent = 'Ativo';
+          }
+        }
+
+        if (unpinBtn) {
+          unpinBtn.style.display = nearPinned ? 'flex' : 'none';
+        }
+
+        const menuW = 270;
+        const menuH = 190;
+        let mx = clientX + 16;
+        let my = clientY + 16;
+
+        if (mx + menuW > window.innerWidth - 330) {
+          mx = clientX - menuW - 16;
+        }
+        if (my + menuH > window.innerHeight - 20) {
+          my = clientY - menuH - 16;
+        }
+
+        card.style.left = `${Math.max(10, mx)}px`;
+        card.style.top = `${Math.max(10, my)}px`;
+        card.style.display = 'flex';
+      }
+
+      function hidePickerActionMenu() {
+        const card = document.getElementById('picker-action-card');
+        if (card) card.style.display = 'none';
+        activeActionMenuEmoji = null;
+        activeActionMenuPos = null;
+      }
+
+      function openEmojiModalForPin() {
+        const modal = document.getElementById('emoji-modal');
+        const pinBanner = document.getElementById('modal-pin-banner');
+        const pinBannerText = document.getElementById('modal-pin-banner-text');
+
+        if (pinBanner && pendingPinPoint) {
+          pinBanner.style.display = 'flex';
+          if (pinBannerText) {
+            if (pendingPinPoint.pointsCount) {
+              pinBannerText.innerHTML = `<strong>Fixar Região:</strong> Selecione um emoji para os <code>${pendingPinPoint.pointsCount}</code> pontos da seleção.`;
+            } else {
+              pinBannerText.innerHTML = `<strong>Fixar Ponto:</strong> Selecione um emoji para o ponto <code>[${pendingPinPoint.x.toFixed(2)}, ${pendingPinPoint.y.toFixed(2)}, ${pendingPinPoint.z.toFixed(2)}]</code>`;
+            }
+          }
+        }
+        if (modal) {
+          modal.style.display = 'flex';
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+          if (searchInput) searchInput.focus();
+        }
+      }
+
       function updatePickerHover(clientX, clientY) {
         lastHoverX = clientX;
         lastHoverY = clientY;
@@ -1749,25 +3711,24 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           if (isBlocked) {
             badge.className = 'emoji-badge badge-blocked';
             badge.textContent = 'Bloqueado';
-            hintText.innerHTML = '🔓 Clique para Desbloquear';
+            hintText.innerHTML = 'Clique para Opções';
             reticle.style.borderColor = '#ff7b72';
             reticle.style.boxShadow = '0 0 14px rgba(255, 123, 114, 0.8), inset 0 0 6px rgba(255, 123, 114, 0.4)';
           } else if (isForced) {
             badge.className = 'emoji-badge badge-forced';
-            badge.textContent = 'Forçado';
-            hintText.innerHTML = '🚫 Clique para Bloquear';
+            badge.textContent = 'Restrito';
+            hintText.innerHTML = 'Clique para Opções';
             reticle.style.borderColor = '#7ee787';
             reticle.style.boxShadow = '0 0 14px rgba(126, 231, 135, 0.8), inset 0 0 6px rgba(126, 231, 135, 0.4)';
           } else {
             badge.className = 'emoji-badge badge-idle';
             badge.textContent = 'Ativo';
-            hintText.innerHTML = '🚫 Clique para Bloquear';
+            hintText.innerHTML = 'Clique para Opções e Fixação';
             reticle.style.borderColor = '#58a6ff';
             reticle.style.boxShadow = '0 0 14px rgba(88, 166, 255, 0.8), inset 0 0 6px rgba(88, 166, 255, 0.4)';
           }
         }
 
-        // Posiciona com offset inteligente para NUNCA tampar o emoji sob a mira
         const tooltipW = 230;
         const tooltipH = 80;
         let tx = lastHoverX + 28;
@@ -1795,39 +3756,73 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         if (tooltip) tooltip.style.display = 'none';
       }
 
-      function setPickerState(active) {
-        isPickerActive = !!active;
-        params.pickerMode = isPickerActive;
-        if (guiControllers.pickerMode) {
-          guiControllers.pickerMode.setValue(isPickerActive);
-        }
-        const banner = document.getElementById('picker-hud-banner');
-        if (banner) {
-          banner.style.display = isPickerActive ? 'flex' : 'none';
-        }
+      function setActiveTool(tool) {
+        currentActiveTool = tool;
+        isPickerActive = (tool === 'inspector');
+        isLassoActive = (tool === 'lasso');
+
+        document.querySelectorAll('.gui-tool-btn').forEach(btn => {
+          const bTool = btn.getAttribute('data-tool');
+          btn.classList.toggle('active', bTool === tool);
+        });
+
         if (canvas) {
-          if (isPickerActive) {
+          if (tool === 'inspector' || tool === 'lasso') {
+            canvas.style.cursor = 'crosshair';
             canvas.classList.add('picker-active');
           } else {
+            canvas.style.cursor = 'default';
             canvas.classList.remove('picker-active');
-            hidePickerHover();
           }
         }
+
+        const hudBanner = document.getElementById('tool-hud-banner');
+        const hudText = document.getElementById('tool-hud-text');
+        if (hudBanner && hudText) {
+          if (tool === 'inspector') {
+            hudText.textContent = 'Inspetor Ativo: Passe o mouse para analisar ou clique para inspecionar e fixar';
+            hudBanner.classList.add('visible');
+          } else if (tool === 'lasso') {
+            hudText.textContent = 'Laço de Fixação Ativo: Desenhe um contorno na tela para fixar um emoji na região';
+            hudBanner.classList.add('visible');
+          } else {
+            hudBanner.classList.remove('visible');
+          }
+        }
+
+        if (tool !== 'inspector') {
+          hidePickerHover();
+          hidePickerActionMenu();
+        }
+        if (tool !== 'lasso') {
+          clearLassoCanvas();
+          isDrawingLasso = false;
+        }
+      }
+
+      function setPickerState(active) {
+        setActiveTool(active ? 'inspector' : 'navigate');
       }
 
       function handlePickerClick(e) {
         if (!isPickerActive || !app || !app.graphicsDevice || !atlasMetadata) return;
 
         const pickedEmoji = samplePickerAt(e.clientX, e.clientY);
+        const localPos = samplePositionAt(e.clientX, e.clientY);
+
         if (!pickedEmoji) {
-          console.log('[Effect Lab] Nenhum emoji sob o cursor.');
+          hidePickerActionMenu();
           return;
         }
 
-        const tokenToAdd = pickedEmoji.name;
-        window.__toggleExclusion(tokenToAdd);
-        updatePickerHover(e.clientX, e.clientY);
-        console.log('[Effect Lab] Emoji alternado pelo picker:', tokenToAdd);
+        // Shift + clique bloqueia o emoji direto (sem abrir o menu de opções)
+        if (e.shiftKey) {
+          hidePickerActionMenu();
+          window.__toggleExclusion(pickedEmoji.name);
+          return;
+        }
+
+        showPickerActionMenu(e.clientX, e.clientY, pickedEmoji, localPos);
       }
 
       function loadEmojiAssets() {
@@ -1967,6 +3962,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         if (app.systems.gsplat) {
           app.systems.gsplat.on('material:created', (material) => {
             console.log('[Effect Lab] material:created interceptado.');
+            if (gsplatMaterials.indexOf(material) === -1) gsplatMaterials.push(material);
             try {
               if (material.shaderChunks && material.shaderChunks.glsl) {
                 material.shaderChunks.glsl.set('gsplatVS', customVSGLSL);
@@ -2003,6 +3999,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         window.addEventListener('resize', handleResize);
         handleResize();
 
+        initPresets();
         loadEmojiAssets();
         setupEmojiModalEvents();
 
@@ -2024,6 +4021,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         setupInteractionControls();
         setupGUI();
+        updatePresetDropdownUI();
 
         loadSplatAsset('head.sog', 'head.sog');
       }
@@ -2031,6 +4029,11 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
       function handleResize() {
         if (!app) return;
         app.resizeCanvas(window.innerWidth, window.innerHeight);
+        const lc = document.getElementById('lasso-canvas');
+        if (lc) {
+          lc.width = window.innerWidth;
+          lc.height = window.innerHeight;
+        }
       }
 
       function updateCamera() {
@@ -2114,10 +4117,22 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           let count = 0;
 
           if (resource) {
+            if (resource.centers) {
+              splatCenters = resource.centers;
+            } else if (resource.gsplatData && typeof resource.gsplatData.getCenters === 'function') {
+              splatCenters = resource.gsplatData.getCenters();
+            } else if (resource.gsplatData && resource.gsplatData.centers) {
+              splatCenters = resource.gsplatData.centers;
+            }
+            console.log('[Effect Lab] splatCenters carregado:', splatCenters ? `${splatCenters.length / 3} splats` : 'não disponível na CPU (usando fallback de tela)');
+
             if (resource.aabb) {
               const aabb = resource.aabb;
               modelRadius = Math.max(0.2, aabb.halfExtents.length());
-              console.log('[Effect Lab] AABB:', aabb.center, aabb.halfExtents, 'Raio:', modelRadius);
+              modelCenter.x = aabb.center.x;
+              modelCenter.y = aabb.center.y;
+              modelCenter.z = aabb.center.z;
+              console.log('[Effect Lab] AABB Center:', modelCenter, 'Raio:', modelRadius);
               splatEntity.setLocalPosition(-aabb.center.x, -aabb.center.y, -aabb.center.z);
 
               const fovRad = (cameraEntity.camera.fov / 2) * (Math.PI / 180);
@@ -2140,6 +4155,19 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           orbit.panTarget.set(0, 0, 0);
           orbit.targetYaw = 25;
           orbit.targetPitch = 12;
+
+          // Modelo novo: o mapa de pins precisa ser recriado no tamanho certo
+          // (os pins vindos de preset são re-derivados a partir do centro/raio)
+          pinnedPointsList.forEach(p => { p._sphereCache = null; p._sphereRadius = undefined; });
+          lockSHCamPos = computeLockSHCamPos();
+          computeBakeBasis();
+          buildCaptureMarkers();
+          applySplatSHBands(resource, splatEntity);
+          pinMapTexture = null;
+          pinMapData = null;
+          pinMapW = 0;
+          pinMapH = 0;
+          updatePinnedUniforms();
 
           applyShaderParams();
 
@@ -2173,7 +4201,14 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           lastX = e.clientX;
           lastY = e.clientY;
 
-          if (isPickerActive && e.button === 0) {
+          if (currentActiveTool === 'lasso' && e.button === 0) {
+            isDrawingLasso = true;
+            lassoPoints = [{ x: e.clientX, y: e.clientY }];
+            drawLassoPolygon(lassoPoints);
+            return;
+          }
+
+          if (currentActiveTool === 'inspector' && e.button === 0) {
             return;
           }
 
@@ -2182,7 +4217,17 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         });
 
         window.addEventListener('mousemove', (e) => {
-          if (isPickerActive && !isDragging) {
+          if (currentActiveTool === 'lasso' && isDrawingLasso) {
+            const last = lassoPoints[lassoPoints.length - 1];
+            const dist = last ? Math.hypot(e.clientX - last.x, e.clientY - last.y) : 999;
+            if (dist > 3) {
+              lassoPoints.push({ x: e.clientX, y: e.clientY });
+              drawLassoPolygon(lassoPoints);
+            }
+            return;
+          }
+
+          if (currentActiveTool === 'inspector' && !isDragging) {
             updatePickerHover(e.clientX, e.clientY);
           }
 
@@ -2211,14 +4256,38 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         });
 
         canvas.addEventListener('mouseleave', () => {
-          if (isPickerActive) {
+          if (currentActiveTool === 'inspector') {
             hidePickerHover();
           }
         });
 
         window.addEventListener('mouseup', (e) => {
+          if (currentActiveTool === 'lasso' && isDrawingLasso) {
+            isDrawingLasso = false;
+            if (lassoPoints.length >= 3) {
+              drawLassoPolygon(lassoPoints);
+              console.log('[Lasso] Finalizando com', lassoPoints.length, 'pontos');
+              const region = sampleLassoRegion(lassoPoints);
+              clearLassoCanvas();
+              console.log('[Lasso] Regiao retornada:', region ? {
+                x: +region.x.toFixed(4), y: +region.y.toFixed(4), z: +region.z.toFixed(4),
+                radius: +region.radius.toFixed(4),
+                splats: region.indices ? region.indices.length : 0
+              } : null);
+              if (region) {
+                pendingPinPoint = region;
+                openEmojiModalForPin();
+              } else {
+                showToast('Nenhum ponto 3D detectado na seleção.');
+              }
+            } else {
+              clearLassoCanvas();
+            }
+            return;
+          }
+
           const moveDist = Math.hypot(e.clientX - startX, e.clientY - startY);
-          if (isPickerActive && moveDist < 6 && e.button === 0) {
+          if (currentActiveTool === 'inspector' && moveDist < 6 && e.button === 0) {
             handlePickerClick(e);
           }
 
@@ -2285,25 +4354,219 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           lastPinchDist = null;
         });
 
-        const hudClose = document.getElementById('picker-hud-close-btn');
+        const hudClose = document.getElementById('tool-hud-close-btn');
         if (hudClose) {
           hudClose.addEventListener('click', (e) => {
             e.stopPropagation();
-            setPickerState(false);
+            setActiveTool('navigate');
+          });
+        }
+
+        const actionClose = document.getElementById('picker-action-close-btn');
+        if (actionClose) {
+          actionClose.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hidePickerActionMenu();
+          });
+        }
+
+        const btnPin = document.getElementById('picker-btn-pin');
+        if (btnPin) {
+          btnPin.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeActionMenuEmoji && activeActionMenuPos) {
+              addOrUpdatePinnedPoint(activeActionMenuPos.x, activeActionMenuPos.y, activeActionMenuPos.z, activeActionMenuEmoji, params.pinRadius);
+            }
+            hidePickerActionMenu();
+          });
+        }
+
+        const btnChoose = document.getElementById('picker-btn-choose');
+        if (btnChoose) {
+          btnChoose.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!activeActionMenuPos) {
+              showToast('Não consegui pegar a posição 3D desse ponto. Tente clicar de novo.');
+              hidePickerActionMenu();
+              return;
+            }
+
+            // Abre o catálogo já FILTRADO na cor do ponto clicado (sem deixar
+            // que uma falha no filtro impeça a substituição do emoji).
+            try {
+              const hex = (activeActionMenuEmoji && activeActionMenuEmoji.avgColor && activeActionMenuEmoji.avgColor.hex) || '';
+              if (hex) setColorFromHex(hex, false);
+            } catch (err) {
+              console.warn('[Pin] filtro de cor falhou, abrindo sem filtro:', err);
+              try { resetColorFilter(); } catch (e2) {}
+            }
+
+            pendingPinPoint = activeActionMenuPos;
+            hidePickerActionMenu();
+            openEmojiModalForPin();
+
+            // Se o filtro de cor não deixou nenhum emoji, reabre sem filtro
+            const grid = document.getElementById('emoji-modal-grid');
+            if (grid && grid.querySelectorAll('img').length === 0) {
+              console.warn('[Pin] filtro de cor sem resultados: reabrindo o catálogo sem filtro.');
+              showToast('Nenhum emoji nessa cor — mostrando todos.');
+              try { resetColorFilter(); } catch (e3) {}
+              openEmojiModalForPin();
+            }
+          });
+        }
+
+        const btnBlock = document.getElementById('picker-btn-block');
+        if (btnBlock) {
+          btnBlock.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeActionMenuEmoji) {
+              window.__toggleExclusion(activeActionMenuEmoji.name);
+            }
+            hidePickerActionMenu();
+          });
+        }
+
+        const btnForce = document.getElementById('picker-btn-force');
+        if (btnForce) {
+          btnForce.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeActionMenuEmoji) {
+              window.__toggleForced(activeActionMenuEmoji.name);
+            }
+            hidePickerActionMenu();
+          });
+        }
+
+        const btnUnpin = document.getElementById('picker-btn-unpin');
+        if (btnUnpin) {
+          btnUnpin.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeActionMenuPos) {
+              const near = findPinnedPointNear(activeActionMenuPos);
+              if (near) removePinnedPoint(near.point.id);
+            }
+            hidePickerActionMenu();
+          });
+        }
+
+        const pinCancelBtn = document.getElementById('modal-pin-cancel-btn');
+        if (pinCancelBtn) {
+          pinCancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            pendingPinPoint = null;
+            const pinBanner = document.getElementById('modal-pin-banner');
+            if (pinBanner) pinBanner.style.display = 'none';
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+          });
+        }
+
+        const presetFileInput = document.getElementById('preset-file-input');
+        if (presetFileInput) {
+          presetFileInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+              importPresetJSON(file);
+              e.target.value = '';
+            }
           });
         }
 
         window.addEventListener('keydown', (e) => {
+          const isInputFocused = ['input', 'textarea', 'select'].includes(document.activeElement?.tagName?.toLowerCase());
+
           if (e.key === 'Escape') {
-            if (isPickerActive) {
-              setPickerState(false);
+            if (isInputFocused) {
+              document.activeElement.blur();
+              return;
             }
+            hidePickerActionMenu();
+            clearLassoCanvas();
+            isDrawingLasso = false;
+            setActiveTool('navigate');
+
+            pendingPinPoint = null;
+            const pinBanner = document.getElementById('modal-pin-banner');
+            if (pinBanner) pinBanner.style.display = 'none';
             const modal = document.getElementById('emoji-modal');
             if (modal && modal.style.display !== 'none') {
               modal.style.display = 'none';
             }
+            return;
+          }
+
+          if (isInputFocused || e.ctrlKey || e.metaKey || e.altKey) return;
+
+          const key = e.key.toLowerCase();
+          if (key === 'v') {
+            setActiveTool('navigate');
+          } else if (key === 'i') {
+            setActiveTool(currentActiveTool === 'inspector' ? 'navigate' : 'inspector');
+          } else if (key === 'l') {
+            setActiveTool(currentActiveTool === 'lasso' ? 'navigate' : 'lasso');
+          } else if (key === 'c') {
+            params.openEmojiModal();
+          } else if (key === 'r') {
+            params.resetCamera();
           }
         });
+      }
+
+      // === Color Picker & Emoji Catalog Logic ===
+      function hsvToRgb(h, s, v) {
+        h = ((h % 360) + 360) % 360;
+        s = Math.max(0, Math.min(1, s));
+        v = Math.max(0, Math.min(1, v));
+        const c = v * s;
+        const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        const m = v - c;
+        let r = 0, g = 0, b = 0;
+        if (h < 60) { r = c; g = x; b = 0; }
+        else if (h < 120) { r = x; g = c; b = 0; }
+        else if (h < 180) { r = 0; g = c; b = x; }
+        else if (h < 240) { r = 0; g = x; b = c; }
+        else if (h < 300) { r = x; g = 0; b = c; }
+        else { r = c; g = 0; b = x; }
+        return [
+          Math.round((r + m) * 255),
+          Math.round((g + m) * 255),
+          Math.round((b + m) * 255)
+        ];
+      }
+
+      function rgbToHsv(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        const d = max - min;
+        let h = 0;
+        const s = max === 0 ? 0 : d / max;
+        const v = max;
+        if (max !== min) {
+          switch (max) {
+            case r: h = ((g - b) / d + (g < b ? 6 : 0)) * 60; break;
+            case g: h = ((b - r) / d + 2) * 60; break;
+            case b: h = ((r - g) / d + 4) * 60; break;
+          }
+        }
+        return [h, s, v];
+      }
+
+      function rgbToHex(r, g, b) {
+        return '#' + [r, g, b].map(x => {
+          const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16);
+          return hex.length === 1 ? '0' + hex : hex;
+        }).join('').toUpperCase();
+      }
+
+      function hexToRgb(hex) {
+        if (!hex || typeof hex !== 'string') return null;
+        let c = hex.replace('#', '').trim();
+        if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+        if (c.length !== 6) return null;
+        const num = parseInt(c, 16);
+        if (isNaN(num)) return null;
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
       }
 
       const COLOR_NAMES_MAP = {
@@ -2351,22 +4614,230 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         return 'other';
       }
 
-      function hexToRgb(hex) {
-        if (!hex || typeof hex !== 'string') return null;
-        let c = hex.replace('#', '').trim();
-        if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
-        if (c.length !== 6) return null;
-        const num = parseInt(c, 16);
-        if (isNaN(num)) return null;
-        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
-      }
-
+      // State for 2D Color Picker
+      let currentColorHue = 0;      // 0 - 360
+      let currentColorSat = 1.0;    // 0 - 1
+      let currentColorVal = 1.0;    // 0 - 1
+      let isColorFilterActive = false;
+      let selectedHexColor = '';
       let currentActiveModalTag = '';
       let currentActiveModalColor = '';
 
+      let currentMatchedList = [];
+      let renderedEmojiCount = 0;
+      const EMOJI_BATCH_SIZE = 120;
+
+      function drawColorBox(hue) {
+        const canvas = document.getElementById('color-box-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // Base Hue Color
+        const [r, g, b] = hsvToRgb(hue, 1, 1);
+        const hueHex = rgbToHex(r, g, b);
+
+        // 1. Horizontal gradient: White -> Pure Hue Color
+        const gradH = ctx.createLinearGradient(0, 0, w, 0);
+        gradH.addColorStop(0, '#ffffff');
+        gradH.addColorStop(1, hueHex);
+        ctx.fillStyle = gradH;
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. Vertical gradient: Transparent -> Black
+        const gradV = ctx.createLinearGradient(0, 0, 0, h);
+        gradV.addColorStop(0, 'rgba(0,0,0,0)');
+        gradV.addColorStop(1, 'rgba(0,0,0,1)');
+        ctx.fillStyle = gradV;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      function updateCrosshairUI() {
+        const container = document.getElementById('color-box-container');
+        const crosshairH = document.getElementById('crosshair-h');
+        const crosshairV = document.getElementById('crosshair-v');
+        const crosshairRing = document.getElementById('crosshair-ring');
+        const hueContainer = document.getElementById('hue-bar-container');
+        const hueCursor = document.getElementById('hue-cursor');
+        const dot = document.getElementById('color-preview-dot');
+        const hexLabel = document.getElementById('color-preview-hex');
+        const resetBtn = document.getElementById('color-reset-btn');
+
+        const boxW = container ? container.clientWidth || 194 : 194;
+        const boxH = container ? container.clientHeight || 126 : 126;
+        const hueW = hueContainer ? hueContainer.clientWidth || 194 : 194;
+
+        const x = Math.round(currentColorSat * boxW);
+        const y = Math.round((1 - currentColorVal) * boxH);
+        const hueX = Math.round((currentColorHue / 360) * hueW);
+
+        if (crosshairH) crosshairH.style.top = `${y}px`;
+        if (crosshairV) crosshairV.style.left = `${x}px`;
+        if (crosshairRing) {
+          crosshairRing.style.left = `${x}px`;
+          crosshairRing.style.top = `${y}px`;
+        }
+        if (hueCursor) hueCursor.style.left = `${hueX}px`;
+
+        const [r, g, b] = hsvToRgb(currentColorHue, currentColorSat, currentColorVal);
+        const hex = rgbToHex(r, g, b);
+
+        if (dot) {
+          dot.style.backgroundColor = hex;
+          dot.style.opacity = isColorFilterActive ? '1' : '0.4';
+        }
+
+        if (hexLabel) {
+          hexLabel.textContent = isColorFilterActive ? hex : 'Todas';
+          hexLabel.style.color = isColorFilterActive ? '#ffffff' : '#888888';
+        }
+
+        if (resetBtn) {
+          if (isColorFilterActive) {
+            resetBtn.style.borderColor = '#3e3e3e';
+            resetBtn.style.color = '#cccccc';
+          } else {
+            resetBtn.style.borderColor = '#58a6ff';
+            resetBtn.style.color = '#58a6ff';
+          }
+        }
+      }
+
+      function setColorFromHsv(h, s, v, triggerFilter = true) {
+        currentColorHue = Math.max(0, Math.min(360, h));
+        currentColorSat = Math.max(0, Math.min(1, s));
+        currentColorVal = Math.max(0, Math.min(1, v));
+        isColorFilterActive = true;
+
+        const [r, g, b] = hsvToRgb(currentColorHue, currentColorSat, currentColorVal);
+        selectedHexColor = rgbToHex(r, g, b);
+        currentActiveModalColor = selectedHexColor;
+
+        drawColorBox(currentColorHue);
+        updateCrosshairUI();
+
+        if (triggerFilter) {
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+        }
+      }
+
+      function setColorFromHex(hex, triggerFilter = true) {
+        const rgb = hexToRgb(hex);
+        if (!rgb) return;
+        const [h, s, v] = rgbToHsv(rgb[0], rgb[1], rgb[2]);
+        setColorFromHsv(h, s, v, triggerFilter);
+      }
+
+      function resetColorFilter() {
+        isColorFilterActive = false;
+        currentActiveModalColor = '';
+        selectedHexColor = '';
+        updateCrosshairUI();
+
+        const searchInput = document.getElementById('emoji-modal-search-input');
+        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, '');
+      }
+
+      function renderNextBatch() {
+        const grid = document.getElementById('emoji-modal-grid');
+        if (!grid || renderedEmojiCount >= currentMatchedList.length) return;
+
+        const nextCount = Math.min(renderedEmojiCount + EMOJI_BATCH_SIZE, currentMatchedList.length);
+        const slice = currentMatchedList.slice(renderedEmojiCount, nextCount);
+
+        const fragment = document.createDocumentFragment();
+        for (const item of slice) {
+          const e = item.emoji;
+          const token = e.name;
+          const isBlocked = item.isBlocked;
+          const isForced = item.isForced;
+          const hex = e.avgColor ? e.avgColor.hex : '#888888';
+
+          let badgeClass = 'badge-idle';
+          let badgeText = 'Ativo';
+          if (isBlocked) {
+            badgeClass = 'badge-blocked';
+            badgeText = 'Bloqueado';
+          } else if (isForced) {
+            badgeClass = 'badge-forced';
+            badgeText = 'Restrito';
+          }
+
+          let cardClass = 'emoji-grid-card';
+          if (isBlocked) cardClass += ' is-blocked';
+          if (isForced) cardClass += ' is-forced';
+
+          const card = document.createElement('div');
+          card.className = cardClass;
+          const pinActionHtml = pendingPinPoint
+            ? `<button class="emoji-action-btn picker-btn-pin" style="flex: 2; background: #1a324b; color: #79b8ff; font-weight: 700; border-color: #24517d;" onclick="window.__selectEmojiForPin(${e._atlasIndex})">Fixar na Seleção</button>`
+            : `<button class="emoji-action-btn emoji-btn-block ${isBlocked ? 'btn-active' : ''}" onclick="window.__toggleExclusion('${token}')">
+                ${isBlocked ? 'Desbloquear' : 'Bloquear'}
+              </button>
+              <button class="emoji-action-btn emoji-btn-force ${isForced ? 'btn-active' : ''}" onclick="window.__toggleForced('${token}')">
+                ${isForced ? 'Desrestringir' : 'Restringir'}
+              </button>`;
+
+          card.innerHTML = `
+            <div class="emoji-card-header">
+              <span class="emoji-color-dot" style="background-color: ${hex};" title="Cor Média: ${hex}"></span>
+              <span class="emoji-badge ${badgeClass}">${badgeText}</span>
+            </div>
+            <img class="emoji-grid-img" src="emojis/${e.filename}" alt="${e.name}" loading="lazy" ${pendingPinPoint ? `style="cursor: pointer;" onclick="window.__selectEmojiForPin(${e._atlasIndex})"` : ''} />
+            <div class="emoji-grid-name" title="${e.name} (${hex})">${e.name}</div>
+            <div class="emoji-grid-actions">
+              ${pinActionHtml}
+            </div>
+          `;
+          fragment.appendChild(card);
+        }
+
+        grid.appendChild(fragment);
+        renderedEmojiCount = nextCount;
+
+        updateStatusCounter();
+      }
+
+      function updateStatusCounter() {
+        const status = document.getElementById('emoji-modal-status');
+        const headerCount = document.getElementById('emoji-modal-header-count');
+        if (!status) return;
+
+        const excludedIndices = parseTokenIndices(params.excludedText);
+        const forcedIndices = parseTokenIndices(params.forcedText);
+
+        const forcedStatusHtml = params.useForced
+          ? '<span style="color: #7ee787; font-weight: 600;">[Forçados: ATIVO]</span>'
+          : '<span style="color: #888; font-weight: 600;">[Forçados: DESATIVADO]</span>';
+
+        let colorFilterLabel = '';
+        if (isColorFilterActive && selectedHexColor) {
+          colorFilterLabel = `<span style="color: #58a6ff; font-weight: 600;">[Cor: ${selectedHexColor}]</span>`;
+        }
+
+        const loadedText = renderedEmojiCount < currentMatchedList.length
+          ? `Exibindo <strong>${renderedEmojiCount}</strong> de <strong>${currentMatchedList.length}</strong> (role para ver todos)`
+          : `<strong>${currentMatchedList.length}</strong> emojis (total: ${numAtlasEmojis})`;
+
+        status.innerHTML = `
+          <span>${loadedText}</span>
+          ${colorFilterLabel}
+          <span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndices.size}</strong></span>
+          <span style="color: #7ee787;">Forçados: <strong>${forcedIndices.size}</strong></span>
+          <span>${forcedStatusHtml}</span>
+        `;
+
+        if (headerCount) {
+          headerCount.textContent = `${currentMatchedList.length} / ${numAtlasEmojis}`;
+        }
+      }
+
       function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, colorFilter = currentActiveModalColor) {
         const grid = document.getElementById('emoji-modal-grid');
-        const status = document.getElementById('emoji-modal-status');
         if (!grid || !atlasMetadata || !atlasMetadata.emojis) return;
 
         let q = (query || '').toLowerCase().trim();
@@ -2374,21 +4845,16 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           ? categoryFilter.toLowerCase().split(',').map(s => s.trim()).filter(Boolean)
           : [];
 
-        // Detecta se a busca digitada é uma cor (ex: "vermelho", "azul", "#ff0000", "cor: verde")
         let queryColorCategory = null;
         let targetLabColor = null;
 
         const hexMatch = q.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
         if (hexMatch) {
           const rgb = hexToRgb(hexMatch[0]);
-          if (rgb) {
-            targetLabColor = rgbToLab(...rgb);
-          }
+          if (rgb) targetLabColor = rgbToLab(...rgb);
         } else if (colorFilter && colorFilter.startsWith('#')) {
           const rgb = hexToRgb(colorFilter);
-          if (rgb) {
-            targetLabColor = rgbToLab(...rgb);
-          }
+          if (rgb) targetLabColor = rgbToLab(...rgb);
         }
 
         const cleanQ = q.replace(/^cor:\s*/i, '').trim();
@@ -2421,7 +4887,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             if (!matchCat) continue;
           }
 
-          // 2. Filtro de Cores (via botões de cor)
+          // 2. Filtro de Cores
           if (colorFilter && !colorFilter.startsWith('#')) {
             if (emojiCat !== colorFilter) continue;
           }
@@ -2430,9 +4896,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           if (q) {
             let matchQuery = name.includes(q) || surrogates.includes(q) || codepoint.includes(q) || allNames.includes(q);
             if (!matchQuery && queryColorCategory) {
-              if (emojiCat === queryColorCategory) {
-                matchQuery = true;
-              }
+              if (emojiCat === queryColorCategory) matchQuery = true;
             }
             if (!matchQuery && targetLabColor) {
               matchQuery = true;
@@ -2451,79 +4915,21 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           matched.push({ emoji: e, index: i, isBlocked, isForced, colorDist });
         }
 
-        // Se estiver buscando por cor personalizada/hex, ordena pelos emojis com cor mais próxima (menor distância LAB)
+        // Ordena por menor distância de cor se houver cor selecionada
         if (targetLabColor) {
           matched.sort((a, b) => a.colorDist - b.colorDist);
         }
 
-        const forcedStatusHtml = params.useForced
-          ? '<span style="color: #7ee787; font-weight: 600;">[Forcados: ATIVADO]</span>'
-          : '<span style="color: #888; font-weight: 600;">[Forcados: DESATIVADO]</span>';
+        currentMatchedList = matched;
+        renderedEmojiCount = 0;
+        grid.innerHTML = '';
 
-        let colorFilterLabel = '';
-        if (colorFilter && !colorFilter.startsWith('#')) {
-          colorFilterLabel = `<span style="color: #58a6ff; font-weight: 600;">[Cor: ${COLOR_LABEL_MAP[colorFilter] || colorFilter}]</span>`;
-        } else if (colorFilter && colorFilter.startsWith('#')) {
-          colorFilterLabel = `<span style="color: #58a6ff; font-weight: 600;">[Cor: ${colorFilter}]</span>`;
-        } else if (queryColorCategory) {
-          colorFilterLabel = `<span style="color: #58a6ff; font-weight: 600;">[Cor: ${COLOR_LABEL_MAP[queryColorCategory] || queryColorCategory}]</span>`;
+        if (matched.length === 0) {
+          grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 0; font-size: 11px;">Nenhum emoji encontrado com os filtros atuais.</div>';
+          updateStatusCounter();
+        } else {
+          renderNextBatch();
         }
-
-        if (status) {
-          status.innerHTML = `
-            <span><strong>${matched.length}</strong> exibidos (total: ${numAtlasEmojis})</span>
-            ${colorFilterLabel}
-            <span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndices.size}</strong></span>
-            <span style="color: #7ee787;">Forcados: <strong>${forcedIndices.size}</strong></span>
-            <span>${forcedStatusHtml}</span>
-          `;
-        }
-
-        const displayList = matched.slice(0, 200);
-        let html = '';
-
-        for (const item of displayList) {
-          const e = item.emoji;
-          const token = e.name;
-          const isBlocked = item.isBlocked;
-          const isForced = item.isForced;
-          const hex = e.avgColor ? e.avgColor.hex : '#888888';
-
-          let badgeClass = 'badge-idle';
-          let badgeText = 'Ativo';
-          if (isBlocked) {
-            badgeClass = 'badge-blocked';
-            badgeText = 'Bloqueado';
-          } else if (isForced) {
-            badgeClass = 'badge-forced';
-            badgeText = 'Forcado';
-          }
-
-          let cardClass = 'emoji-grid-card';
-          if (isBlocked) cardClass += ' is-blocked';
-          if (isForced) cardClass += ' is-forced';
-
-          html += `
-            <div class="${cardClass}">
-              <div class="emoji-card-header">
-                <span class="emoji-color-dot" style="background-color: ${hex};" title="Cor Média: ${hex}"></span>
-                <span class="emoji-badge ${badgeClass}">${badgeText}</span>
-              </div>
-              <img class="emoji-grid-img" src="emojis/${e.filename}" alt="${e.name}" loading="lazy" />
-              <div class="emoji-grid-name" title="${e.name} (${hex})">${e.name}</div>
-              <div class="emoji-grid-actions">
-                <button class="emoji-action-btn emoji-btn-block ${isBlocked ? 'btn-active' : ''}" onclick="window.__toggleExclusion('${token}')">
-                  ${isBlocked ? 'Desbloquear' : 'Bloquear'}
-                </button>
-                <button class="emoji-action-btn emoji-btn-force ${isForced ? 'btn-active' : ''}" onclick="window.__toggleForced('${token}')">
-                  ${isForced ? 'Desforcar' : 'Forcar'}
-                </button>
-              </div>
-            </div>
-          `;
-        }
-
-        grid.innerHTML = html || '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 0; font-size: 11px;">Nenhum emoji encontrado com os filtros atuais.</div>';
       }
 
       window.__toggleExclusion = function (token) {
@@ -2593,6 +4999,35 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
       };
 
+      window.__selectEmojiForPin = function (atlasIndex) {
+        console.log('[Pin] __selectEmojiForPin chamado. pendingPinPoint:', pendingPinPoint, 'atlasIndex:', atlasIndex);
+        if (!pendingPinPoint || !atlasMetadata || !atlasMetadata.emojis) {
+          console.warn('[Pin] Cancelado: pendingPinPoint=', pendingPinPoint, 'atlasMetadata=', !!atlasMetadata);
+          return;
+        }
+        const emoji = atlasMetadata.emojis[atlasIndex];
+        if (!emoji) { console.warn('[Pin] Emoji nao encontrado no atlas:', atlasIndex); return; }
+
+        const rad = (pendingPinPoint.radius !== undefined) ? pendingPinPoint.radius : (params.pinRadius || 0.035);
+        console.log('[Pin] Aplicando emoji', emoji.name, 'slot:', emoji.slot, 'em',
+          (pendingPinPoint.indices ? pendingPinPoint.indices.length + ' splats exatos do laço' : 'esfera r=' + rad.toFixed(3)));
+
+        // Guarda o id do pin: enquanto o mesmo laço estiver pendente, clicar em
+        // outro emoji troca o emoji DESTA região (sem criar pins duplicados).
+        const pin = addOrUpdatePinnedPoint(
+          pendingPinPoint.x, pendingPinPoint.y, pendingPinPoint.z, emoji, rad,
+          pendingPinPoint.indices || null, pendingPinPoint.pinId
+        );
+        if (pin) pendingPinPoint.pinId = pin.id;
+
+        const pinBanner = document.getElementById('modal-pin-banner');
+        const pinBannerText = document.getElementById('modal-pin-banner-text');
+        if (pinBanner && pinBannerText && pendingPinPoint.indices) {
+          pinBanner.style.display = 'flex';
+          pinBannerText.innerHTML = `<strong>${emoji.surrogates ? emoji.surrogates + ' ' : ''}${emoji.name}</strong> aplicado em <code>${pendingPinPoint.indices.length.toLocaleString('pt-BR')}</code> pontos. Clique em outro emoji para trocar, ou em Cancelar para encerrar.`;
+        }
+      };
+
       // Retrocompatibilidade
       window.__addExclusion = window.__toggleExclusion;
       window.__addForced = window.__toggleForced;
@@ -2603,11 +5038,137 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         const searchInput = document.getElementById('emoji-modal-search-input');
         const clearBtn = document.getElementById('emoji-modal-clear-search');
         const tagsContainer = document.getElementById('emoji-modal-tags');
-        const colorsContainer = document.getElementById('emoji-modal-colors');
-        const colorPicker = document.getElementById('emoji-modal-color-picker');
-        const colorPickerWrapper = document.getElementById('color-picker-wrapper');
-        const colorPickerLabel = document.getElementById('color-picker-label');
         const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
+        const grid = document.getElementById('emoji-modal-grid');
+
+        const boxContainer = document.getElementById('color-box-container');
+        const hueContainer = document.getElementById('hue-bar-container');
+        const resetBtn = document.getElementById('color-reset-btn');
+        const swatchesGrid = document.getElementById('sidebar-swatches-grid');
+        const unblockAllBtn = document.getElementById('sidebar-unblock-all-btn');
+        const clearForcedBtn = document.getElementById('sidebar-clear-forced-btn');
+        const presetFlagsBtn = document.getElementById('sidebar-preset-flags-btn');
+
+        drawColorBox(currentColorHue);
+        updateCrosshairUI();
+
+        // Infinite scroll on grid
+        if (grid) {
+          grid.addEventListener('scroll', () => {
+            if (grid.scrollTop + grid.clientHeight >= grid.scrollHeight - 300) {
+              renderNextBatch();
+            }
+          });
+        }
+
+        // Color Picker Dragging
+        let isDraggingBox = false;
+        let isDraggingHue = false;
+
+        const handleBoxMove = (clientX, clientY) => {
+          if (!boxContainer) return;
+          const rect = boxContainer.getBoundingClientRect();
+          const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+          const y = Math.max(0, Math.min(rect.height, clientY - rect.top));
+          const s = x / rect.width;
+          const v = 1 - (y / rect.height);
+          setColorFromHsv(currentColorHue, s, v, true);
+        };
+
+        const handleHueMove = (clientX) => {
+          if (!hueContainer) return;
+          const rect = hueContainer.getBoundingClientRect();
+          const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+          const h = (x / rect.width) * 360;
+          setColorFromHsv(h, currentColorSat, currentColorVal, true);
+        };
+
+        if (boxContainer) {
+          boxContainer.addEventListener('mousedown', (e) => {
+            isDraggingBox = true;
+            handleBoxMove(e.clientX, e.clientY);
+          });
+          boxContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+              isDraggingBox = true;
+              handleBoxMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+          }, { passive: true });
+        }
+
+        if (hueContainer) {
+          hueContainer.addEventListener('mousedown', (e) => {
+            isDraggingHue = true;
+            handleHueMove(e.clientX);
+          });
+          hueContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+              isDraggingHue = true;
+              handleHueMove(e.touches[0].clientX);
+            }
+          }, { passive: true });
+        }
+
+        window.addEventListener('mousemove', (e) => {
+          if (isDraggingBox) handleBoxMove(e.clientX, e.clientY);
+          if (isDraggingHue) handleHueMove(e.clientX);
+        });
+
+        window.addEventListener('touchmove', (e) => {
+          if (e.touches.length === 1) {
+            if (isDraggingBox) handleBoxMove(e.touches[0].clientX, e.touches[0].clientY);
+            if (isDraggingHue) handleHueMove(e.touches[0].clientX);
+          }
+        }, { passive: true });
+
+        window.addEventListener('mouseup', () => {
+          isDraggingBox = false;
+          isDraggingHue = false;
+        });
+
+        window.addEventListener('touchend', () => {
+          isDraggingBox = false;
+          isDraggingHue = false;
+        });
+
+        if (resetBtn) {
+          resetBtn.addEventListener('click', () => resetColorFilter());
+        }
+
+        if (swatchesGrid) {
+          swatchesGrid.addEventListener('click', (e) => {
+            const btn = e.target.closest('.swatch-btn');
+            if (!btn) return;
+            const color = btn.getAttribute('data-color');
+            if (color) setColorFromHex(color, true);
+          });
+        }
+
+        if (unblockAllBtn) {
+          unblockAllBtn.addEventListener('click', () => {
+            params.excludedText = '';
+            if (guiControllers.excludedText) guiControllers.excludedText.setValue('');
+            rebuildColorLUT('', params.forcedText, params.useForced);
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+          });
+        }
+
+        if (clearForcedBtn) {
+          clearForcedBtn.addEventListener('click', () => {
+            params.forcedText = '';
+            if (guiControllers.forcedText) guiControllers.forcedText.setValue('');
+            rebuildColorLUT(params.excludedText, '', params.useForced);
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+          });
+        }
+
+        if (presetFlagsBtn) {
+          presetFlagsBtn.addEventListener('click', () => {
+            params.excludeFlagsPreset();
+          });
+        }
 
         if (headerToggle) {
           headerToggle.addEventListener('change', (e) => {
@@ -2665,41 +5226,289 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             renderEmojiModal(curQuery, currentActiveModalTag, currentActiveModalColor);
           });
         }
+      }
 
-        if (colorsContainer) {
-          colorsContainer.addEventListener('click', (e) => {
-            const btn = e.target.closest('.color-btn');
-            if (!btn) return;
+      // ---- Bake de cor/emoji (GPU): um texel por splat ----
+      // Renderiza cada splat no seu próprio texel com o slot (col,row) que o
+      // próprio shader calcula, lê de volta e usa como mapa fixo. O resultado é
+      // idêntico ao que está na tela no momento do bake e nunca mais muda.
+      let bakeMapTexture = null;
+      let bakeMapData = null;
+      let bakeRenderTarget = null;
 
-            colorsContainer.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-            if (colorPickerWrapper) colorPickerWrapper.classList.remove('active');
-            btn.classList.add('active');
+      function ensureBakeTarget() {
+        if (!app || !app.graphicsDevice) return false;
+        if (!ensurePinMapTexture()) return false;
+        if (bakeMapTexture && bakeMapTexture.width === pinMapW && bakeMapTexture.height === pinMapH) return true;
 
-            currentActiveModalColor = btn.getAttribute('data-color') || '';
-            const curQuery = searchInput ? searchInput.value : '';
-            renderEmojiModal(curQuery, currentActiveModalTag, currentActiveModalColor);
-          });
+        if (bakeRenderTarget) { bakeRenderTarget.destroy(); bakeRenderTarget = null; }
+        if (bakeMapTexture) { bakeMapTexture.destroy(); bakeMapTexture = null; }
+
+        bakeMapData = new Uint8Array(pinMapW * pinMapH * 4);
+        bakeMapTexture = new pc.Texture(app.graphicsDevice, {
+          name: 'bakeMap',
+          width: pinMapW,
+          height: pinMapH,
+          format: pc.PIXELFORMAT_RGBA8,
+          mipmaps: false,
+          minFilter: pc.FILTER_NEAREST,
+          magFilter: pc.FILTER_NEAREST,
+          addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+          addressV: pc.ADDRESS_CLAMP_TO_EDGE
+        });
+        bakeRenderTarget = new pc.RenderTarget({ colorBuffer: bakeMapTexture, depth: false });
+        return true;
+      }
+
+      function bakeEmojiColors() {
+        if (!app || !app.graphicsDevice || !cameraEntity || !splatEntity) return false;
+        if (!ensureBakeTarget()) { showToast('Bake indisponível (modelo não carregado).'); return false; }
+
+        const device = app.graphicsDevice;
+        const gl = device.gl;
+        const cam = cameraEntity.camera;
+        const prevRT = cam.renderTarget || null;
+        const setScope = (n, v) => { try { device.scope.resolve(n)?.setValue(v); } catch (e) {} };
+
+        let ok = false;
+        try {
+          setScope('uBakePass', 1);
+          setScope('uBakeOn', 0);              // re-bake sempre parte do LUT atual
+          setScope('uRenderMode', 0);          // garante o caminho da LUT/emoji
+          device.setRenderTarget(bakeRenderTarget);
+          device.clear({ color: [0, 0, 0, 0], depth: 1, stencil: 0, flags: pc.CLEARFLAG_COLOR });
+          cam.renderTarget = bakeRenderTarget;
+          app.render();
+
+          const glRT = (bakeRenderTarget.impl && bakeRenderTarget.impl._glFrameBuffer) || null;
+          gl.bindFramebuffer(gl.FRAMEBUFFER, glRT);
+          gl.readPixels(0, 0, pinMapW, pinMapH, gl.RGBA, gl.UNSIGNED_BYTE, bakeMapData);
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          ok = true;
+        } catch (err) {
+          console.warn('[Bake] falhou:', err);
+        } finally {
+          cam.renderTarget = prevRT;
+          device.setRenderTarget(null);
+          setScope('uBakePass', 0);
+          applyShaderParams();                 // restaura uRenderMode ao vivo
+        }
+        if (!ok) { showToast('Bake falhou. Veja o console.'); return false; }
+
+        try {
+          const pixels = bakeMapTexture.lock();
+          pixels.set(bakeMapData);
+          bakeMapTexture.unlock();
+        } catch (err) {
+          console.warn('[Bake] erro ao subir textura:', err);
         }
 
-        if (colorPicker) {
-          const handleColorPick = (val) => {
-            if (colorsContainer) {
-              colorsContainer.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-            }
-            if (colorPickerWrapper) {
-              colorPickerWrapper.classList.add('active');
-            }
-            if (colorPickerLabel) {
-              colorPickerLabel.textContent = `🎨 ${val}`;
-            }
-            currentActiveModalColor = val;
-            const curQuery = searchInput ? searchInput.value : '';
-            renderEmojiModal(curQuery, currentActiveModalTag, currentActiveModalColor);
-          };
+        let valid = 0;
+        for (let i = 3; i < bakeMapData.length; i += 4) if (bakeMapData[i] > 0) valid++;
+        console.log('[Bake] splats congelados: ' + valid.toLocaleString('pt-BR') + ' de ' + splatCount().toLocaleString('pt-BR'));
+        showToast('Bake concluído: ' + valid.toLocaleString('pt-BR') + ' emojis congelados.');
+        return valid > 0;
+      }
 
-          colorPicker.addEventListener('input', (e) => handleColorPick(e.target.value));
-          colorPicker.addEventListener('change', (e) => handleColorPick(e.target.value));
+      // Posição da câmera no espaço do modelo — base do "Fixar Harmônicos".
+      // Congelada no instante em que o toggle é ligado (ou em que o modelo carrega).
+      let lockSHCamPos = null;
+
+      function computeLockSHCamPos() {
+        if (!cameraEntity || !splatEntity) return [0, 0, 1];
+        try {
+          const inv = new pc.Mat4().copy(splatEntity.getWorldTransform());
+          inv.invert();
+          const p = new pc.Vec3();
+          inv.transformPoint(cameraEntity.getPosition(), p);
+          return [p.x, p.y, p.z];
+        } catch (e) {
+          return [0, 0, 1];
         }
+      }
+
+      // Base da câmera (direita/cima) no espaço do modelo — usada no bake da
+      // rotação dos emojis. Congelada no instante em que o bake é ligado.
+      let bakeRight = [1, 0, 0];
+      let bakeUp = [0, 1, 0];
+
+      function computeBakeBasis() {
+        if (!cameraEntity || !splatEntity) return;
+        try {
+          const vm = new pc.Mat4().mul2(cameraEntity.camera.viewMatrix, splatEntity.getWorldTransform());
+          const d = vm.data; // column-major: linha 0 = d[0],d[4],d[8]; linha 1 = d[1],d[5],d[9]
+          const nrm = (x, y, z) => { const l = Math.hypot(x, y, z) || 1; return [x / l, y / l, z / l]; };
+          bakeRight = nrm(d[0], d[4], d[8]);
+          bakeUp = nrm(d[1], d[5], d[9]);
+        } catch (e) {}
+      }
+
+      // Materiais do GSplat criados pelo engine (para ajustar defines depois)
+      const gsplatMaterials = [];
+
+      // O engine não define SH_BANDS neste caminho de render (SOG), então os
+      // harmônicos esféricos ficam compilados fora e "Fixar Harmônicos" não teria
+      // o que travar. Aqui reativamos a partir dos dados do próprio modelo.
+      function applySplatSHBands(resource, entity) {
+        const bands = (resource && resource.gsplatData && resource.gsplatData.shBands)
+          || (resource && resource.shBands)
+          || 0;
+        if (!bands) return 0;
+
+        const apply = (m) => {
+          if (!m || typeof m.setDefine !== 'function') return;
+          try {
+            m.setDefine('SH_BANDS', bands);
+            m.update();
+          } catch (e) {}
+        };
+
+        gsplatMaterials.forEach(apply);
+        try {
+          if (entity && entity.gsplat && entity.gsplat.material) apply(entity.gsplat.material);
+          if (entity && entity.gsplat && entity.gsplat.instance && entity.gsplat.instance.material) apply(entity.gsplat.instance.material);
+          if (resource && resource.meshInstance && resource.meshInstance.material) apply(resource.meshInstance.material);
+        } catch (e) {}
+
+        console.log('[Effect Lab] SH_BANDS solicitado (' + bands + '). Atenção: o renderer unificado do PlayCanvas força SH_BANDS=0 neste caminho, então os harmônicos seguem compilados fora e "Fixar Harmônicos" fica inerte.');
+        return bands;
+      }
+
+      // === Capture: marcadores (padrão gerado) numa esfera ao redor de um ponto ===
+      // Cada marcador é um plano com um código único por ID, posicionado na
+      // casca da esfera e com a NORMAL (+Z do plano) apontando para o centro.
+      const captureEntities = [];
+      const captureTextures = new Map();
+
+      function makeCaptureTexture(id) {
+        const key = 'm' + id;
+        if (captureTextures.has(key)) return captureTextures.get(key);
+
+        const CELL = 16;   // px por célula
+        const N = 8;       // 1 célula de margem branca + 6 do marcador (1 borda preta + 4x4 dados) + sobra
+        const cv = document.createElement('canvas');
+        cv.width = N * CELL;
+        cv.height = N * CELL;
+        const ctx = cv.getContext('2d');
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cv.width, cv.height);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(CELL, CELL, (N - 2) * CELL, (N - 2) * CELL);
+
+        // código determinístico por ID (xorshift semeado pelo id) em grade 4x4
+        let h = ((id * 2654435761) ^ 0x9e3779b9) >>> 0;
+        const nextBit = () => {
+          h ^= h << 13; h >>>= 0;
+          h ^= h >>> 17;
+          h ^= h << 5; h >>>= 0;
+          return (h >>> 31) & 1;
+        };
+        ctx.fillStyle = '#ffffff';
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < 4; c++) {
+            if (nextBit()) ctx.fillRect((2 + c) * CELL, (2 + r) * CELL, CELL, CELL);
+          }
+        }
+        // marcador com cantos de referência (como nos dicionários reais)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(2 * CELL, 2 * CELL, CELL, CELL);
+        ctx.fillRect(5 * CELL, 2 * CELL, CELL, CELL);
+        ctx.fillRect(2 * CELL, 5 * CELL, CELL, CELL);
+
+        const tex = new pc.Texture(app.graphicsDevice, {
+          name: 'captureMarker' + id,
+          format: pc.PIXELFORMAT_RGBA8,
+          mipmaps: false,
+          minFilter: pc.FILTER_NEAREST,
+          magFilter: pc.FILTER_NEAREST,
+          addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+          addressV: pc.ADDRESS_CLAMP_TO_EDGE
+        });
+        tex.setSource(cv);
+        captureTextures.set(key, tex);
+        return tex;
+      }
+
+      function clearCaptureMarkers() {
+        while (captureEntities.length) {
+          const e = captureEntities.pop();
+          try {
+            if (e.render && e.render.material) e.render.material.destroy();
+            e.destroy();
+          } catch (err) {}
+        }
+      }
+
+      function buildCaptureMarkers() {
+        clearCaptureMarkers();
+        if (!app || !splatEntity) return;
+        if (!params.captureShow) { console.log('[Capture] marcadores ocultos.'); return; }
+
+        const n = Math.max(1, Math.min(64, Math.round(params.captureCount || 8)));
+        const rad = Math.max(0.01, params.captureRadius || 0.9);
+        const size = Math.max(0.001, params.captureSize || 0.08);
+        const startId = Math.round(params.captureStartId || 0);
+
+        // centro em coordenadas LOCAIS do modelo (mesmo espaço dos pins/splatCenters)
+        const center = new pc.Vec3(params.captureX || 0, params.captureY || 0, params.captureZ || 0);
+        const worldCenter = new pc.Vec3();
+        splatEntity.getWorldTransform().transformPoint(center, worldCenter);
+
+        for (let i = 0; i < n; i++) {
+          // distribuição de Fibonacci na esfera: espaçamento uniforme
+          const y = (n === 1) ? 0 : 1 - (i / (n - 1)) * 2;
+          const rr = Math.sqrt(Math.max(0, 1 - y * y));
+          const phi = i * Math.PI * (3 - Math.sqrt(5));
+          const pos = new pc.Vec3(
+            center.x + Math.cos(phi) * rr * rad,
+            center.y + y * rad,
+            center.z + Math.sin(phi) * rr * rad
+          );
+
+          const mat = new pc.StandardMaterial();
+          mat.diffuseMap = makeCaptureTexture(startId + i);
+          mat.emissiveMap = mat.diffuseMap;
+          mat.emissive = new pc.Color(1, 1, 1);
+          mat.useLighting = false;
+          mat.cull = pc.CULLFACE_NONE;
+          mat.update();
+
+          const e = new pc.Entity('capture-' + (startId + i));
+          e.addComponent('render', { type: 'plane', material: mat });
+          splatEntity.addChild(e);
+          e.setLocalScale(size, size, size);
+          e.setLocalPosition(pos.x, pos.y, pos.z);
+
+          // O plano do PlayCanvas tem NORMAL +Y (PlaneGeometry), então alinhamos
+          // o +Y do marcador com a direção marcador -> centro. Feito na mão (sem
+          // lookAt) porque o lookAt degenera quando o alvo fica na vertical.
+          const toCenter = new pc.Vec3().sub2(worldCenter, e.getPosition()).normalize();
+          const upRef = pc.Vec3.UP;
+          const d = toCenter.dot(upRef);
+          let q;
+          if (d > 0.9999) {
+            q = new pc.Quat();
+          } else if (d < -0.9999) {
+            q = new pc.Quat().setFromAxisAngle(pc.Vec3.RIGHT, 180);
+          } else {
+            const axis = new pc.Vec3().cross(upRef, toCenter).normalize();
+            q = new pc.Quat().setFromAxisAngle(axis, Math.acos(Math.max(-1, Math.min(1, d))) * pc.math.RAD_TO_DEG);
+          }
+          // rotação mundial -> local (o pai SplatModel tem transform próprio)
+          const parentRot = e.parent ? e.parent.getRotation().clone() : new pc.Quat();
+          const localRot = parentRot.invert().mul(q);
+          if (params.captureFaceFlip) {
+            // gira 180° SOBRE A PRÓPRIA NORMAL (Y local) — puro giro no plano,
+            // não desalinha a face que aponta para o centro
+            localRot.mul(new pc.Quat().setFromAxisAngle(pc.Vec3.UP, 180));
+          }
+          e.setRotation(localRot);
+          captureEntities.push(e);
+        }
+        console.log('[Capture] ' + captureEntities.length + ' marcadores | centro (' +
+          center.x.toFixed(3) + ', ' + center.y.toFixed(3) + ', ' + center.z.toFixed(3) +
+          ') | raio ' + rad.toFixed(3) + ' | tamanho ' + size.toFixed(3) + ' | IDs ' + startId + '..' + (startId + n - 1));
       }
 
       function applyShaderParams() {
@@ -2710,11 +5519,15 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         const maxDepth = camDist + radius;
 
         const activeRenderMode = params.useEmojis ? params.renderMode : 2;
+        const centerArr = [modelCenter.x, modelCenter.y, modelCenter.z];
 
         const device = app ? app.graphicsDevice : null;
         if (device && device.scope) {
           device.scope.resolve('uSquareSize')?.setValue(params.squareSize);
           device.scope.resolve('uDensity')?.setValue(params.density / 100.0);
+          device.scope.resolve('uEvenDensity')?.setValue(params.evenDensity ? 1.0 : 0.0);
+          device.scope.resolve('uModelRadius')?.setValue(radius);
+          device.scope.resolve('uModelCenter')?.setValue(centerArr);
           device.scope.resolve('uMinOpacity')?.setValue(params.minOpacity);
           device.scope.resolve('uDepthThreshold')?.setValue(params.depthThreshold);
           device.scope.resolve('uMinDepth')?.setValue(minDepth);
@@ -2723,6 +5536,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           device.scope.resolve('uAlphaCutoff')?.setValue(params.alphaCutoff);
           device.scope.resolve('uTintIntensity')?.setValue(params.tintIntensity);
           device.scope.resolve('uLockSH')?.setValue(params.lockSH ? 1.0 : 0.0);
+          device.scope.resolve('uLockSHCamPos')?.setValue(lockSHCamPos || [0, 0, 1]);
           device.scope.resolve('alphaClipForward')?.setValue(1e-12);
           device.scope.resolve('alphaClip')?.setValue(1e-12);
 
@@ -2744,6 +5558,9 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           try {
             splatEntity.gsplat.setParameter('uSquareSize', params.squareSize);
             splatEntity.gsplat.setParameter('uDensity', params.density / 100.0);
+            splatEntity.gsplat.setParameter('uEvenDensity', params.evenDensity ? 1.0 : 0.0);
+            splatEntity.gsplat.setParameter('uModelRadius', radius);
+            splatEntity.gsplat.setParameter('uModelCenter', centerArr);
             splatEntity.gsplat.setParameter('uMinOpacity', params.minOpacity);
             splatEntity.gsplat.setParameter('uDepthThreshold', params.depthThreshold);
             splatEntity.gsplat.setParameter('uMinDepth', minDepth);
@@ -2752,6 +5569,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             splatEntity.gsplat.setParameter('uAlphaCutoff', params.alphaCutoff);
             splatEntity.gsplat.setParameter('uTintIntensity', params.tintIntensity);
             splatEntity.gsplat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
+            splatEntity.gsplat.setParameter('uLockSHCamPos', lockSHCamPos || [0, 0, 1]);
             splatEntity.gsplat.setParameter('alphaClipForward', 1e-12);
             splatEntity.gsplat.setParameter('alphaClip', 1e-12);
             splatEntity.gsplat.setParameter('uHueShift', params.hueShift);
@@ -2768,6 +5586,9 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
               const mat = splatEntity.gsplat.material;
               mat.setParameter('uSquareSize', params.squareSize);
               mat.setParameter('uDensity', params.density / 100.0);
+              mat.setParameter('uEvenDensity', params.evenDensity ? 1.0 : 0.0);
+              mat.setParameter('uModelRadius', radius);
+              mat.setParameter('uModelCenter', centerArr);
               mat.setParameter('uMinOpacity', params.minOpacity);
               mat.setParameter('uDepthThreshold', params.depthThreshold);
               mat.setParameter('uMinDepth', minDepth);
@@ -2776,6 +5597,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
               mat.setParameter('uAlphaCutoff', params.alphaCutoff);
               mat.setParameter('uTintIntensity', params.tintIntensity);
               mat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
+            mat.setParameter('uLockSHCamPos', lockSHCamPos || [0, 0, 1]);
               mat.setParameter('alphaClipForward', 1e-12);
               mat.setParameter('alphaClip', 1e-12);
               mat.setParameter('uHueShift', params.hueShift);
@@ -2790,182 +5612,354 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             }
           } catch (e) {}
         }
+
+        applyPinnedParams();
       }
 
       const guiControllers = {};
 
+      function setupToolbar(rootEl) {
+        if (!rootEl) return;
+        const titleEl = rootEl.querySelector('.tp-rotv_b');
+        const toolbar = document.createElement('div');
+        toolbar.id = 'gui-toolbar';
+        toolbar.className = 'gui-toolbar';
+
+        toolbar.innerHTML = `
+          <button id="tool-btn-navigate" class="gui-tool-btn active" title="Navegação e Órbita 3D (V)" data-tool="navigate">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+              <path d="M13 13l6 6"/>
+            </svg>
+            <span>Navegar</span>
+          </button>
+          <button id="tool-btn-inspector" class="gui-tool-btn" title="Inspetor de Ponto 3D (I)" data-tool="inspector">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <line x1="12" y1="2" x2="12" y2="6"/>
+              <line x1="12" y1="18" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="6" y2="12"/>
+              <line x1="18" y1="12" x2="22" y2="12"/>
+              <circle cx="12" cy="12" r="2" fill="currentColor"/>
+            </svg>
+            <span>Inspetor</span>
+          </button>
+          <button id="tool-btn-lasso" class="gui-tool-btn" title="Laço de Região 3D (L)" data-tool="lasso">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 18c-2-2-3-5-3-8 0-4.4 3.6-8 8-8s8 3.6 8 8c0 4-3 7-7 8"/>
+              <circle cx="12" cy="18" r="3"/>
+              <path d="M14 20l4 2"/>
+            </svg>
+            <span>Laço</span>
+          </button>
+          <button id="tool-btn-catalog" class="gui-tool-btn" title="Catálogo de Emojis (C)" data-tool="catalog">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+            <span>Catálogo</span>
+          </button>
+          <button id="tool-btn-reset-cam" class="gui-tool-btn" title="Centralizar Câmera (R)" data-tool="reset-cam">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+            </svg>
+            <span>Câmera</span>
+          </button>
+        `;
+
+        // A toolbar entra logo abaixo do título do painel (dentro do mesmo pai,
+        // seja pane.element o wrapper flutuante ou o próprio container do pane).
+        const host = (titleEl && titleEl.parentElement) ? titleEl.parentElement : rootEl;
+        if (titleEl && titleEl.nextSibling && titleEl.nextSibling.parentElement === host) {
+          host.insertBefore(toolbar, titleEl.nextSibling);
+        } else {
+          host.insertBefore(toolbar, titleEl || host.firstChild);
+        }
+
+        toolbar.querySelector('#tool-btn-navigate')?.addEventListener('click', () => setActiveTool('navigate'));
+        toolbar.querySelector('#tool-btn-inspector')?.addEventListener('click', () => setActiveTool('inspector'));
+        toolbar.querySelector('#tool-btn-lasso')?.addEventListener('click', () => setActiveTool('lasso'));
+        toolbar.querySelector('#tool-btn-catalog')?.addEventListener('click', () => params.openEmojiModal());
+        toolbar.querySelector('#tool-btn-reset-cam')?.addEventListener('click', () => params.resetCamera());
+      }
+
       function setupGUI() {
-        if (typeof lil === 'undefined' || !lil.GUI) return;
+        if (typeof Tweakpane === 'undefined' || !Tweakpane.Pane) {
+          console.warn('[Effect Lab] Tweakpane nao encontrado: GUI desativada.');
+          return;
+        }
 
-        const gui = new lil.GUI({ title: 'Configuracoes' });
+        const pane = new Tweakpane.Pane({ title: 'Configurações' });
+        const refresh = () => { try { pane.refresh(); } catch (e) {} };
+        const addLabelOptions = (obj, key, label) => {
+          const opts = {};
+          obj.forEach(v => { opts[v] = v; });
+          return opts;
+        };
 
-        const effectFolder = gui.addFolder('Modo & Emojis');
+        // Shim de compatibilidade: o resto do app continua chamando
+        // guiControllers.X.updateDisplay() / setValue() / options().
+        const shim = (key, binding) => ({
+          _binding: binding,
+          updateDisplay() { refresh(); return this; },
+          refresh() { refresh(); return this; },
+          setValue(v) {
+            params[key] = v;
+            refresh();
+            return this;
+          },
+          options() { return this; },
+          name() { return this; },
+          listen() { return this; },
+          disable() { return this; },
+          onChange() { return this; },
+          onFinishChange() { return this; }
+        });
 
-        guiControllers.useEmojis = effectFolder.add(params, 'useEmojis')
-          .name('Exibir Emojis')
-          .onChange(() => applyShaderParams());
+        const bindControl = (folder, key, opts, cb) => {
+          const binding = folder.addBinding(params, key, opts || {});
+          if (cb) binding.on('change', (ev) => cb(ev.value));
+          guiControllers[key] = shim(key, binding);
+          return binding;
+        };
 
-        effectFolder.add(params, 'renderModeText', ['Emojis Coloridos', 'Emojis Tintados', 'Cores Originais'])
-          .name('Estilo')
-          .onChange((val) => {
-            params.renderMode = renderModeMap[val];
-            if (val === 'Cores Originais') {
-              params.useEmojis = false;
-            } else {
-              params.useEmojis = true;
-            }
-            if (guiControllers.useEmojis) guiControllers.useEmojis.updateDisplay();
-            applyShaderParams();
+        const addAction = (folder, title, cb) => {
+          const btn = folder.addButton({ title });
+          btn.on('click', () => cb());
+          return btn;
+        };
+
+        setupToolbar(pane.element);
+
+        // ================= Abas =================
+        const tabs = pane.addTab({
+          pages: [
+            { title: 'Emojis' },
+            { title: 'Pins' },
+            { title: 'Capture' },
+            { title: 'Cena' },
+            { title: 'Presets' }
+          ]
+        });
+        const pageEmojis = tabs.pages[0];
+        const pagePins = tabs.pages[1];
+        const pageCapture = tabs.pages[2];
+        const pageScene = tabs.pages[3];
+        const pagePresets = tabs.pages[4];
+        tabs.selectedIndex = 0;   // abre em "Emojis"
+
+        // Pasta de superfície/bake (aba Pins)
+        const surfFolder = pagePins.addFolder({ title: 'Superfície & Bake' });
+
+        // ================= Aba: Capture =================
+        const capFolder = pageCapture.addFolder({ title: 'Marcadores ao redor do ponto' });
+
+        bindControl(capFolder, 'captureShow', { label: 'Mostrar Marcadores' }, () => buildCaptureMarkers());
+
+        addAction(capFolder, 'Usar centro do modelo', () => {
+          params.captureX = modelCenter.x;
+          params.captureY = modelCenter.y;
+          params.captureZ = modelCenter.z;
+          refresh();
+          buildCaptureMarkers();
+        });
+
+        capFolder.addBinding(params, 'captureX', { label: 'Centro X' }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureY', { label: 'Centro Y' }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureZ', { label: 'Centro Z' }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureCount', { label: 'Quantidade', min: 1, max: 64, step: 1 }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureRadius', { label: 'Raio da Esfera', min: 0.05, max: 4, step: 0.01 }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureSize', { label: 'Tamanho do Marcador', min: 0.005, max: 0.8, step: 0.005 }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureStartId', { label: 'ID Inicial', min: 0, max: 999, step: 1 }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureFaceFlip', { label: 'Face virada p/ o centro' }).on('change', () => buildCaptureMarkers());
+
+        // ================= Pasta: Presets =================
+        const presetFolder = pagePresets.addFolder({ title: 'Presets' });
+
+        let presetBinding = null;
+        let presetNames = ['(Nenhum salvo)'];
+        const rebuildPresetList = (names, value) => {
+          if (Array.isArray(names) && names.length) presetNames = names.slice();
+          if (value !== undefined) params.selectedPreset = value;
+          if (!presetNames.includes(params.selectedPreset)) params.selectedPreset = presetNames[0];
+          if (presetBinding) { try { presetBinding.dispose(); } catch (e) {} presetBinding = null; }
+          presetBinding = presetFolder.addBinding(params, 'selectedPreset', {
+            label: 'Selecionar',
+            options: addLabelOptions(presetNames, null, null)
           });
+        };
 
-        effectFolder.add(params, 'tintIntensity', 0.0, 1.0, 0.05)
-          .name('Intensidade Tint')
-          .onChange(() => applyShaderParams());
+        const initialPresetNames = Object.keys(savedPresets).length > 0 ? Object.keys(savedPresets) : ['Padrão'];
+        rebuildPresetList(initialPresetNames);
 
-        effectFolder.add(params, 'alphaCutoff', 0.01, 0.8, 0.01)
-          .name('Corte Alpha')
-          .onChange(() => applyShaderParams());
+        // drop-in replacement que atende updatePresetDropdownUI() sem alterá-lo
+        guiControllers.selectedPreset = {
+          options(names) { rebuildPresetList(names); return this; },
+          setValue(v) { rebuildPresetList(null, v); return this; },
+          updateDisplay() { refresh(); return this; }
+        };
 
-        const colorFolder = gui.addFolder('Filtros de Cor');
+        addAction(presetFolder, 'Salvar Preset...', () => params.savePresetAction());
+        addAction(presetFolder, 'Carregar Preset', () => params.loadPresetAction());
+        addAction(presetFolder, 'Excluir Preset', () => params.deletePresetAction());
+        addAction(presetFolder, 'Exportar JSON', () => params.exportPresetAction());
+        addAction(presetFolder, 'Importar JSON', () => params.importPresetAction());
 
-        guiControllers.lockSH = colorFolder.add(params, 'lockSH')
-          .name('Travar S.H. (Cores Fixas)')
-          .onChange(() => applyShaderParams());
+        // ================= Pasta: Estilo & Renderização =================
+        const effectFolder = pageEmojis.addFolder({ title: 'Estilo & Renderização' });
 
-        guiControllers.hueShift = colorFolder.add(params, 'hueShift', -180, 180, 1)
-          .name('Hue Shift (°)')
-          .onChange(() => applyShaderParams());
+        bindControl(effectFolder, 'useEmojis', { label: 'Exibir Emojis' }, () => applyShaderParams());
 
-        guiControllers.saturation = colorFolder.add(params, 'saturation', 0.0, 3.0, 0.05)
-          .name('Saturacao')
-          .onChange(() => applyShaderParams());
+        bindControl(effectFolder, 'renderModeText', {
+          label: 'Modo',
+          options: addLabelOptions(['Colorido', 'Tintado', 'Original'])
+        }, (val) => {
+          params.renderMode = renderModeMap[val];
+          params.useEmojis = (val !== 'Original');
+          refresh();
+          applyShaderParams();
+        });
 
-        guiControllers.brightness = colorFolder.add(params, 'brightness', -0.5, 0.5, 0.02)
-          .name('Brilho')
-          .onChange(() => applyShaderParams());
+        bindControl(effectFolder, 'tintIntensity', { label: 'Intensidade Tint', min: 0.0, max: 1.0, step: 0.05 }, () => applyShaderParams());
+        bindControl(effectFolder, 'alphaCutoff', { label: 'Corte Alpha', min: 0.01, max: 0.8, step: 0.01 }, () => applyShaderParams());
+        // Orientação pela normal: por padrão só gira o emoji (sem deformar).
+        // "Deitar na Superfície" é opcional e aplica o encurtamento (skew).
+        const orientBinding = surfFolder.addBinding(params, 'surfaceOrient', { label: 'Orientar pela Normal (para fora)' });
+        guiControllers.surfaceOrient = shim('surfaceOrient', orientBinding);
 
-        guiControllers.contrast = colorFolder.add(params, 'contrast', 0.2, 3.0, 0.05)
-          .name('Contraste')
-          .onChange(() => applyShaderParams());
+        const skewBinding = surfFolder.addBinding(params, 'surfaceSkew', { label: 'Deitar na Superfície (skew)' });
+        guiControllers.surfaceSkew = shim('surfaceSkew', skewBinding);
+        skewBinding.disabled = !params.surfaceOrient;
 
-        guiControllers.gamma = colorFolder.add(params, 'gamma', 0.4, 2.5, 0.05)
-          .name('Gama')
-          .onChange(() => applyShaderParams());
+        const rotBakeBinding = surfFolder.addBinding(params, 'bakeRotation', { label: 'Fixar Rotação dos Emojis (bake)' });
+        guiControllers.bakeRotation = shim('bakeRotation', rotBakeBinding);
+        rotBakeBinding.disabled = !params.surfaceOrient;
 
-        colorFolder.add(params, 'resetColors').name('Resetar Cores');
+        orientBinding.on('change', (ev) => {
+          skewBinding.disabled = !ev.value;
+          rotBakeBinding.disabled = !ev.value;
+          applyShaderParams();
+        });
+        skewBinding.on('change', () => applyShaderParams());
 
-        const filterFolder = gui.addFolder('Filtros, Bloqueio & Forcar');
+        // Bake de cor/emoji: congela o emoji de cada splat num mapa na GPU
+        const bakeColorsBinding = surfFolder.addBinding(params, 'bakeColors', { label: 'Bake de Cor/Emoji (congelar)' });
+        guiControllers.bakeColors = shim('bakeColors', bakeColorsBinding);
+        bakeColorsBinding.on('change', (ev) => {
+          if (ev.value) {
+            const ok = bakeEmojiColors();
+            if (!ok) params.bakeColors = false;
+          }
+          refresh();
+          applyPinnedParams();
+        });
+        rotBakeBinding.on('change', () => {
+          // congela a base da câmera: o ângulo dos emojis para de mudar ao orbitar
+          computeBakeBasis();
+          applyShaderParams();
+        });
 
-        filterFolder.add(params, 'openEmojiModal').name('Painel / Catalogo Emojis');
+        // ================= Pasta: Correção de Cor =================
+        const colorFolder = pageEmojis.addFolder({ title: 'Correção de Cor' });
 
-        guiControllers.pickerMode = filterFolder.add(params, 'pickerMode')
-          .name('Modo Picker (Clique na Nuvem)')
-          .onChange((val) => setPickerState(val));
+        bindControl(surfFolder, 'lockSH', { label: 'Fixar Harmônicos' }, () => {
+          // congela a iluminação (direção de visão) no estado atual da câmera
+          lockSHCamPos = computeLockSHCamPos();
+          applyShaderParams();
+        });
+        bindControl(colorFolder, 'hueShift', { label: 'Matiz', min: -180, max: 180, step: 1 }, () => applyShaderParams());
+        bindControl(colorFolder, 'saturation', { label: 'Saturação', min: 0.0, max: 3.0, step: 0.05 }, () => applyShaderParams());
+        bindControl(colorFolder, 'brightness', { label: 'Brilho', min: -0.5, max: 0.5, step: 0.02 }, () => applyShaderParams());
+        bindControl(colorFolder, 'contrast', { label: 'Contraste', min: 0.2, max: 3.0, step: 0.05 }, () => applyShaderParams());
+        bindControl(colorFolder, 'gamma', { label: 'Gama', min: 0.4, max: 2.5, step: 0.05 }, () => applyShaderParams());
 
-        // Secao Exclusao
-        guiControllers.excludedText = filterFolder.add(params, 'excludedText')
-          .name('Excluir Emojis')
-          .listen()
-          .onChange((val) => {
-            rebuildColorLUT(val, params.forcedText, params.useForced);
-            const searchInput = document.getElementById('emoji-modal-search-input');
-            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-          })
-          .onFinishChange((val) => {
-            rebuildColorLUT(val, params.forcedText, params.useForced);
-            const searchInput = document.getElementById('emoji-modal-search-input');
-            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-          });
+        addAction(colorFolder, 'Redefinir Cores', () => params.resetColors());
 
-        filterFolder.add(params, 'excludeFlagsPreset').name('Preset: Excluir Bandeiras');
-        filterFolder.add(params, 'clearExclusions').name('Limpar Exclusoes');
+        // ================= Pasta: Pins de Emojis =================
+        const pinFolder = pagePins.addFolder({ title: 'Pins de Emojis' });
 
-        // Secao Forcar / Whitelist
-        guiControllers.useForced = filterFolder.add(params, 'useForced')
-          .name('Ativar Forcados')
-          .listen()
-          .onChange((val) => {
-            const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
-            if (headerToggle) headerToggle.checked = val;
-            rebuildColorLUT(params.excludedText, params.forcedText, val);
-            const searchInput = document.getElementById('emoji-modal-search-input');
-            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-          });
+        bindControl(pinFolder, 'pinnedCountDisplay', { label: 'Status', readonly: true });
+        bindControl(pinFolder, 'pinRadius', { label: 'Raio do Pin (Inspetor)', min: 0.005, max: 0.12, step: 0.005 }, () => updatePinnedUniforms());
+        bindControl(pinFolder, 'pinEmojiScale', { label: 'Escala do Emoji Fixado', min: 1, max: 16, step: 0.5 }, () => applyPinnedParams());
 
-        guiControllers.forcedText = filterFolder.add(params, 'forcedText')
-          .name('Forcar Emojis (Apenas Estes)')
-          .listen()
-          .onChange((val) => {
-            rebuildColorLUT(params.excludedText, val, params.useForced);
-            const searchInput = document.getElementById('emoji-modal-search-input');
-            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-          })
-          .onFinishChange((val) => {
-            rebuildColorLUT(params.excludedText, val, params.useForced);
-            const searchInput = document.getElementById('emoji-modal-search-input');
-            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-          });
+        addAction(pinFolder, 'Limpar Todos os Pins', () => params.clearAllPinsAction());
 
-        filterFolder.add(params, 'clearForced').name('Limpar Forcados');
+        // ================= Pasta: Filtragem & Restrições =================
+        const filterFolder = pageEmojis.addFolder({ title: 'Filtragem & Restrições' });
 
-        // Contadores
-        guiControllers.activeEmojisCount = filterFolder.add(params, 'activeEmojisCount')
-          .name('Emojis Ativos')
-          .listen()
-          .disable();
+        addAction(filterFolder, 'Catálogo de Emojis', () => params.openEmojiModal());
 
-        guiControllers.excludedCount = filterFolder.add(params, 'excludedCount')
-          .name('Bloqueados')
-          .listen()
-          .disable();
+        const onFilterTextChange = (val) => {
+          rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+        };
 
-        guiControllers.forcedCount = filterFolder.add(params, 'forcedCount')
-          .name('Forcados')
-          .listen()
-          .disable();
+        bindControl(filterFolder, 'excludedText', { label: 'Excluir Emojis' }, () => onFilterTextChange());
 
-        const geoFolder = gui.addFolder('Geometria & Cena');
+        addAction(filterFolder, 'Excluir Bandeiras', () => params.excludeFlagsPreset());
+        addAction(filterFolder, 'Limpar Exclusões', () => params.clearExclusions());
 
-        geoFolder.add(params, 'squareSize', 0.0005, 0.03, 0.0002)
-          .name('Tamanho')
-          .onChange(() => applyShaderParams());
+        bindControl(filterFolder, 'useForced', { label: 'Ativar Restrição' }, (val) => {
+          const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
+          if (headerToggle) headerToggle.checked = val;
+          rebuildColorLUT(params.excludedText, params.forcedText, val);
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+        });
 
-        geoFolder.add(params, 'density', 1, 100, 1)
-          .name('Densidade (%)')
-          .onChange(() => {
-            applyShaderParams();
-            updateSplatCountDisplay();
-          });
+        bindControl(filterFolder, 'forcedText', { label: 'Restringir a Emojis' }, (val) => {
+          rebuildColorLUT(params.excludedText, val, params.useForced);
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+        });
 
-        geoFolder.add(params, 'minOpacity', 0.0, 0.95, 0.02)
-          .name('Opacidade Minima')
-          .onChange(() => applyShaderParams());
+        addAction(filterFolder, 'Limpar Restrições', () => params.clearForced());
 
-        geoFolder.add(params, 'depthThreshold', 0.05, 1.0, 0.01)
-          .name('Corte Frontal')
-          .onChange(() => applyShaderParams());
+        bindControl(filterFolder, 'activeEmojisCount', { label: 'Total Ativo', readonly: true });
+        bindControl(filterFolder, 'excludedCount', { label: 'Bloqueados', readonly: true });
+        bindControl(filterFolder, 'forcedCount', { label: 'Restritos', readonly: true });
 
-        geoFolder.add(params, 'autoSpin').name('Giro Automatico');
-        geoFolder.add(params, 'spinSpeed', 1, 60, 1).name('Velocidade Giro');
+        // ================= Pasta: Geometria & Densidade =================
+        const geoFolder = pageScene.addFolder({ title: 'Geometria & Densidade' });
 
-        geoFolder.add(params, 'invertX')
-          .name('Inverter X (180°)')
-          .onChange((val) => {
-            if (splatEntity) {
-              splatEntity.setLocalEulerAngles(val ? 180 : 0, 0, 0);
-            }
-          });
+        bindControl(geoFolder, 'squareSize', { label: 'Escala', min: 0.0005, max: 0.03, step: 0.0002 }, () => applyShaderParams());
+        bindControl(geoFolder, 'density', { label: 'Densidade (%)', min: 1, max: 100, step: 1 }, () => {
+          applyShaderParams();
+          updateSplatCountDisplay();
+        });
+        bindControl(geoFolder, 'evenDensity', { label: 'Distribuição Uniforme' }, () => applyShaderParams());
+        bindControl(geoFolder, 'minOpacity', { label: 'Opacidade Mínima', min: 0.0, max: 0.95, step: 0.02 }, () => applyShaderParams());
+        bindControl(geoFolder, 'depthThreshold', { label: 'Profundidade', min: 0.05, max: 1.0, step: 0.01 }, () => applyShaderParams());
+        bindControl(geoFolder, 'autoSpin', { label: 'Rotação Automática' });
+        bindControl(geoFolder, 'spinSpeed', { label: 'Velocidade de Giro', min: 1, max: 60, step: 1 });
+        bindControl(geoFolder, 'invertX', { label: 'Inverter Eixo X' }, (val) => {
+          if (splatEntity) {
+            splatEntity.setLocalEulerAngles(val ? 180 : 0, 0, 0);
+          }
+        });
 
-        const controlsFolder = gui.addFolder('Controles Mouse');
-        controlsFolder.add(params, 'invertPitch').name('Inverter Eixo Y');
-        controlsFolder.add(params, 'invertYaw').name('Inverter Eixo X');
+        // ================= Pasta: Navegação =================
+        const controlsFolder = pageScene.addFolder({ title: 'Navegação' });
+        bindControl(controlsFolder, 'invertPitch', { label: 'Inverter Pitch (Y)' });
+        bindControl(controlsFolder, 'invertYaw', { label: 'Inverter Yaw (X)' });
 
-        gui.add(params, 'resetCamera').name('Centralizar Camera');
-        gui.add(params, 'openFile').name('Carregar .sog');
+        // ================= Ações na raiz =================
+        addAction(pagePresets, 'Centralizar Câmera', () => params.resetCamera());
+        addAction(pagePresets, 'Carregar .sog', () => params.openFile());
 
-        const infoFolder = gui.addFolder('Info Modelo');
-        guiControllers.fileName = infoFolder.add(params, 'fileName').name('Arquivo').listen().disable();
-        guiControllers.splatCount = infoFolder.add(params, 'splatCount').name('Pontos').listen().disable();
+        // ================= Pasta: Propriedades =================
+        const infoFolder = pageScene.addFolder({ title: 'Propriedades' });
+        bindControl(infoFolder, 'fileName', { label: 'Arquivo', readonly: true });
+        bindControl(infoFolder, 'splatCount', { label: 'Splats', readonly: true });
+
+        window.__tpPane = pane;
+        applyShaderParams();
+        updatePinnedUniforms();
+        updateSplatCountDisplay();
 
         window.addEventListener('dragover', (e) => {
           e.preventDefault();
