@@ -1579,7 +1579,8 @@
         captureRadius: 0.9,
         captureSize: 0.08,
         captureStartId: 0,
-        captureFaceFlip: true,
+        captureFaceFlip: false,   // 180° no plano do marcador (só se a imagem sair de cabeça pra baixo)
+        captureFaceOutward: false, // false = face/pose virada para o CENTRO (padrão para captura)
         pinnedCountDisplay: '0 / 16 pins',
         clearAllPinsAction: function () {
           clearAllPinnedPoints();
@@ -5466,38 +5467,46 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             center.z + Math.sin(phi) * rr * rad
           );
 
+          const worldPos = new pc.Vec3();
+          splatEntity.getWorldTransform().transformPoint(pos, worldPos);
+
           const mat = new pc.StandardMaterial();
           mat.diffuseMap = makeCaptureTexture(startId + i);
           mat.emissiveMap = mat.diffuseMap;
           mat.emissive = new pc.Color(1, 1, 1);
           mat.useLighting = false;
-          mat.cull = pc.CULLFACE_NONE;
+          mat.cull = pc.CULLFACE_NONE;   // de fora da esfera você vê as costas (ou nada)
           mat.update();
 
           const e = new pc.Entity('capture-' + (startId + i));
           e.addComponent('render', { type: 'plane', material: mat });
-          splatEntity.addChild(e);
+          // Filho do PIVOT (identidade): assim local == mundo e a orientacao
+          // calculada abaixo vale direto, sem conversao de espaco.
+          splatPivot.addChild(e);
           e.setLocalScale(size, size, size);
-          e.setLocalPosition(pos.x, pos.y, pos.z);
+          e.setPosition(worldPos.x, worldPos.y, worldPos.z);
 
           // O plano do PlayCanvas tem NORMAL +Y (PlaneGeometry), então alinhamos
           // o +Y do marcador com a direção marcador -> centro. Feito na mão (sem
           // lookAt) porque o lookAt degenera quando o alvo fica na vertical.
-          const toCenter = new pc.Vec3().sub2(worldCenter, e.getPosition()).normalize();
+          const toCenter = new pc.Vec3().sub2(worldCenter, worldPos).normalize();
+          // NORMAL do plano (o +Y do PlaneGeometry, que é a normal/pose do marcador)
+          // apontando para DENTRO, ou seja para o centro da esfera.
+          const alignDir = params.captureFaceOutward ? toCenter.clone().mulScalar(-1) : toCenter;
           const upRef = pc.Vec3.UP;
-          const d = toCenter.dot(upRef);
+          const d = alignDir.dot(upRef);
           let q;
           if (d > 0.9999) {
             q = new pc.Quat();
           } else if (d < -0.9999) {
             q = new pc.Quat().setFromAxisAngle(pc.Vec3.RIGHT, 180);
           } else {
-            const axis = new pc.Vec3().cross(upRef, toCenter).normalize();
+            const axis = new pc.Vec3().cross(upRef, alignDir).normalize();
             q = new pc.Quat().setFromAxisAngle(axis, Math.acos(Math.max(-1, Math.min(1, d))) * pc.math.RAD_TO_DEG);
           }
           // rotação mundial -> local (o pai SplatModel tem transform próprio)
-          const parentRot = e.parent ? e.parent.getRotation().clone() : new pc.Quat();
-          const localRot = parentRot.invert().mul(q);
+          // pai = splatPivot (identidade) => local == mundo, sem conversao de espaco
+          const localRot = q;
           if (params.captureFaceFlip) {
             // gira 180° SOBRE A PRÓPRIA NORMAL (Y local) — puro giro no plano,
             // não desalinha a face que aponta para o centro
@@ -5506,8 +5515,9 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           e.setRotation(localRot);
           captureEntities.push(e);
         }
-        console.log('[Capture] ' + captureEntities.length + ' marcadores | centro (' +
-          center.x.toFixed(3) + ', ' + center.y.toFixed(3) + ', ' + center.z.toFixed(3) +
+        console.log('[Capture v10082025d] ' + captureEntities.length + ' marcadores | face=' +
+          (params.captureFaceOutward ? 'PARA FORA' : 'PARA O CENTRO') +
+          ' | centro (' + center.x.toFixed(3) + ', ' + center.y.toFixed(3) + ', ' + center.z.toFixed(3) +
           ') | raio ' + rad.toFixed(3) + ' | tamanho ' + size.toFixed(3) + ' | IDs ' + startId + '..' + (startId + n - 1));
       }
 
@@ -5774,7 +5784,8 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         capFolder.addBinding(params, 'captureRadius', { label: 'Raio da Esfera', min: 0.05, max: 4, step: 0.01 }).on('change', () => buildCaptureMarkers());
         capFolder.addBinding(params, 'captureSize', { label: 'Tamanho do Marcador', min: 0.005, max: 0.8, step: 0.005 }).on('change', () => buildCaptureMarkers());
         capFolder.addBinding(params, 'captureStartId', { label: 'ID Inicial', min: 0, max: 999, step: 1 }).on('change', () => buildCaptureMarkers());
-        capFolder.addBinding(params, 'captureFaceFlip', { label: 'Face virada p/ o centro' }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureFaceFlip', { label: 'Girar 180° no plano' }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureFaceOutward', { label: 'Normal para FORA (inverter)' }).on('change', () => buildCaptureMarkers());
 
         // ================= Pasta: Presets =================
         const presetFolder = pagePresets.addFolder({ title: 'Presets' });
