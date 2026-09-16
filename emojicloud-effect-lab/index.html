@@ -1579,6 +1579,7 @@
         captureRadius: 0.9,
         captureSize: 0.08,
         captureStartId: 0,
+        captureExportId: 0,
         captureFaceFlip: false,   // 180° no plano do marcador (só se a imagem sair de cabeça pra baixo)
         captureFaceOutward: false, // false = face/pose virada para o CENTRO (padrão para captura)
         pinnedCountDisplay: '0 / 16 pins',
@@ -5521,6 +5522,53 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           ') | raio ' + rad.toFixed(3) + ' | tamanho ' + size.toFixed(3) + ' | IDs ' + startId + '..' + (startId + n - 1));
       }
 
+      // Desenha o marcador num canvas novo (usado para exportar PNG em alta)
+      function buildMarkerCanvas(id, cell) {
+        const c = cell || 64;
+        const N = 8;
+        const cv = document.createElement('canvas');
+        cv.width = N * c; cv.height = N * c;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
+        ctx.fillStyle = '#000000'; ctx.fillRect(c, c, (N - 2) * c, (N - 2) * c);
+        let h = ((id * 2654435761) ^ 0x9e3779b9) >>> 0;
+        const nextBit = () => { h ^= h << 13; h >>>= 0; h ^= h >>> 17; h ^= h << 5; h >>>= 0; return (h >>> 31) & 1; };
+        ctx.fillStyle = '#ffffff';
+        for (let r = 0; r < 4; r++) for (let cc = 0; cc < 4; cc++) if (nextBit()) ctx.fillRect((2 + cc) * c, (2 + r) * c, c, c);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(2 * c, 2 * c, c, c);
+        ctx.fillRect(5 * c, 2 * c, c, c);
+        ctx.fillRect(2 * c, 5 * c, c, c);
+        return cv;
+      }
+
+      // Exporta o marcador (face que olha para o centro) como PNG
+      function exportCaptureMarker(id, preview) {
+        try {
+          const cv = buildMarkerCanvas(id, 64);      // 512x512 com margem branca
+          const url = cv.toDataURL('image/png');
+          if (preview) {
+            const w = window.open('', '_blank');
+            if (w) {
+              w.document.write('<title>Marcador ' + id + '</title><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;height:100vh">' +
+                '<img src="' + url + '" style="image-rendering:pixelated;width:min(90vmin,512px);image-rendering:crisp-edges">' +
+                '<div style="position:fixed;bottom:8px;color:#888;font:12px monospace">marcador ' + id + ' - 512x512 (face virada para o centro)</div></body>');
+            }
+          }
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'marcador_' + id + '.png';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          showToast('Imagem do marcador ' + id + ' gerada (512x512).');
+          console.log('[Capture] PNG do marcador ' + id + ' gerado (512x512, margem branca inclusa).');
+        } catch (err) {
+          console.warn('[Capture] falha ao exportar marcador:', err);
+          showToast('Falha ao gerar a imagem do marcador.');
+        }
+      }
+
       function applyShaderParams() {
         const camPos = cameraEntity ? cameraEntity.getPosition() : new pc.Vec3(0, 0, orbit.distance);
         const camDist = camPos.length();
@@ -5784,6 +5832,9 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         capFolder.addBinding(params, 'captureRadius', { label: 'Raio da Esfera', min: 0.05, max: 4, step: 0.01 }).on('change', () => buildCaptureMarkers());
         capFolder.addBinding(params, 'captureSize', { label: 'Tamanho do Marcador', min: 0.005, max: 0.8, step: 0.005 }).on('change', () => buildCaptureMarkers());
         capFolder.addBinding(params, 'captureStartId', { label: 'ID Inicial', min: 0, max: 999, step: 1 }).on('change', () => buildCaptureMarkers());
+        capFolder.addBinding(params, 'captureExportId', { label: 'ID p/ exportar', min: 0, max: 999, step: 1 });
+        addAction(capFolder, 'Salvar imagem do marcador (PNG)', () => exportCaptureMarker(Math.round(params.captureExportId || 0), false));
+        addAction(capFolder, 'Ver imagem do marcador', () => exportCaptureMarker(Math.round(params.captureExportId || 0), true));
         capFolder.addBinding(params, 'captureFaceFlip', { label: 'Girar 180° no plano' }).on('change', () => buildCaptureMarkers());
         capFolder.addBinding(params, 'captureFaceOutward', { label: 'Normal para FORA (inverter)' }).on('change', () => buildCaptureMarkers());
 
