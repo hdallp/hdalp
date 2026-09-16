@@ -1138,6 +1138,11 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         if (guiControllers.forcedCount) guiControllers.forcedCount.updateDisplay();
       }
 
+      function normalizeEmojiStr(str) {
+        if (!str) return '';
+        return str.replace(/[\uFE0E\uFE0F]/g, '').trim().toLowerCase();
+      }
+
       function parseTokenIndices(inputStr) {
         const result = new Set();
         if (!inputStr || typeof inputStr !== 'string') return result;
@@ -1145,36 +1150,60 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         const raw = inputStr.trim();
         if (!raw) return result;
 
-        const emojiChars = Array.from(raw.match(/\p{Extended_Pictographic}/gu) || []);
-        for (const char of emojiChars) {
-          for (let i = 0; i < numAtlasEmojis; i++) {
-            if (emojiSurrogatesList[i] && emojiSurrogatesList[i].includes(char)) {
-              result.add(i);
+        const segmenter = typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter('en', { granularity: 'grapheme' }) : null;
+
+        const rawItems = raw.includes(',') || raw.includes(';') || raw.includes('|') || raw.includes('\n')
+          ? raw.split(/[,;|\n]+/)
+          : [raw];
+
+        for (let item of rawItems) {
+          item = item.trim();
+          if (!item) continue;
+
+          // 1. Verifica sequências unicode/graphemes exatas (emojis compostos, ZWJ, tons de pele, bandeiras)
+          if (segmenter) {
+            const graphemes = Array.from(segmenter.segment(item), s => s.segment.trim()).filter(Boolean);
+            for (const g of graphemes) {
+              if (/[^\u0000-\u007F]/.test(g)) {
+                const normG = normalizeEmojiStr(g);
+                for (let i = 0; i < numAtlasEmojis; i++) {
+                  const normSurr = normalizeEmojiStr(emojiSurrogatesList[i]);
+                  if (normSurr && normSurr === normG) {
+                    result.add(i);
+                  }
+                }
+              }
+            }
+          } else if (/[^\u0000-\u007F]/.test(item)) {
+            const normItem = normalizeEmojiStr(item);
+            for (let i = 0; i < numAtlasEmojis; i++) {
+              const normSurr = normalizeEmojiStr(emojiSurrogatesList[i]);
+              if (normSurr && normSurr === normItem) {
+                result.add(i);
+              }
             }
           }
-        }
 
-        const tokens = raw
-          .toLowerCase()
-          .split(/[\s,;:|]+/)
-          .map(t => t.trim().replace(/^:+|:+$/g, ''))
-          .filter(t => t.length > 0);
+          // 2. Verifica palavras e identificadores exatos (nomes, aliases, codepoints)
+          const words = item
+            .toLowerCase()
+            .split(/[\s]+/)
+            .map(w => w.trim().replace(/^:+|:+$/g, ''))
+            .filter(w => w.length > 0 && /^[\w-]+$/.test(w));
 
-        for (const token of tokens) {
-          for (let i = 0; i < numAtlasEmojis; i++) {
-            const name = emojiNamesList[i];
-            const surrogates = emojiSurrogatesList[i];
-            const codepoint = emojiCodepointsList[i];
-            const allNames = emojiAllNamesList[i];
+          for (const token of words) {
+            for (let i = 0; i < numAtlasEmojis; i++) {
+              const name = emojiNamesList[i];
+              const codepoint = emojiCodepointsList[i];
+              const allNames = emojiAllNamesList[i];
 
-            if (surrogates && surrogates.includes(token)) {
-              result.add(i);
-            } else if (name === token || name.includes(token)) {
-              result.add(i);
-            } else if (codepoint === token) {
-              result.add(i);
-            } else if (allNames && allNames.some(n => n === token || n.includes(token))) {
-              result.add(i);
+              if (name === token) {
+                result.add(i);
+              } else if (codepoint === token) {
+                result.add(i);
+              } else if (allNames && allNames.includes(token)) {
+                result.add(i);
+              }
             }
           }
         }
@@ -1266,13 +1295,13 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           return;
         }
 
-        const tokenToAdd = pickedEmoji.surrogates || pickedEmoji.name;
+        const tokenToAdd = pickedEmoji.name;
 
         const currentTokens = params.excludedText
           ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
           : [];
 
-        if (!currentTokens.includes(tokenToAdd) && !currentTokens.includes(pickedEmoji.name)) {
+        if (!currentTokens.includes(tokenToAdd)) {
           currentTokens.push(tokenToAdd);
           params.excludedText = currentTokens.join(', ');
           if (guiControllers.excludedText) {
@@ -1281,7 +1310,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
           const searchInput = document.getElementById('emoji-modal-search-input');
           renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-          console.log('[Effect Lab] Emoji bloqueado com sucesso:', tokenToAdd, pickedEmoji.name);
+          console.log('[Effect Lab] Emoji bloqueado com sucesso:', tokenToAdd);
         }
       }
 
@@ -1800,7 +1829,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         for (const item of displayList) {
           const e = item.emoji;
-          const token = e.surrogates || e.name;
+          const token = e.name;
           const isBlocked = item.isBlocked;
           const isForced = item.isForced;
 
@@ -1845,8 +1874,19 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
           : [];
 
-        if (currentTokens.includes(token)) {
-          currentTokens = currentTokens.filter(t => t !== token);
+        // Verifica se já está excluído pelo nome ou por equivalência de token
+        const targetIndices = parseTokenIndices(token);
+        const existingIdx = currentTokens.findIndex(t => {
+          if (t === token) return true;
+          const idxs = parseTokenIndices(t);
+          for (const i of targetIndices) {
+            if (idxs.has(i)) return true;
+          }
+          return false;
+        });
+
+        if (existingIdx !== -1) {
+          currentTokens.splice(existingIdx, 1);
         } else {
           currentTokens.push(token);
         }
@@ -1865,8 +1905,18 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           ? params.forcedText.split(',').map(s => s.trim()).filter(Boolean)
           : [];
 
-        if (currentTokens.includes(token)) {
-          currentTokens = currentTokens.filter(t => t !== token);
+        const targetIndices = parseTokenIndices(token);
+        const existingIdx = currentTokens.findIndex(t => {
+          if (t === token) return true;
+          const idxs = parseTokenIndices(t);
+          for (const i of targetIndices) {
+            if (idxs.has(i)) return true;
+          }
+          return false;
+        });
+
+        if (existingIdx !== -1) {
+          currentTokens.splice(existingIdx, 1);
         } else {
           currentTokens.push(token);
           params.useForced = true;
