@@ -44,7 +44,7 @@
       cursor: crosshair !important;
     }
 
-    /* lil-gui positioning */
+    /* lil-gui positioning as a fixed aside sidebar */
     .lil-gui {
       --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
       --font-size: 11px;
@@ -60,11 +60,53 @@
     }
 
     .lil-gui.root {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      max-height: calc(100vh - 20px);
-      width: 310px;
+      position: fixed !important;
+      top: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      width: 320px !important;
+      border-left: 1px solid #2e2e2e;
+      border-radius: 0 !important;
+      /*box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);*/
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lil-gui.root > .title {
+      border-radius: 0 !important;
+      flex-shrink: 0;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #2e2e2e;
+    }
+
+    .lil-gui.root > .children {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      max-height: none !important;
+    }
+
+    /* Custom sleek scrollbar for lil-gui aside */
+    .lil-gui.root > .children::-webkit-scrollbar {
+      width: 6px;
+    }
+    .lil-gui.root > .children::-webkit-scrollbar-track {
+      background: #161616;
+    }
+    .lil-gui.root > .children::-webkit-scrollbar-thumb {
+      background: #333333;
+      border-radius: 3px;
+    }
+    .lil-gui.root > .children::-webkit-scrollbar-thumb:hover {
+      background: #4a4a4a;
     }
 
     .lil-gui .lil-string input {
@@ -303,6 +345,86 @@
       color: #7ee787;
     }
 
+    /* Emoji Color Filter Bar */
+    .emoji-modal-colors {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      background: #141414;
+      border-bottom: 1px solid #282828;
+      overflow-x: auto;
+    }
+
+    .color-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #202020;
+      border: 1px solid #333333;
+      border-radius: 2px;
+      color: #bbbbbb;
+      font-size: 10px;
+      font-family: inherit;
+      padding: 2px 7px;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      transition: all 0.1s;
+    }
+    .color-btn:hover {
+      color: #ffffff;
+      background: #2a2a2a;
+      border-color: #444444;
+    }
+    .color-btn.active {
+      background: #2a2a2a;
+      border-color: #58a6ff;
+      color: #58a6ff;
+      font-weight: 600;
+    }
+
+    .color-swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .color-picker-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #202020;
+      border: 1px solid #333333;
+      border-radius: 2px;
+      padding: 1px 6px;
+      cursor: pointer;
+      font-size: 10px;
+      color: #bbbbbb;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .color-picker-wrapper:hover {
+      border-color: #58a6ff;
+      color: #ffffff;
+    }
+    .color-picker-wrapper.active {
+      border-color: #58a6ff;
+      color: #58a6ff;
+      font-weight: 600;
+    }
+    #emoji-modal-color-picker {
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+
     .emoji-modal-status {
       padding: 5px 10px;
       font-size: 10px;
@@ -352,7 +474,17 @@
     .emoji-card-header {
       width: 100%;
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .emoji-color-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      flex-shrink: 0;
     }
 
     .emoji-badge {
@@ -427,6 +559,172 @@
       color: #7ee787;
       border-color: #246332;
     }
+
+    /* Picker Top HUD Banner */
+    .picker-hud-banner {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18, 18, 18, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(88, 166, 255, 0.4);
+      border-radius: 20px;
+      padding: 6px 14px;
+      display: none;
+      align-items: center;
+      gap: 9px;
+      color: #e0e0e0;
+      font-size: 11px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 12px rgba(88, 166, 255, 0.25);
+      z-index: 130;
+      user-select: none;
+      pointer-events: auto;
+      animation: slideDownBanner 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideDownBanner {
+      from { opacity: 0; transform: translate(-50%, -12px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .picker-hud-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #58a6ff;
+      box-shadow: 0 0 8px #58a6ff;
+      animation: pulseDot 1.4s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      from { opacity: 0.4; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1.2); }
+    }
+
+    .picker-hud-close {
+      background: transparent;
+      border: none;
+      color: #888;
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+      margin-left: 2px;
+      transition: color 0.1s;
+    }
+    .picker-hud-close:hover {
+      color: #ffffff;
+    }
+
+    /* Picker Hover Highlight & Floating Tooltip */
+    .picker-reticle {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      border: 2px solid #58a6ff;
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(88, 166, 255, 0.7), inset 0 0 6px rgba(88, 166, 255, 0.4);
+      pointer-events: none;
+      z-index: 120;
+      transform: translate(-50%, -50%);
+      display: none;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+    }
+    .picker-reticle.is-locked {
+      transform: translate(-50%, -50%) scale(1.15);
+    }
+    .picker-reticle::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 4px;
+      background: currentColor;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .picker-tooltip {
+      position: fixed;
+      pointer-events: none;
+      z-index: 121;
+      display: none;
+      background: rgba(18, 18, 18, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid #3e3e3e;
+      border-radius: 6px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.2);
+      padding: 8px 12px;
+      color: #ffffff;
+      font-size: 11px;
+      min-width: 190px;
+      max-width: 260px;
+      flex-direction: column;
+      gap: 6px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .picker-tooltip-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .picker-tooltip-img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .picker-tooltip-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .picker-tooltip-name {
+      font-weight: 700;
+      font-size: 12px;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.2px;
+    }
+
+    .picker-tooltip-sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: #bbbbbb;
+    }
+
+    .picker-tooltip-hint {
+      font-size: 9px;
+      font-weight: 500;
+      color: #aaaaaa;
+      border-top: 1px solid #282828;
+      padding-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      letter-spacing: 0.2px;
+    }
   </style>
 </head>
 <body>
@@ -443,6 +741,33 @@
     </div>
 
     <input type="file" id="file-input" accept=".sog,.ply" />
+
+    <!-- Floating HUD Banner for Picker Mode -->
+    <div id="picker-hud-banner" class="picker-hud-banner">
+      <span class="picker-hud-dot"></span>
+      <span><strong>Modo Picker Ativo:</strong> Passe o mouse para inspecionar, clique para bloquear/desbloquear</span>
+      <button class="picker-hud-close" id="picker-hud-close-btn" title="Sair do Modo Picker">&times;</button>
+    </div>
+
+    <!-- Picker Hover Reticle & Tooltip Highlight -->
+    <div id="picker-reticle" class="picker-reticle"></div>
+    <div id="picker-tooltip" class="picker-tooltip">
+      <div class="picker-tooltip-row">
+        <img id="picker-tooltip-img" class="picker-tooltip-img" src="" alt="" />
+        <div class="picker-tooltip-info">
+          <div id="picker-tooltip-name" class="picker-tooltip-name">Emoji</div>
+          <div class="picker-tooltip-sub">
+            <span id="picker-tooltip-dot" class="emoji-color-dot"></span>
+            <span id="picker-tooltip-hex">#000000</span>
+            <span id="picker-tooltip-badge" class="emoji-badge badge-idle">Ativo</span>
+          </div>
+        </div>
+      </div>
+      <div id="picker-tooltip-hint" class="picker-tooltip-hint">
+        <span id="picker-tooltip-hint-text">Clique para Bloquear</span>
+        <span style="opacity: 0.6; font-size: 8px;">ESC para sair</span>
+      </div>
+    </div>
 
     <!-- Emoji Search & Catalog Modal -->
     <div class="emoji-modal-backdrop" id="emoji-modal" style="display: none;">
@@ -473,6 +798,24 @@
           <button class="tag-btn" data-filter="symbol,arrow,mark,circle,square,cross,warning,radioactive,hazard,plus,minus">Simbolos</button>
           <button class="tag-btn tag-filter-blocked" data-filter="__blocked">Bloqueados</button>
           <button class="tag-btn tag-filter-forced" data-filter="__forced">Forcados</button>
+        </div>
+        <div class="emoji-modal-colors" id="emoji-modal-colors">
+          <button class="color-btn active" data-color="" title="Todas as Cores">🌈 Todas</button>
+          <button class="color-btn" data-color="red" title="Vermelho"><span class="color-swatch" style="background:#e53935;"></span>Vermelho</button>
+          <button class="color-btn" data-color="orange" title="Laranja"><span class="color-swatch" style="background:#fb8c00;"></span>Laranja</button>
+          <button class="color-btn" data-color="yellow" title="Amarelo"><span class="color-swatch" style="background:#fdd835;"></span>Amarelo</button>
+          <button class="color-btn" data-color="green" title="Verde"><span class="color-swatch" style="background:#43a047;"></span>Verde</button>
+          <button class="color-btn" data-color="blue" title="Azul"><span class="color-swatch" style="background:#1e88e5;"></span>Azul</button>
+          <button class="color-btn" data-color="purple" title="Roxo"><span class="color-swatch" style="background:#8e24aa;"></span>Roxo</button>
+          <button class="color-btn" data-color="pink" title="Rosa"><span class="color-swatch" style="background:#d81b60;"></span>Rosa</button>
+          <button class="color-btn" data-color="brown" title="Marrom"><span class="color-swatch" style="background:#6d4c41;"></span>Marrom</button>
+          <button class="color-btn" data-color="black" title="Preto"><span class="color-swatch" style="background:#111111; border: 1px solid #555;"></span>Preto</button>
+          <button class="color-btn" data-color="white" title="Branco"><span class="color-swatch" style="background:#ffffff; border: 1px solid #777;"></span>Branco</button>
+          <button class="color-btn" data-color="gray" title="Cinza"><span class="color-swatch" style="background:#757575;"></span>Cinza</button>
+          <div class="color-picker-wrapper" id="color-picker-wrapper" title="Pesquisar por cor personalizada">
+            <input type="color" id="emoji-modal-color-picker" value="#ff0000" />
+            <span id="color-picker-label">🎨 Cor Exata</span>
+          </div>
         </div>
         <div class="emoji-modal-status" id="emoji-modal-status">Carregando emojis...</div>
         <div class="emoji-modal-grid" id="emoji-modal-grid"></div>
@@ -508,6 +851,7 @@
       let emojiSurrogatesList = [];
       let emojiAllNamesList = [];
       let emojiCodepointsList = [];
+      let slotEmojiMap = new Map();
 
       const LUT_RES = 16;
       const voxelLabL = new Float32Array(4096);
@@ -560,7 +904,7 @@
             const toggle = document.getElementById('emoji-modal-use-forced-toggle');
             if (toggle) toggle.checked = params.useForced;
             const searchInput = document.getElementById('emoji-modal-search-input');
-            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
             if (searchInput) {
               searchInput.focus();
             }
@@ -581,7 +925,7 @@
           }
           rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
           const searchInput = document.getElementById('emoji-modal-search-input');
-          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
           console.log('[Effect Lab] Preset: Bandeiras adicionadas as exclusoes.');
         },
         clearExclusions: function () {
@@ -589,7 +933,7 @@
           if (guiControllers.excludedText) guiControllers.excludedText.setValue('');
           rebuildColorLUT('', params.forcedText, params.useForced);
           const searchInput = document.getElementById('emoji-modal-search-input');
-          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
         },
 
         useForced: true,
@@ -599,7 +943,7 @@
           if (guiControllers.forcedText) guiControllers.forcedText.setValue('');
           rebuildColorLUT(params.excludedText, '', params.useForced);
           const searchInput = document.getElementById('emoji-modal-search-input');
-          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
         },
 
         activeEmojisCount: '1944 / 1944',
@@ -952,6 +1296,11 @@ void main(void) {
 			discard;
 		}
 
+		if (uRenderMode == 3) {
+			gl_FragColor = vec4(col / 255.0, row / 255.0, 0.5, 1.0);
+			return;
+		}
+
 		if (uRenderMode == 0) {
 			gl_FragColor = vec4(emojiColor.rgb, 1.0);
 		} else {
@@ -1008,6 +1357,11 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 		let emojiColor = textureSample(uEmojiAtlas, uEmojiAtlasSampler, vec2f(atlasU, atlasV));
 		if (emojiColor.a < uniforms.uAlphaCutoff) {
 			discard;
+		}
+
+		if (uniforms.uRenderMode == 3) {
+			output.color0 = vec4f(col / 255.0, row / 255.0, 0.5, 1.0);
+			return output;
 		}
 
 		if (uniforms.uRenderMode == 0) {
@@ -1184,7 +1538,39 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             }
           }
 
-          // 2. Verifica palavras e identificadores exatos (nomes, aliases, codepoints)
+          // 2. Palavras-chave de grupo especiais (como 'flag', 'flags', 'bandeiras', 'bandeira')
+          const lowerItem = item.toLowerCase();
+          if (lowerItem === 'flag' || lowerItem === 'flags' || lowerItem === 'bandeira' || lowerItem === 'bandeiras') {
+            for (let i = 0; i < numAtlasEmojis; i++) {
+              const name = emojiNamesList[i];
+              const allNames = emojiAllNamesList[i];
+              if (name.startsWith('flag_') || name.includes('flag') || (allNames && allNames.some(n => n.includes('flag')))) {
+                result.add(i);
+              }
+            }
+            continue;
+          }
+
+          // 3. Suporte a curingas (ex: flag*, *flag, *heart*)
+          if (lowerItem.includes('*')) {
+            const clean = lowerItem.replace(/\*/g, '');
+            if (clean) {
+              const isPrefix = lowerItem.endsWith('*') && !lowerItem.startsWith('*');
+              const isSuffix = lowerItem.startsWith('*') && !lowerItem.endsWith('*');
+              const isContains = lowerItem.startsWith('*') && lowerItem.endsWith('*');
+
+              for (let i = 0; i < numAtlasEmojis; i++) {
+                const name = emojiNamesList[i];
+                if (isPrefix && name.startsWith(clean)) result.add(i);
+                else if (isSuffix && name.endsWith(clean)) result.add(i);
+                else if (isContains && name.includes(clean)) result.add(i);
+                else if (name.includes(clean)) result.add(i);
+              }
+            }
+            continue;
+          }
+
+          // 4. Verifica palavras e identificadores exatos (nomes, aliases, codepoints)
           const words = item
             .toLowerCase()
             .split(/[\s]+/)
@@ -1211,49 +1597,69 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         return result;
       }
 
-      function handlePickerClick(e) {
-        if (!isPickerActive || !app || !app.graphicsDevice || !atlasMetadata) return;
+      let hoverSampleRaf = null;
+      let lastHoverX = 0;
+      let lastHoverY = 0;
+      let lastSampleTime = 0;
 
+      function samplePickerAt(clientX, clientY) {
+        if (!isPickerActive || !app || !app.graphicsDevice || !atlasMetadata) return null;
         const gl = app.graphicsDevice.gl;
-        if (!gl) return;
-
-        // 1. Temporariamente renderiza 1 frame no modo de cor solida para ler a cor original exata do splat
-        const savedRenderMode = params.renderMode;
-        const savedUseEmojis = params.useEmojis;
-
-        params.renderMode = 2;
-        params.useEmojis = false;
-        applyShaderParams();
-        app.render();
-
-        try {
-          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        } catch (err) {}
+        if (!gl) return null;
 
         const rect = canvas.getBoundingClientRect();
-        const clientX = e.clientX - rect.left;
-        const clientY = e.clientY - rect.top;
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+
+        if (x < 0 || x > rect.width || y < 0 || y > rect.height) return null;
 
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
 
-        const centerX = Math.round(clientX * scaleX);
-        const centerY = Math.round((rect.height - clientY) * scaleY);
+        const centerX = Math.round(x * scaleX);
+        const centerY = Math.round((rect.height - y) * scaleY);
 
-        const radius = 4;
+        const radius = 3;
         const sampleSize = radius * 2 + 1;
         const startX = Math.max(0, Math.min(canvas.width - sampleSize, centerX - radius));
         const startY = Math.max(0, Math.min(canvas.height - sampleSize, centerY - radius));
 
+        // 1. Temporariamente chaveia para modo 3 (Emoji ID pass) e renderiza 1 frame
+        const activeRenderMode = params.useEmojis ? params.renderMode : 2;
+        const device = app.graphicsDevice;
+
+        if (device && device.scope) {
+          device.scope.resolve('uRenderMode')?.setValue(3);
+        }
+        if (splatEntity && splatEntity.gsplat) {
+          try { splatEntity.gsplat.setParameter('uRenderMode', 3); } catch (e) {}
+          if (splatEntity.gsplat.material) {
+            try { splatEntity.gsplat.material.setParameter('uRenderMode', 3); } catch (e) {}
+          }
+        }
+        app.render();
+
+        // 2. Lê os pixels da área sob o cursor
         const pixelData = new Uint8Array(sampleSize * sampleSize * 4);
+        try {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        } catch (err) {}
         gl.readPixels(startX, startY, sampleSize, sampleSize, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
 
-        // Restaura o modo emoji imediatamente
-        params.renderMode = savedRenderMode;
-        params.useEmojis = savedUseEmojis;
-        applyShaderParams();
+        // 3. Restaura o modo normal imediatamente
+        if (device && device.scope) {
+          device.scope.resolve('uRenderMode')?.setValue(activeRenderMode);
+        }
+        if (splatEntity && splatEntity.gsplat) {
+          try { splatEntity.gsplat.setParameter('uRenderMode', activeRenderMode); } catch (e) {}
+          if (splatEntity.gsplat.material) {
+            try { splatEntity.gsplat.material.setParameter('uRenderMode', activeRenderMode); } catch (e) {}
+          }
+        }
+        app.render();
 
-        let bestPixel = null;
+        let bestCol = -1;
+        let bestRow = -1;
         let bestDistSq = 1e9;
 
         for (let dy = 0; dy < sampleSize; dy++) {
@@ -1264,54 +1670,164 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             const b = pixelData[off + 2];
             const a = pixelData[off + 3];
 
+            // Em modo 3, B é ~128 (0.5), enquanto o fundo branco do canvas tem R=255, G=255, B=255
             if (a > 20 && !(r >= 250 && g >= 250 && b >= 250)) {
               const distSq = (dx - radius) * (dx - radius) + (dy - radius) * (dy - radius);
               if (distSq < bestDistSq) {
                 bestDistSq = distSq;
-                bestPixel = [r, g, b];
+                bestCol = r;
+                bestRow = g;
               }
             }
           }
         }
 
-        if (!bestPixel) {
-          console.log('[Effect Lab] Nenhum ponto sob o cursor.');
+        if (bestCol === -1 || bestRow === -1) return null;
+        return slotEmojiMap ? slotEmojiMap.get(bestRow * 64 + bestCol) : null;
+      }
+
+      function updatePickerHover(clientX, clientY) {
+        lastHoverX = clientX;
+        lastHoverY = clientY;
+
+        const reticle = document.getElementById('picker-reticle');
+        if (reticle && isPickerActive) {
+          reticle.style.display = 'block';
+          reticle.style.left = `${lastHoverX}px`;
+          reticle.style.top = `${lastHoverY}px`;
+        }
+
+        const now = performance.now();
+        if (now - lastSampleTime < 35) {
+          if (!hoverSampleRaf) {
+            hoverSampleRaf = requestAnimationFrame(() => {
+              hoverSampleRaf = null;
+              updatePickerHover(lastHoverX, lastHoverY);
+            });
+          }
+          return;
+        }
+        lastSampleTime = now;
+
+        if (!isPickerActive) {
+          hidePickerHover();
           return;
         }
 
-        // 2. Consulta a LUT para identificar o emoji exato
-        const voxelR = Math.min(15, Math.max(0, Math.round((bestPixel[0] / 255) * 15)));
-        const voxelG = Math.min(15, Math.max(0, Math.round((bestPixel[1] / 255) * 15)));
-        const voxelB = Math.min(15, Math.max(0, Math.round((bestPixel[2] / 255) * 15)));
+        const tooltip = document.getElementById('picker-tooltip');
+        if (!reticle || !tooltip) return;
 
-        const pIdx = voxelB * 256 + (voxelR * 16 + voxelG);
-        const byteOff = pIdx * 4;
-        const col = lutBuffer[byteOff];
-        const row = lutBuffer[byteOff + 1];
+        const emoji = samplePickerAt(lastHoverX, lastHoverY);
+        if (!emoji) {
+          tooltip.style.display = 'none';
+          reticle.classList.remove('is-locked');
+          reticle.style.borderColor = 'rgba(150, 150, 150, 0.6)';
+          reticle.style.boxShadow = '0 0 8px rgba(150, 150, 150, 0.3)';
+          return;
+        }
 
-        const pickedEmoji = atlasMetadata.emojis.find(item => item.slot.col === col && item.slot.row === row);
+        reticle.classList.add('is-locked');
+        const excludedIndices = parseTokenIndices(params.excludedText);
+        const forcedIndices = parseTokenIndices(params.forcedText);
+        const isBlocked = emoji._atlasIndex !== undefined ? excludedIndices.has(emoji._atlasIndex) : false;
+        const isForced = emoji._atlasIndex !== undefined ? forcedIndices.has(emoji._atlasIndex) : false;
+
+        const img = document.getElementById('picker-tooltip-img');
+        const nameEl = document.getElementById('picker-tooltip-name');
+        const dot = document.getElementById('picker-tooltip-dot');
+        const hexEl = document.getElementById('picker-tooltip-hex');
+        const badge = document.getElementById('picker-tooltip-badge');
+        const hintText = document.getElementById('picker-tooltip-hint-text');
+
+        const hex = emoji.avgColor ? emoji.avgColor.hex : '#888888';
+        if (img) img.src = `emojis/${emoji.filename}`;
+        if (nameEl) nameEl.textContent = emoji.surrogates ? `${emoji.surrogates} ${emoji.name}` : emoji.name;
+        if (dot) dot.style.backgroundColor = hex;
+        if (hexEl) hexEl.textContent = hex;
+
+        if (badge && hintText) {
+          if (isBlocked) {
+            badge.className = 'emoji-badge badge-blocked';
+            badge.textContent = 'Bloqueado';
+            hintText.innerHTML = '🔓 Clique para Desbloquear';
+            reticle.style.borderColor = '#ff7b72';
+            reticle.style.boxShadow = '0 0 14px rgba(255, 123, 114, 0.8), inset 0 0 6px rgba(255, 123, 114, 0.4)';
+          } else if (isForced) {
+            badge.className = 'emoji-badge badge-forced';
+            badge.textContent = 'Forçado';
+            hintText.innerHTML = '🚫 Clique para Bloquear';
+            reticle.style.borderColor = '#7ee787';
+            reticle.style.boxShadow = '0 0 14px rgba(126, 231, 135, 0.8), inset 0 0 6px rgba(126, 231, 135, 0.4)';
+          } else {
+            badge.className = 'emoji-badge badge-idle';
+            badge.textContent = 'Ativo';
+            hintText.innerHTML = '🚫 Clique para Bloquear';
+            reticle.style.borderColor = '#58a6ff';
+            reticle.style.boxShadow = '0 0 14px rgba(88, 166, 255, 0.8), inset 0 0 6px rgba(88, 166, 255, 0.4)';
+          }
+        }
+
+        // Posiciona com offset inteligente para NUNCA tampar o emoji sob a mira
+        const tooltipW = 230;
+        const tooltipH = 80;
+        let tx = lastHoverX + 28;
+        let ty = lastHoverY + 16;
+
+        if (tx + tooltipW > window.innerWidth - 330) {
+          tx = lastHoverX - tooltipW - 28;
+        }
+        if (ty + tooltipH > window.innerHeight - 20) {
+          ty = lastHoverY - tooltipH - 16;
+        }
+
+        tooltip.style.left = `${Math.max(10, tx)}px`;
+        tooltip.style.top = `${Math.max(10, ty)}px`;
+        tooltip.style.display = 'flex';
+      }
+
+      function hidePickerHover() {
+        const reticle = document.getElementById('picker-reticle');
+        const tooltip = document.getElementById('picker-tooltip');
+        if (reticle) {
+          reticle.style.display = 'none';
+          reticle.classList.remove('is-locked');
+        }
+        if (tooltip) tooltip.style.display = 'none';
+      }
+
+      function setPickerState(active) {
+        isPickerActive = !!active;
+        params.pickerMode = isPickerActive;
+        if (guiControllers.pickerMode) {
+          guiControllers.pickerMode.setValue(isPickerActive);
+        }
+        const banner = document.getElementById('picker-hud-banner');
+        if (banner) {
+          banner.style.display = isPickerActive ? 'flex' : 'none';
+        }
+        if (canvas) {
+          if (isPickerActive) {
+            canvas.classList.add('picker-active');
+          } else {
+            canvas.classList.remove('picker-active');
+            hidePickerHover();
+          }
+        }
+      }
+
+      function handlePickerClick(e) {
+        if (!isPickerActive || !app || !app.graphicsDevice || !atlasMetadata) return;
+
+        const pickedEmoji = samplePickerAt(e.clientX, e.clientY);
         if (!pickedEmoji) {
-          console.log('[Effect Lab] Emoji nao encontrado.');
+          console.log('[Effect Lab] Nenhum emoji sob o cursor.');
           return;
         }
 
         const tokenToAdd = pickedEmoji.name;
-
-        const currentTokens = params.excludedText
-          ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
-          : [];
-
-        if (!currentTokens.includes(tokenToAdd)) {
-          currentTokens.push(tokenToAdd);
-          params.excludedText = currentTokens.join(', ');
-          if (guiControllers.excludedText) {
-            guiControllers.excludedText.setValue(params.excludedText);
-          }
-          rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
-          const searchInput = document.getElementById('emoji-modal-search-input');
-          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
-          console.log('[Effect Lab] Emoji bloqueado com sucesso:', tokenToAdd);
-        }
+        window.__toggleExclusion(tokenToAdd);
+        updatePickerHover(e.clientX, e.clientY);
+        console.log('[Effect Lab] Emoji alternado pelo picker:', tokenToAdd);
       }
 
       function loadEmojiAssets() {
@@ -1334,8 +1850,12 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             emojiAllNamesList = [];
             emojiCodepointsList = [];
 
+            slotEmojiMap.clear();
             for (let i = 0; i < numAtlasEmojis; i++) {
               const e = metadata.emojis[i];
+              e._atlasIndex = i;
+              slotEmojiMap.set(e.slot.row * 64 + e.slot.col, e);
+
               emojiLabL[i] = e.avgColor.lab[0];
               emojiLabA[i] = e.avgColor.lab[1];
               emojiLabB[i] = e.avgColor.lab[2];
@@ -1662,6 +2182,10 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         });
 
         window.addEventListener('mousemove', (e) => {
+          if (isPickerActive && !isDragging) {
+            updatePickerHover(e.clientX, e.clientY);
+          }
+
           if (!isDragging) return;
 
           const dx = e.clientX - lastX;
@@ -1683,6 +2207,12 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
             orbit.targetYaw += dx * yawFactor;
             orbit.targetPitch = Math.max(-89, Math.min(89, orbit.targetPitch + dy * pitchFactor));
+          }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+          if (isPickerActive) {
+            hidePickerHover();
           }
         });
 
@@ -1755,6 +2285,14 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           lastPinchDist = null;
         });
 
+        const hudClose = document.getElementById('picker-hud-close-btn');
+        if (hudClose) {
+          hudClose.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setPickerState(false);
+          });
+        }
+
         window.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
             if (isPickerActive) {
@@ -1768,17 +2306,95 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         });
       }
 
-      let currentActiveModalTag = '';
+      const COLOR_NAMES_MAP = {
+        'vermelho': 'red', 'vermelha': 'red', 'vermelhos': 'red', 'vermelhas': 'red', 'red': 'red',
+        'laranja': 'orange', 'laranjas': 'orange', 'orange': 'orange',
+        'amarelo': 'yellow', 'amarela': 'yellow', 'amarelos': 'yellow', 'amarelas': 'yellow', 'yellow': 'yellow',
+        'verde': 'green', 'verdes': 'green', 'green': 'green',
+        'azul': 'blue', 'azuis': 'blue', 'blue': 'blue',
+        'roxo': 'purple', 'roxa': 'purple', 'roxos': 'purple', 'roxas': 'purple', 'violeta': 'purple', 'purple': 'purple',
+        'rosa': 'pink', 'rosas': 'pink', 'pink': 'pink',
+        'marrom': 'brown', 'marroms': 'brown', 'marrons': 'brown', 'castanho': 'brown', 'brown': 'brown',
+        'preto': 'black', 'preta': 'black', 'pretos': 'black', 'pretas': 'black', 'negro': 'black', 'black': 'black',
+        'branco': 'white', 'branca': 'white', 'brancos': 'white', 'brancas': 'white', 'white': 'white',
+        'cinza': 'gray', 'cinzas': 'gray', 'grey': 'gray', 'gray': 'gray'
+      };
 
-      function renderEmojiModal(query = '', categoryFilter = '') {
+      const COLOR_LABEL_MAP = {
+        'red': 'Vermelho',
+        'orange': 'Laranja',
+        'yellow': 'Amarelo',
+        'green': 'Verde',
+        'blue': 'Azul',
+        'purple': 'Roxo',
+        'pink': 'Rosa',
+        'brown': 'Marrom',
+        'black': 'Preto',
+        'white': 'Branco',
+        'gray': 'Cinza'
+      };
+
+      function getEmojiColorCategory(e) {
+        if (!e || !e.avgColor) return 'other';
+        const [h, s, l] = e.avgColor.hsl || [0, 0, 0];
+        if (l <= 27 && s <= 25) return 'black';
+        if (l >= 75 && s <= 25) return 'white';
+        if (s <= 14) return 'gray';
+        if (h >= 10 && h < 45 && l <= 45 && s <= 65) return 'brown';
+        if (h >= 345 || h < 15) return 'red';
+        if (h >= 15 && h < 45) return 'orange';
+        if (h >= 45 && h < 70) return 'yellow';
+        if (h >= 70 && h < 165) return 'green';
+        if (h >= 165 && h < 260) return 'blue';
+        if (h >= 260 && h < 315) return 'purple';
+        if (h >= 315 && h < 345) return 'pink';
+        return 'other';
+      }
+
+      function hexToRgb(hex) {
+        if (!hex || typeof hex !== 'string') return null;
+        let c = hex.replace('#', '').trim();
+        if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+        if (c.length !== 6) return null;
+        const num = parseInt(c, 16);
+        if (isNaN(num)) return null;
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+      }
+
+      let currentActiveModalTag = '';
+      let currentActiveModalColor = '';
+
+      function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, colorFilter = currentActiveModalColor) {
         const grid = document.getElementById('emoji-modal-grid');
         const status = document.getElementById('emoji-modal-status');
         if (!grid || !atlasMetadata || !atlasMetadata.emojis) return;
 
-        const q = (query || '').toLowerCase().trim();
+        let q = (query || '').toLowerCase().trim();
         const catTokens = categoryFilter && !categoryFilter.startsWith('__')
           ? categoryFilter.toLowerCase().split(',').map(s => s.trim()).filter(Boolean)
           : [];
+
+        // Detecta se a busca digitada é uma cor (ex: "vermelho", "azul", "#ff0000", "cor: verde")
+        let queryColorCategory = null;
+        let targetLabColor = null;
+
+        const hexMatch = q.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+        if (hexMatch) {
+          const rgb = hexToRgb(hexMatch[0]);
+          if (rgb) {
+            targetLabColor = rgbToLab(...rgb);
+          }
+        } else if (colorFilter && colorFilter.startsWith('#')) {
+          const rgb = hexToRgb(colorFilter);
+          if (rgb) {
+            targetLabColor = rgbToLab(...rgb);
+          }
+        }
+
+        const cleanQ = q.replace(/^cor:\s*/i, '').trim();
+        if (COLOR_NAMES_MAP[cleanQ]) {
+          queryColorCategory = COLOR_NAMES_MAP[cleanQ];
+        }
 
         const excludedIndices = parseTokenIndices(params.excludedText);
         const forcedIndices = parseTokenIndices(params.forcedText);
@@ -1790,10 +2406,12 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           const surrogates = e.surrogates || '';
           const codepoint = e.codepoint || '';
           const allNames = (e.allNames || []).join(' ').toLowerCase();
+          const emojiCat = getEmojiColorCategory(e);
 
           const isBlocked = excludedIndices.has(i);
           const isForced = forcedIndices.has(i);
 
+          // 1. Filtro de Categorias / Tags
           if (categoryFilter === '__blocked') {
             if (!isBlocked) continue;
           } else if (categoryFilter === '__forced') {
@@ -1803,21 +2421,58 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             if (!matchCat) continue;
           }
 
+          // 2. Filtro de Cores (via botões de cor)
+          if (colorFilter && !colorFilter.startsWith('#')) {
+            if (emojiCat !== colorFilter) continue;
+          }
+
+          // 3. Filtro de Texto / Busca
           if (q) {
-            const matchQuery = name.includes(q) || surrogates.includes(q) || codepoint.includes(q) || allNames.includes(q);
+            let matchQuery = name.includes(q) || surrogates.includes(q) || codepoint.includes(q) || allNames.includes(q);
+            if (!matchQuery && queryColorCategory) {
+              if (emojiCat === queryColorCategory) {
+                matchQuery = true;
+              }
+            }
+            if (!matchQuery && targetLabColor) {
+              matchQuery = true;
+            }
             if (!matchQuery) continue;
           }
 
-          matched.push({ emoji: e, index: i, isBlocked, isForced });
+          let colorDist = 0;
+          if (targetLabColor && e.avgColor && e.avgColor.lab) {
+            const dL = e.avgColor.lab[0] - targetLabColor[0];
+            const da = e.avgColor.lab[1] - targetLabColor[1];
+            const db = e.avgColor.lab[2] - targetLabColor[2];
+            colorDist = Math.sqrt(dL * dL + da * da + db * db);
+          }
+
+          matched.push({ emoji: e, index: i, isBlocked, isForced, colorDist });
+        }
+
+        // Se estiver buscando por cor personalizada/hex, ordena pelos emojis com cor mais próxima (menor distância LAB)
+        if (targetLabColor) {
+          matched.sort((a, b) => a.colorDist - b.colorDist);
         }
 
         const forcedStatusHtml = params.useForced
           ? '<span style="color: #7ee787; font-weight: 600;">[Forcados: ATIVADO]</span>'
           : '<span style="color: #888; font-weight: 600;">[Forcados: DESATIVADO]</span>';
 
+        let colorFilterLabel = '';
+        if (colorFilter && !colorFilter.startsWith('#')) {
+          colorFilterLabel = `<span style="color: #58a6ff; font-weight: 600;">[Cor: ${COLOR_LABEL_MAP[colorFilter] || colorFilter}]</span>`;
+        } else if (colorFilter && colorFilter.startsWith('#')) {
+          colorFilterLabel = `<span style="color: #58a6ff; font-weight: 600;">[Cor: ${colorFilter}]</span>`;
+        } else if (queryColorCategory) {
+          colorFilterLabel = `<span style="color: #58a6ff; font-weight: 600;">[Cor: ${COLOR_LABEL_MAP[queryColorCategory] || queryColorCategory}]</span>`;
+        }
+
         if (status) {
           status.innerHTML = `
             <span><strong>${matched.length}</strong> exibidos (total: ${numAtlasEmojis})</span>
+            ${colorFilterLabel}
             <span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndices.size}</strong></span>
             <span style="color: #7ee787;">Forcados: <strong>${forcedIndices.size}</strong></span>
             <span>${forcedStatusHtml}</span>
@@ -1832,6 +2487,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           const token = e.name;
           const isBlocked = item.isBlocked;
           const isForced = item.isForced;
+          const hex = e.avgColor ? e.avgColor.hex : '#888888';
 
           let badgeClass = 'badge-idle';
           let badgeText = 'Ativo';
@@ -1850,10 +2506,11 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           html += `
             <div class="${cardClass}">
               <div class="emoji-card-header">
+                <span class="emoji-color-dot" style="background-color: ${hex};" title="Cor Média: ${hex}"></span>
                 <span class="emoji-badge ${badgeClass}">${badgeText}</span>
               </div>
               <img class="emoji-grid-img" src="emojis/${e.filename}" alt="${e.name}" loading="lazy" />
-              <div class="emoji-grid-name" title="${e.name}">${e.name}</div>
+              <div class="emoji-grid-name" title="${e.name} (${hex})">${e.name}</div>
               <div class="emoji-grid-actions">
                 <button class="emoji-action-btn emoji-btn-block ${isBlocked ? 'btn-active' : ''}" onclick="window.__toggleExclusion('${token}')">
                   ${isBlocked ? 'Desbloquear' : 'Bloquear'}
@@ -1897,7 +2554,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         }
         rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
         const searchInput = document.getElementById('emoji-modal-search-input');
-        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
       };
 
       window.__toggleForced = function (token) {
@@ -1933,7 +2590,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         }
         rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
         const searchInput = document.getElementById('emoji-modal-search-input');
-        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
       };
 
       // Retrocompatibilidade
@@ -1946,6 +2603,10 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         const searchInput = document.getElementById('emoji-modal-search-input');
         const clearBtn = document.getElementById('emoji-modal-clear-search');
         const tagsContainer = document.getElementById('emoji-modal-tags');
+        const colorsContainer = document.getElementById('emoji-modal-colors');
+        const colorPicker = document.getElementById('emoji-modal-color-picker');
+        const colorPickerWrapper = document.getElementById('color-picker-wrapper');
+        const colorPickerLabel = document.getElementById('color-picker-label');
         const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
 
         if (headerToggle) {
@@ -1955,7 +2616,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
               guiControllers.useForced.setValue(params.useForced);
             }
             rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
-            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
           });
         }
 
@@ -1976,7 +2637,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         if (clearBtn && searchInput) {
           clearBtn.addEventListener('click', () => {
             searchInput.value = '';
-            renderEmojiModal('', currentActiveModalTag);
+            renderEmojiModal('', currentActiveModalTag, currentActiveModalColor);
             searchInput.focus();
           });
         }
@@ -1986,7 +2647,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           searchInput.addEventListener('input', (e) => {
             clearTimeout(searchDebounce);
             searchDebounce = setTimeout(() => {
-              renderEmojiModal(e.target.value, currentActiveModalTag);
+              renderEmojiModal(e.target.value, currentActiveModalTag, currentActiveModalColor);
             }, 50);
           });
         }
@@ -2001,8 +2662,43 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
             currentActiveModalTag = btn.getAttribute('data-filter') || '';
             const curQuery = searchInput ? searchInput.value : '';
-            renderEmojiModal(curQuery, currentActiveModalTag);
+            renderEmojiModal(curQuery, currentActiveModalTag, currentActiveModalColor);
           });
+        }
+
+        if (colorsContainer) {
+          colorsContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.color-btn');
+            if (!btn) return;
+
+            colorsContainer.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            if (colorPickerWrapper) colorPickerWrapper.classList.remove('active');
+            btn.classList.add('active');
+
+            currentActiveModalColor = btn.getAttribute('data-color') || '';
+            const curQuery = searchInput ? searchInput.value : '';
+            renderEmojiModal(curQuery, currentActiveModalTag, currentActiveModalColor);
+          });
+        }
+
+        if (colorPicker) {
+          const handleColorPick = (val) => {
+            if (colorsContainer) {
+              colorsContainer.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            }
+            if (colorPickerWrapper) {
+              colorPickerWrapper.classList.add('active');
+            }
+            if (colorPickerLabel) {
+              colorPickerLabel.textContent = `🎨 ${val}`;
+            }
+            currentActiveModalColor = val;
+            const curQuery = searchInput ? searchInput.value : '';
+            renderEmojiModal(curQuery, currentActiveModalTag, currentActiveModalColor);
+          };
+
+          colorPicker.addEventListener('input', (e) => handleColorPick(e.target.value));
+          colorPicker.addEventListener('change', (e) => handleColorPick(e.target.value));
         }
       }
 
