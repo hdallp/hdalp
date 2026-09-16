@@ -40,17 +40,21 @@
       background-color: #ffffff;
     }
 
+    #splat-canvas.picker-active {
+      cursor: crosshair !important;
+    }
+
     /* lil-gui positioning */
     .lil-gui {
       --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
       --font-size: 11px;
-      --title-background-color: #2c2c2c;
-      --background-color: #1e1e1e;
-      --widget-color: #333333;
-      --hover-color: #444444;
-      --focus-color: #555555;
-      --number-color: #4da6ff;
-      --string-color: #8ce10b;
+      --title-background-color: #242424;
+      --background-color: #1a1a1a;
+      --widget-color: #2e2e2e;
+      --hover-color: #3e3e3e;
+      --focus-color: #4a4a4a;
+      --number-color: #58a6ff;
+      --string-color: #7ee787;
       font-weight: 500;
       z-index: 100 !important;
     }
@@ -60,6 +64,12 @@
       top: 10px;
       right: 10px;
       max-height: calc(100vh - 20px);
+      width: 310px;
+    }
+
+    .lil-gui .lil-string input {
+      font-size: 13px !important;
+      padding: 4px 6px !important;
     }
 
     /* Loading Overlay */
@@ -130,6 +140,440 @@
     #file-input {
       display: none;
     }
+
+    /* Emoji Catalog & Search Modal - Exact lil-gui aesthetic */
+    .emoji-modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .emoji-modal-card {
+      width: 680px;
+      max-width: 95vw;
+      height: 580px;
+      max-height: 90vh;
+      background: #1a1a1a;
+      border: 1px solid #333333;
+      border-radius: 2px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75);
+      overflow: hidden;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
+      font-size: 11px;
+    }
+
+    .emoji-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: #242424;
+      border-bottom: 1px solid #2e2e2e;
+      height: 32px;
+    }
+
+    .emoji-modal-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .emoji-modal-header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .modal-toggle-label {
+      font-size: 11px;
+      color: #cccccc;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .modal-toggle-label input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: #2ea043;
+      margin: 0;
+    }
+
+    .emoji-modal-close {
+      background: transparent;
+      border: none;
+      color: #888888;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .emoji-modal-close:hover {
+      color: #ffffff;
+    }
+
+    .emoji-modal-search-row {
+      display: flex;
+      padding: 6px 10px;
+      gap: 6px;
+      background: #1e1e1e;
+      border-bottom: 1px solid #2e2e2e;
+    }
+
+    #emoji-modal-search-input {
+      flex: 1;
+      background: #111111;
+      border: 1px solid #333333;
+      border-radius: 2px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-family: inherit;
+      color: #ffffff;
+      outline: none;
+    }
+    #emoji-modal-search-input:focus {
+      border-color: #58a6ff;
+    }
+
+    .emoji-modal-clear-search {
+      background: #2e2e2e;
+      border: 1px solid #3e3e3e;
+      border-radius: 2px;
+      color: #e0e0e0;
+      padding: 0 10px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .emoji-modal-clear-search:hover {
+      background: #3e3e3e;
+      color: #ffffff;
+    }
+
+    .emoji-modal-tags {
+      display: flex;
+      gap: 4px;
+      padding: 6px 10px;
+      background: #181818;
+      border-bottom: 1px solid #282828;
+      overflow-x: auto;
+    }
+
+    .tag-btn {
+      background: #242424;
+      border: 1px solid #333333;
+      border-radius: 2px;
+      color: #aaaaaa;
+      font-size: 10px;
+      font-family: inherit;
+      padding: 3px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .tag-btn:hover {
+      color: #ffffff;
+      background: #2e2e2e;
+    }
+    .tag-btn.active {
+      background: #2e2e2e;
+      border-color: #58a6ff;
+      color: #58a6ff;
+      font-weight: 600;
+    }
+    .tag-btn.tag-filter-blocked.active {
+      border-color: #ff7b72;
+      color: #ff7b72;
+    }
+    .tag-btn.tag-filter-forced.active {
+      border-color: #7ee787;
+      color: #7ee787;
+    }
+
+    .emoji-modal-status {
+      padding: 5px 10px;
+      font-size: 10px;
+      color: #888888;
+      background: #141414;
+      border-bottom: 1px solid #222222;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .emoji-modal-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+      gap: 6px;
+      background: #141414;
+    }
+
+    .emoji-grid-card {
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-radius: 2px;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      position: relative;
+    }
+    .emoji-grid-card:hover {
+      background: #242424;
+      border-color: #3e3e3e;
+    }
+    .emoji-grid-card.is-blocked {
+      border-color: #6e2727;
+      background: #201414;
+    }
+    .emoji-grid-card.is-forced {
+      border-color: #1f512b;
+      background: #142015;
+    }
+
+    .emoji-card-header {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .emoji-badge {
+      font-size: 8px;
+      font-weight: 600;
+      padding: 1px 3px;
+      border-radius: 2px;
+      text-transform: uppercase;
+    }
+    .badge-idle {
+      color: #555555;
+    }
+    .badge-blocked {
+      color: #ff7b72;
+      background: #3e1b1b;
+    }
+    .badge-forced {
+      color: #7ee787;
+      background: #132d1a;
+    }
+
+    .emoji-grid-img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      margin: 1px 0;
+    }
+
+    .emoji-grid-name {
+      font-size: 10px;
+      color: #999999;
+      text-align: center;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .emoji-grid-actions {
+      display: flex;
+      gap: 3px;
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .emoji-action-btn {
+      flex: 1;
+      padding: 3px 0;
+      border: 1px solid #383838;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      background: #2e2e2e;
+      color: #cccccc;
+      transition: background 0.1s, color 0.1s;
+    }
+    .emoji-action-btn:hover {
+      background: #3e3e3e;
+      color: #ffffff;
+    }
+    .emoji-btn-block.btn-active {
+      background: #4a1c1c;
+      color: #ff7b72;
+      border-color: #7a2828;
+    }
+    .emoji-modal-bulk-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 10px;
+      background: #191919;
+      border-bottom: 1px solid #282828;
+      font-size: 10px;
+      color: #888888;
+      gap: 8px;
+    }
+
+    .emoji-modal-bulk-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .bulk-btn {
+      background: #282828;
+      border: 1px solid #383838;
+      border-radius: 2px;
+      color: #cccccc;
+      font-size: 10px;
+      font-family: inherit;
+      padding: 2px 7px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .bulk-btn:hover {
+      background: #383838;
+      color: #ffffff;
+    }
+    .bulk-btn-block {
+      color: #ff7b72;
+      border-color: #552222;
+    }
+    .bulk-btn-block:hover {
+      background: #4a1c1c;
+      color: #ffffff;
+    }
+    .bulk-btn-force {
+      color: #7ee787;
+      border-color: #1f512b;
+    }
+    .bulk-btn-force:hover {
+      background: #15381e;
+      color: #ffffff;
+    }
+
+    .emoji-variations-badge {
+      font-size: 8px;
+      color: #58a6ff;
+      background: #17263c;
+      border: 1px solid #264366;
+      border-radius: 2px;
+      padding: 1px 4px;
+      cursor: pointer;
+      margin-top: 1px;
+      user-select: none;
+    }
+    .emoji-variations-badge:hover {
+      background: #1f385c;
+      color: #79c0ff;
+    }
+
+    /* Inspector de Variacoes e Misturas */
+    .emoji-modal-inspector {
+      display: none;
+      flex-direction: column;
+      background: #181818;
+      border-top: 1px solid #333333;
+      padding: 6px 10px;
+      gap: 6px;
+      max-height: 190px;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.5);
+    }
+
+    .inspector-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .inspector-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #58a6ff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .inspector-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .inspector-grid {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .inspector-card {
+      min-width: 95px;
+      max-width: 95px;
+      background: #202020;
+      border: 1px solid #2d2d2d;
+      border-radius: 2px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .inspector-card.is-blocked {
+      border-color: #6e2727;
+      background: #261717;
+    }
+    .inspector-card.is-forced {
+      border-color: #1f512b;
+      background: #172619;
+    }
+
+    .inspector-card-img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .inspector-card-name {
+      font-size: 9px;
+      color: #aaaaaa;
+      text-align: center;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .inspector-card-actions {
+      display: flex;
+      gap: 2px;
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .inspector-card-actions .emoji-action-btn {
+      font-size: 8px;
+      padding: 2px 0;
+    }
   </style>
 </head>
 <body>
@@ -146,6 +590,61 @@
     </div>
 
     <input type="file" id="file-input" accept=".sog,.ply" />
+
+    <!-- Emoji Search & Catalog Modal -->
+    <div class="emoji-modal-backdrop" id="emoji-modal" style="display: none;">
+      <div class="emoji-modal-card">
+        <div class="emoji-modal-header">
+          <div class="emoji-modal-title">Catalogo de Emojis</div>
+          <div class="emoji-modal-header-right">
+            <label class="modal-toggle-label" title="Ativa ou desativa o uso exclusivo da lista de forcados">
+              <input type="checkbox" id="emoji-modal-use-forced-toggle" checked />
+              Ativar Forcados
+            </label>
+            <button class="emoji-modal-close" id="emoji-modal-close-btn" title="Fechar">&times;</button>
+          </div>
+        </div>
+        <div class="emoji-modal-search-row">
+          <input type="text" id="emoji-modal-search-input" placeholder="Buscar por nome ou emoji (ex: fire, skull, heart, flag)..." autocomplete="off" />
+          <button class="emoji-modal-clear-search" id="emoji-modal-clear-search">Limpar</button>
+        </div>
+        <div class="emoji-modal-tags" id="emoji-modal-tags">
+          <button class="tag-btn active" data-filter="">Todos</button>
+          <button class="tag-btn" data-filter="flag">Bandeiras</button>
+          <button class="tag-btn" data-filter="face,smile,grinning,laugh,tear,wink,kiss,tongue,eyebrow,mask,clown,devil,skull,ghost">Rostos</button>
+          <button class="tag-btn" data-filter="heart">Coracoes</button>
+          <button class="tag-btn" data-filter="food,fruit,vegetable,meat,bread,drink,cake,pizza,burger,coffee,tea,apple,banana">Comida</button>
+          <button class="tag-btn" data-filter="animal,cat,dog,monkey,bird,fish,bear,panda,lion,tiger,horse,pig,frog,snake,bug,bee,butterfly">Animais</button>
+          <button class="tag-btn" data-filter="plant,flower,tree,sun,moon,star,cloud,rain,snow,fire,water,leaf,earth">Natureza</button>
+          <button class="tag-btn" data-filter="object,tool,bulb,book,phone,camera,computer,clock,key,gem,bell,gift,money,dollar">Objetos</button>
+          <button class="tag-btn" data-filter="symbol,arrow,mark,circle,square,cross,warning,radioactive,hazard,plus,minus">Simbolos</button>
+          <button class="tag-btn tag-filter-blocked" data-filter="__blocked">Bloqueados</button>
+          <button class="tag-btn tag-filter-forced" data-filter="__forced">Forcados</button>
+        </div>
+        <div class="emoji-modal-bulk-bar" id="emoji-modal-bulk-bar">
+          <span id="emoji-modal-bulk-text">Variações: 0</span>
+          <div class="emoji-modal-bulk-actions">
+            <button class="bulk-btn bulk-btn-block" id="bulk-block-btn">Bloquear Visíveis</button>
+            <button class="bulk-btn bulk-btn-force" id="bulk-force-btn">Forçar Visíveis</button>
+            <button class="bulk-btn" id="bulk-clear-btn">Limpar Visíveis</button>
+          </div>
+        </div>
+        <div class="emoji-modal-status" id="emoji-modal-status">Carregando emojis...</div>
+        <div class="emoji-modal-grid" id="emoji-modal-grid"></div>
+        <div class="emoji-modal-inspector" id="emoji-modal-inspector">
+          <div class="inspector-header">
+            <div class="inspector-title" id="inspector-title">Variações & Misturas</div>
+            <div class="inspector-actions">
+              <button class="bulk-btn bulk-btn-block" id="inspector-block-all-btn">Bloquear Todas</button>
+              <button class="bulk-btn bulk-btn-force" id="inspector-force-all-btn">Forçar Todas</button>
+              <button class="bulk-btn" id="inspector-clear-all-btn">Limpar</button>
+              <button class="bulk-btn" id="inspector-close-btn">&times; Fechar</button>
+            </div>
+          </div>
+          <div class="inspector-grid" id="inspector-grid"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="js/playcanvas.min.js"></script>
@@ -160,9 +659,126 @@
       let splatPivot = null;
       let splatEntity = null;
       let currentAsset = null;
+      let modelRadius = 0.5;
+
+      let atlasTexture = null;
+      let lutTexture = null;
+      let atlasMetadata = null;
+
+      let numAtlasEmojis = 0;
+      let emojiLabL = null;
+      let emojiLabA = null;
+      let emojiLabB = null;
+      let emojiCols = null;
+      let emojiRows = null;
+      let emojiNamesList = [];
+      let emojiSurrogatesList = [];
+      let emojiAllNamesList = [];
+      let emojiCodepointsList = [];
+
+      const LUT_RES = 16;
+      const voxelLabL = new Float32Array(4096);
+      const voxelLabA = new Float32Array(4096);
+      const voxelLabB = new Float32Array(4096);
+      const lutBuffer = new Uint8Array(256 * 16 * 4);
+
+      let isPickerActive = false;
+
+      const renderModeMap = {
+        'Emojis Coloridos': 0,
+        'Emojis Tintados': 1,
+        'Cores Originais': 2
+      };
 
       const params = {
-        squareSize: 0.006,
+        useEmojis: true,
+        useGaussianSplat: false,
+        renderModeText: 'Emojis Coloridos',
+        renderMode: 0,
+        tintIntensity: 0.6,
+        alphaCutoff: 0.10,
+
+        lockSH: false,
+        hueShift: 0.0,
+        saturation: 1.0,
+        brightness: 0.0,
+        contrast: 1.0,
+        gamma: 1.0,
+        resetColors: function () {
+          params.lockSH = false;
+          params.hueShift = 0.0;
+          params.saturation = 1.0;
+          params.brightness = 0.0;
+          params.contrast = 1.0;
+          params.gamma = 1.0;
+          if (guiControllers.lockSH) guiControllers.lockSH.updateDisplay();
+          if (guiControllers.hueShift) guiControllers.hueShift.updateDisplay();
+          if (guiControllers.saturation) guiControllers.saturation.updateDisplay();
+          if (guiControllers.brightness) guiControllers.brightness.updateDisplay();
+          if (guiControllers.contrast) guiControllers.contrast.updateDisplay();
+          if (guiControllers.gamma) guiControllers.gamma.updateDisplay();
+          updateSHLockState(true);
+          applyShaderParams();
+        },
+
+        pickerMode: false,
+        openEmojiModal: function () {
+          const modal = document.getElementById('emoji-modal');
+          if (modal) {
+            modal.style.display = 'flex';
+            const toggle = document.getElementById('emoji-modal-use-forced-toggle');
+            if (toggle) toggle.checked = params.useForced;
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+            if (searchInput) {
+              searchInput.focus();
+            }
+          }
+        },
+
+        excludedText: '',
+        excludeFlagsPreset: function () {
+          const currentTokens = params.excludedText
+            ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+          if (!currentTokens.includes('flag')) {
+            currentTokens.push('flag');
+          }
+          params.excludedText = currentTokens.join(', ');
+          if (guiControllers.excludedText) {
+            guiControllers.excludedText.setValue(params.excludedText);
+          }
+          rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          console.log('[Effect Lab] Preset: Bandeiras adicionadas as exclusoes.');
+        },
+        clearExclusions: function () {
+          params.excludedText = '';
+          if (guiControllers.excludedText) guiControllers.excludedText.setValue('');
+          rebuildColorLUT('', params.forcedText, params.useForced);
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        },
+
+        useForced: true,
+        forcedText: '',
+        clearForced: function () {
+          params.forcedText = '';
+          if (guiControllers.forcedText) guiControllers.forcedText.setValue('');
+          rebuildColorLUT(params.excludedText, '', params.useForced);
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        },
+
+        activeEmojisCount: '1944 / 1944',
+        excludedCount: '0',
+        forcedCount: '0',
+
+        squareSize: 0.004,
+        density: 100,
+        minOpacity: 0.0,
+        depthThreshold: 1.0,
         autoSpin: false,
         spinSpeed: 18,
         invertX: true,
@@ -179,6 +795,19 @@
         splatCount: '0',
         fileName: 'head.sog'
       };
+
+      let rawSplatCount = 511771;
+
+      function updateSplatCountDisplay() {
+        if (!guiControllers.splatCount) return;
+        if (params.density < 100) {
+          const active = Math.round(rawSplatCount * (params.density / 100));
+          params.splatCount = `${active.toLocaleString()} / ${rawSplatCount.toLocaleString()}`;
+        } else {
+          params.splatCount = rawSplatCount.toLocaleString();
+        }
+        guiControllers.splatCount.updateDisplay();
+      }
 
       const orbit = {
         yaw: 25,
@@ -199,6 +828,634 @@
       const dropzone = document.getElementById('dropzone');
       const fileInput = document.getElementById('file-input');
 
+      function setPickerState(active) {
+        isPickerActive = active;
+        params.pickerMode = active;
+        if (active) {
+          canvas.classList.add('picker-active');
+        } else {
+          canvas.classList.remove('picker-active');
+        }
+        if (guiControllers.pickerMode) guiControllers.pickerMode.updateDisplay();
+      }
+
+      // 0a. gsplatEvalSHVS: Quando uLockSH > 0.5, retorna zero para os harmonicos superiores (mantem cor base fixa)
+      const customEvalSHGLSL = `
+#if SH_BANDS > 0
+	const float SH_C1 = 0.4886025119029199;
+	#if SH_BANDS > 1
+		const float SH_C2_0 = 1.0925484305920792;
+		const float SH_C2_1 = -1.0925484305920792;
+		const float SH_C2_2 = 0.31539156525252005;
+		const float SH_C2_3 = -1.0925484305920792;
+		const float SH_C2_4 = 0.5462742152960396;
+	#endif
+	#if SH_BANDS > 2
+		const float SH_C3_0 = -0.5900435899266435;
+		const float SH_C3_1 = 2.890611442640554;
+		const float SH_C3_2 = -0.4570457994644658;
+		const float SH_C3_3 = 0.3731763325901154;
+		const float SH_C3_4 = -0.4570457994644658;
+		const float SH_C3_5 = 1.445305721320277;
+		const float SH_C3_6 = -0.5900435899266435;
+	#endif
+	uniform float uLockSH;
+	vec3 evalSH(in vec3 sh[SH_COEFFS], in vec3 dir) {
+		if (uLockSH > 0.5) {
+			return vec3(0.0);
+		}
+		float x = dir.x;
+		float y = dir.y;
+		float z = dir.z;
+		vec3 result = SH_C1 * (-sh[0] * y + sh[1] * z - sh[2] * x);
+		#if SH_BANDS > 1
+			float xx = x * x;
+			float yy = y * y;
+			float zz = z * z;
+			float xy = x * y;
+			float yz = y * z;
+			float xz = x * z;
+			result +=
+				sh[3] * (SH_C2_0 * xy) +
+				sh[4] * (SH_C2_1 * yz) +
+				sh[5] * (SH_C2_2 * (2.0 * zz - xx - yy)) +
+				sh[6] * (SH_C2_3 * xz) +
+				sh[7] * (SH_C2_4 * (xx - yy));
+		#endif
+		#if SH_BANDS > 2
+			result +=
+				sh[8]  * (SH_C3_0 * y * (3.0 * xx - yy)) +
+				sh[9]  * (SH_C3_1 * xy * z) +
+				sh[10] * (SH_C3_2 * y * (4.0 * zz - xx - yy)) +
+				sh[11] * (SH_C3_3 * z * (2.0 * zz - 3.0 * xx - 3.0 * yy)) +
+				sh[12] * (SH_C3_4 * x * (4.0 * zz - xx - yy)) +
+				sh[13] * (SH_C3_5 * z * (xx - yy)) +
+				sh[14] * (SH_C3_6 * x * (xx - 3.0 * yy));
+		#endif
+		return result;
+	}
+#endif
+`;
+
+      // 0b. gsplatVS
+      const customVSGLSL = `
+#ifdef GSPLAT_USER_VARYINGS
+	#include "gsplatUserVaryingsVS"
+#endif
+#include "gsplatCommonVS"
+#include "gsplatOutputVS"
+
+varying mediump vec2 gaussianUV;
+varying mediump vec4 gaussianColor;
+#ifndef DITHER_NONE
+	varying float id;
+#endif
+mediump vec4 discardVec = vec4(0.0, 0.0, 2.0, 1.0);
+
+void main(void) {
+	SplatSource source;
+	if (!initSource(source)) {
+		gl_Position = discardVec;
+		return;
+	}
+	vec3 modelCenter = getCenter();
+	SplatCenter center;
+	center.modelCenterOriginal = modelCenter;
+	
+	modifySplatCenter(modelCenter);
+	center.modelCenterModified = modelCenter;
+	if (!initCenter(modelCenter, center)) {
+		gl_Position = discardVec;
+		return;
+	}
+	SplatCorner corner;
+	if (!initCorner(source, center, corner)) {
+		gl_Position = discardVec;
+		return;
+	}
+	gl_Position = center.proj + vec4(corner.offset.xyz, 0.0);
+	gaussianUV = corner.uv;
+	gaussianColor = vec4(1.0, 0.8, 0.2, 1.0);
+}
+`;
+
+      // 1. gsplatCornerVS: Suporte a Quads Billboard
+      const customCornerVSGLSL = `
+uniform float uSquareSize;
+uniform float uDepthThreshold;
+uniform float uMinDepth;
+uniform float uMaxDepth;
+
+bool initCorner(SplatSource source, SplatCenter center, out SplatCorner corner) {
+	float s = max(0.0001, uSquareSize) * center.proj.w;
+	corner.offset = vec3(
+		matrix_projection[0][0] * source.cornerUV.x * s,
+		matrix_projection[1][1] * source.cornerUV.y * s,
+		0.0
+	);
+	corner.uv = source.cornerUV;
+	#if GSPLAT_AA
+		corner.aaFactor = 1.0;
+	#endif
+	return true;
+}
+`;
+
+      const customCornerVSWGSL = `
+fn computeCovariance(rotation: vec4f, scale: vec3f, covA: ptr<function, vec3f>, covB: ptr<function, vec3f>) {
+}
+
+fn initCornerCov(source: ptr<function, SplatSource>, center: ptr<function, SplatCenter>, corner: ptr<function, SplatCorner>, covA: vec3f, covB: vec3f) -> bool {
+	return true;
+}
+
+fn initCorner(source: ptr<function, SplatSource>, center: ptr<function, SplatCenter>, corner: ptr<function, SplatCorner>) -> bool {
+	let depth: f32 = -(*center).view.z;
+	if (uniforms.uDepthThreshold < 0.999) {
+		let depthRange: f32 = max(0.001, uniforms.uMaxDepth - uniforms.uMinDepth);
+		let normDepth: f32 = (depth - uniforms.uMinDepth) / depthRange;
+		if (normDepth > uniforms.uDepthThreshold) {
+			return false;
+		}
+	}
+
+	let s: f32 = max(0.0001, uniforms.uSquareSize);
+	(*corner).offset = vec3f(
+		uniforms.matrix_projection[0][0] * (*source).cornerUV.x * s,
+		uniforms.matrix_projection[1][1] * (*source).cornerUV.y * s,
+		0.0
+	);
+	(*corner).uv = (*source).cornerUV;
+	#if GSPLAT_AA
+		(*corner).aaFactor = 1.0;
+	#endif
+	return true;
+}
+`;
+
+      // 2. gsplatPS: Amostragem de Emoji Atlas ou Gaussian Splatting suave
+      const customPSGLSL = `
+varying mediump vec2 gaussianUV;
+varying mediump vec4 gaussianColor;
+
+uniform sampler2D uEmojiAtlas;
+uniform sampler2D uColorLUT;
+uniform int uRenderMode;
+uniform float uAlphaCutoff;
+uniform float uTintIntensity;
+uniform float uUseGaussianSplat;
+
+uniform float uHueShift;
+uniform float uSaturation;
+uniform float uBrightness;
+uniform float uContrast;
+uniform float uGamma;
+
+const float EXP4 = exp(-4.0);
+const float INV_EXP4 = 1.0 / (1.0 - EXP4);
+float normExp(float x) {
+	return (exp(x * -4.0) - EXP4) * INV_EXP4;
+}
+
+vec3 applyColorAdjustments(vec3 color) {
+	color += uBrightness;
+	color = (color - 0.5) * uContrast + 0.5;
+	float gray = dot(color, vec3(0.299, 0.587, 0.114));
+	color = mix(vec3(gray), color, uSaturation);
+	if (uGamma > 0.001) {
+		color = pow(max(color, 0.0), vec3(1.0 / uGamma));
+	}
+	return clamp(color, 0.0, 1.0);
+}
+
+void main(void) {
+	vec3 splatColor = clamp(gaussianColor.rgb, 0.0, 1.0);
+	gl_FragColor = vec4(splatColor, 1.0);
+}
+`;
+
+      const customPSWGSL = `
+varying gaussianUV: half2;
+varying gaussianColor: half4;
+
+#if defined(GSPLAT_UNIFIED_ID) && defined(PICK_PASS)
+	varying @interpolate(flat) vPickId: u32;
+#endif
+#ifdef PICK_PASS
+	#include "pickPS"
+#endif
+
+@fragment
+fn fragmentMain(input: FragmentInput) -> FragmentOutput {
+	var output: FragmentOutput;
+
+	#if defined(SHADOW_PASS) || defined(PICK_PASS) || defined(PREPASS_PASS)
+		// pass
+	#elif SHADOW_PASS
+		output.color0 = vec4f(0.0, 0.0, 0.0, 1.0);
+	#elif PREPASS_PASS
+		output.color0 = floatAsUint(input.vLinearDepth);
+	#else
+		let splatColor = clamp(vec3f(input.gaussianColor.rgb), vec3f(0.0), vec3f(1.0));
+
+		if (uniforms.uRenderMode == 2) {
+			output.color0 = vec4f(splatColor, 1.0);
+			return output;
+		}
+
+		let localUV = vec2f(f32(input.gaussianUV.x) * 0.5 + 0.5, -f32(input.gaussianUV.y) * 0.5 + 0.5);
+		let clampedUV = clamp(localUV, vec2f(0.0), vec2f(1.0));
+
+		let voxel = floor(splatColor * 15.0 + 0.5);
+		let lutX = (voxel.r * 16.0 + voxel.g + 0.5) / 256.0;
+		let lutY = (voxel.b + 0.5) / 16.0;
+
+		let lutSample = textureSample(uColorLUT, uColorLUTSampler, vec2f(lutX, lutY));
+		let col = floor(lutSample.r * 255.0 + 0.5);
+		let row = floor(lutSample.g * 255.0 + 0.5);
+
+		let atlasU = (col + clampedUV.x) / 64.0;
+		let atlasV = (row + clampedUV.y) / 32.0;
+
+		let emojiColor = textureSample(uEmojiAtlas, uEmojiAtlasSampler, vec2f(atlasU, atlasV));
+		if (emojiColor.a < uniforms.uAlphaCutoff) {
+			discard;
+		}
+
+		if (uniforms.uRenderMode == 0) {
+			output.color0 = vec4f(emojiColor.rgb, 1.0);
+		} else {
+			let tinted = mix(emojiColor.rgb, emojiColor.rgb * splatColor * 1.5, uniforms.uTintIntensity);
+			output.color0 = vec4f(tinted, 1.0);
+		}
+	#endif
+	return output;
+}
+`;
+
+      function rgbToLab(r, g, b) {
+        let rL = r / 255;
+        let gL = g / 255;
+        let bL = b / 255;
+
+        rL = rL <= 0.04045 ? rL / 12.92 : Math.pow((rL + 0.055) / 1.055, 2.4);
+        gL = gL <= 0.04045 ? gL / 12.92 : Math.pow((gL + 0.055) / 1.055, 2.4);
+        bL = bL <= 0.04045 ? bL / 12.92 : Math.pow((bL + 0.055) / 1.055, 2.4);
+
+        let x = (rL * 0.4124 + gL * 0.3576 + bL * 0.1805) / 0.95047;
+        let y = (rL * 0.2126 + gL * 0.7152 + bL * 0.0722) / 1.00000;
+        let z = (rL * 0.0193 + gL * 0.1192 + bL * 0.9505) / 1.08883;
+
+        const f = (v) => v > 0.008856 ? Math.cbrt(v) : (7.787 * v) + (16 / 116);
+        let fx = f(x), fy = f(y), fz = f(z);
+
+        return [(116 * fy) - 16, 500 * (fx - fy), 200 * (fy - fz)];
+      }
+
+      function initColorLutTables() {
+        for (let b = 0; b < LUT_RES; b++) {
+          for (let r = 0; r < LUT_RES; r++) {
+            for (let g = 0; g < LUT_RES; g++) {
+              const pIdx = b * 256 + (r * 16 + g);
+              const qR = Math.round((r / 15) * 255);
+              const qG = Math.round((g / 15) * 255);
+              const qB = Math.round((b / 15) * 255);
+              const lab = rgbToLab(qR, qG, qB);
+              voxelLabL[pIdx] = lab[0];
+              voxelLabA[pIdx] = lab[1];
+              voxelLabB[pIdx] = lab[2];
+            }
+          }
+        }
+      }
+
+      function rebuildColorLUT(exclusionInput, forcedInput, useForcedInput) {
+        if (!lutTexture || !emojiLabL || numAtlasEmojis === 0) return;
+
+        if (exclusionInput === undefined) exclusionInput = params.excludedText;
+        if (forcedInput === undefined) forcedInput = params.forcedText;
+        if (useForcedInput === undefined) useForcedInput = params.useForced;
+
+        const excludedIndices = parseTokenIndices(exclusionInput);
+        const forcedIndices = parseTokenIndices(forcedInput);
+
+        let pool = [];
+
+        if (useForcedInput && forcedIndices.size > 0) {
+          // Se o toggle de forcados estiver ativo e existirem forcados, restringe exclusivamente a eles
+          for (const idx of forcedIndices) {
+            if (!excludedIndices.has(idx)) {
+              pool.push(idx);
+            }
+          }
+          if (pool.length === 0) {
+            pool = Array.from(forcedIndices);
+          }
+        } else {
+          // Sem forcados ativos, usa todos do atlas que nao foram excluidos
+          for (let i = 0; i < numAtlasEmojis; i++) {
+            if (!excludedIndices.has(i)) {
+              pool.push(i);
+            }
+          }
+          if (pool.length === 0) {
+            pool = Array.from({ length: numAtlasEmojis }, (_, i) => i);
+          }
+        }
+
+        const poolLen = pool.length;
+
+        for (let pIdx = 0; pIdx < 4096; pIdx++) {
+          const vL = voxelLabL[pIdx];
+          const va = voxelLabA[pIdx];
+          const vb = voxelLabB[pIdx];
+
+          let bestIdx = pool[0];
+          let minD = 1e12;
+
+          for (let p = 0; p < poolLen; p++) {
+            const idx = pool[p];
+            const dL = vL - emojiLabL[idx];
+            const da = va - emojiLabA[idx];
+            const db = vb - emojiLabB[idx];
+            const dist = dL * dL + da * da + db * db;
+
+            if (dist < minD) {
+              minD = dist;
+              bestIdx = idx;
+            }
+          }
+
+          const byteOff = pIdx * 4;
+          lutBuffer[byteOff] = emojiCols[bestIdx];
+          lutBuffer[byteOff + 1] = emojiRows[bestIdx];
+          lutBuffer[byteOff + 2] = 0;
+          lutBuffer[byteOff + 3] = 255;
+        }
+
+        try {
+          const pixels = lutTexture.lock();
+          pixels.set(lutBuffer);
+          lutTexture.unlock();
+        } catch (err) {
+          console.warn('[Effect Lab] Erro ao atualizar textura LUT:', err);
+        }
+
+        params.activeEmojisCount = `${poolLen} / ${numAtlasEmojis}`;
+        params.excludedCount = `${excludedIndices.size}`;
+        params.forcedCount = `${forcedIndices.size}${useForcedInput ? '' : ' (desativado)'}`;
+
+        if (guiControllers.activeEmojisCount) guiControllers.activeEmojisCount.updateDisplay();
+        if (guiControllers.excludedCount) guiControllers.excludedCount.updateDisplay();
+        if (guiControllers.forcedCount) guiControllers.forcedCount.updateDisplay();
+      }
+
+      function parseTokenIndices(inputStr) {
+        const result = new Set();
+        if (!inputStr || typeof inputStr !== 'string') return result;
+
+        const raw = inputStr.trim();
+        if (!raw) return result;
+
+        const emojiChars = Array.from(raw.match(/\p{Extended_Pictographic}/gu) || []);
+        for (const char of emojiChars) {
+          for (let i = 0; i < numAtlasEmojis; i++) {
+            if (emojiSurrogatesList[i] && emojiSurrogatesList[i].includes(char)) {
+              result.add(i);
+            }
+          }
+        }
+
+        const tokens = raw
+          .toLowerCase()
+          .split(/[\s,;:|]+/)
+          .map(t => t.trim().replace(/^:+|:+$/g, ''))
+          .filter(t => t.length > 0);
+
+        for (const token of tokens) {
+          for (let i = 0; i < numAtlasEmojis; i++) {
+            const name = emojiNamesList[i];
+            const surrogates = emojiSurrogatesList[i];
+            const codepoint = emojiCodepointsList[i];
+            const allNames = emojiAllNamesList[i];
+
+            if (surrogates && surrogates.includes(token)) {
+              result.add(i);
+            } else if (name === token || name.includes(token)) {
+              result.add(i);
+            } else if (codepoint === token) {
+              result.add(i);
+            } else if (allNames && allNames.some(n => n === token || n.includes(token))) {
+              result.add(i);
+            }
+          }
+        }
+
+        return result;
+      }
+
+      function handlePickerClick(e) {
+        if (!isPickerActive || !app || !app.graphicsDevice || !atlasMetadata) return;
+
+        const gl = app.graphicsDevice.gl;
+        if (!gl) return;
+
+        // 1. Temporariamente renderiza 1 frame no modo de cor solida para ler a cor original exata do splat
+        const savedRenderMode = params.renderMode;
+        const savedUseEmojis = params.useEmojis;
+
+        params.renderMode = 2;
+        params.useEmojis = false;
+        applyShaderParams();
+        app.render();
+
+        try {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        } catch (err) {}
+
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.clientX - rect.left;
+        const clientY = e.clientY - rect.top;
+
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        const centerX = Math.round(clientX * scaleX);
+        const centerY = Math.round((rect.height - clientY) * scaleY);
+
+        const radius = 4;
+        const sampleSize = radius * 2 + 1;
+        const startX = Math.max(0, Math.min(canvas.width - sampleSize, centerX - radius));
+        const startY = Math.max(0, Math.min(canvas.height - sampleSize, centerY - radius));
+
+        const pixelData = new Uint8Array(sampleSize * sampleSize * 4);
+        gl.readPixels(startX, startY, sampleSize, sampleSize, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
+
+        // Restaura o modo emoji imediatamente
+        params.renderMode = savedRenderMode;
+        params.useEmojis = savedUseEmojis;
+        applyShaderParams();
+
+        let bestPixel = null;
+        let bestDistSq = 1e9;
+
+        for (let dy = 0; dy < sampleSize; dy++) {
+          for (let dx = 0; dx < sampleSize; dx++) {
+            const off = (dy * sampleSize + dx) * 4;
+            const r = pixelData[off];
+            const g = pixelData[off + 1];
+            const b = pixelData[off + 2];
+            const a = pixelData[off + 3];
+
+            if (a > 20 && !(r >= 250 && g >= 250 && b >= 250)) {
+              const distSq = (dx - radius) * (dx - radius) + (dy - radius) * (dy - radius);
+              if (distSq < bestDistSq) {
+                bestDistSq = distSq;
+                bestPixel = [r, g, b];
+              }
+            }
+          }
+        }
+
+        if (!bestPixel) {
+          console.log('[Effect Lab] Nenhum ponto sob o cursor.');
+          return;
+        }
+
+        // 2. Consulta a LUT para identificar o emoji exato
+        const voxelR = Math.min(15, Math.max(0, Math.round((bestPixel[0] / 255) * 15)));
+        const voxelG = Math.min(15, Math.max(0, Math.round((bestPixel[1] / 255) * 15)));
+        const voxelB = Math.min(15, Math.max(0, Math.round((bestPixel[2] / 255) * 15)));
+
+        const pIdx = voxelB * 256 + (voxelR * 16 + voxelG);
+        const byteOff = pIdx * 4;
+        const col = lutBuffer[byteOff];
+        const row = lutBuffer[byteOff + 1];
+
+        const pickedEmoji = atlasMetadata.emojis.find(item => item.slot.col === col && item.slot.row === row);
+        if (!pickedEmoji) {
+          console.log('[Effect Lab] Emoji nao encontrado.');
+          return;
+        }
+
+        const tokenToAdd = pickedEmoji.surrogates || pickedEmoji.name;
+
+        const currentTokens = params.excludedText
+          ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+
+        if (!currentTokens.includes(tokenToAdd) && !currentTokens.includes(pickedEmoji.name)) {
+          currentTokens.push(tokenToAdd);
+          params.excludedText = currentTokens.join(', ');
+          if (guiControllers.excludedText) {
+            guiControllers.excludedText.setValue(params.excludedText);
+          }
+          rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+          const searchInput = document.getElementById('emoji-modal-search-input');
+          renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          console.log('[Effect Lab] Emoji bloqueado com sucesso:', tokenToAdd, pickedEmoji.name);
+        }
+      }
+
+      function loadEmojiAssets() {
+        initColorLutTables();
+
+        fetch('emoji_atlas.json')
+          .then(res => res.json())
+          .then(metadata => {
+            atlasMetadata = metadata;
+            numAtlasEmojis = metadata.emojis.length;
+
+            emojiLabL = new Float32Array(numAtlasEmojis);
+            emojiLabA = new Float32Array(numAtlasEmojis);
+            emojiLabB = new Float32Array(numAtlasEmojis);
+            emojiCols = new Uint8Array(numAtlasEmojis);
+            emojiRows = new Uint8Array(numAtlasEmojis);
+
+            emojiNamesList = [];
+            emojiSurrogatesList = [];
+            emojiAllNamesList = [];
+            emojiCodepointsList = [];
+
+            for (let i = 0; i < numAtlasEmojis; i++) {
+              const e = metadata.emojis[i];
+              emojiLabL[i] = e.avgColor.lab[0];
+              emojiLabA[i] = e.avgColor.lab[1];
+              emojiLabB[i] = e.avgColor.lab[2];
+              emojiCols[i] = e.slot.col;
+              emojiRows[i] = e.slot.row;
+
+              emojiNamesList.push(e.name.toLowerCase());
+              emojiSurrogatesList.push(e.surrogates || '');
+              emojiAllNamesList.push((e.allNames || []).map(n => n.toLowerCase()));
+              emojiCodepointsList.push(e.codepoint || '');
+            }
+
+            console.log(`[Effect Lab] Metadados carregados: ${numAtlasEmojis} emojis disponíveis no Atlas.`);
+
+            if (app && app.graphicsDevice) {
+              createLUTTexture();
+              rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+            }
+          })
+          .catch(err => console.error('[Effect Lab] Erro ao carregar emoji_atlas.json:', err));
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = 'emoji_atlas.png';
+        img.onload = () => {
+          if (!app || !app.graphicsDevice) return;
+          const loadedTex = new pc.Texture(app.graphicsDevice, {
+            width: img.width,
+            height: img.height,
+            format: pc.PIXELFORMAT_RGBA8,
+            mipmaps: true,
+            minFilter: pc.FILTER_LINEAR_MIPMAP_LINEAR,
+            magFilter: pc.FILTER_LINEAR,
+            addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+            addressV: pc.ADDRESS_CLAMP_TO_EDGE
+          });
+          loadedTex.setSource(img);
+          atlasTexture = loadedTex;
+          console.log('[Effect Lab] Texture Atlas carregado e instanciado na GPU.');
+          applyShaderParams();
+        };
+      }
+
+      function createLUTTexture() {
+        if (!app || !app.graphicsDevice || lutTexture) return;
+
+        lutTexture = new pc.Texture(app.graphicsDevice, {
+          width: 256,
+          height: 16,
+          format: pc.PIXELFORMAT_RGBA8,
+          mipmaps: false,
+          minFilter: pc.FILTER_NEAREST,
+          magFilter: pc.FILTER_NEAREST,
+          addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+          addressV: pc.ADDRESS_CLAMP_TO_EDGE
+        });
+      }
+
+      function createPlaceholderAtlasTexture() {
+        if (!app || !app.graphicsDevice || atlasTexture) return;
+        atlasTexture = new pc.Texture(app.graphicsDevice, {
+          width: 64,
+          height: 32,
+          format: pc.PIXELFORMAT_RGBA8,
+          mipmaps: false,
+          minFilter: pc.FILTER_NEAREST,
+          magFilter: pc.FILTER_NEAREST,
+          addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+          addressV: pc.ADDRESS_CLAMP_TO_EDGE
+        });
+        const data = new Uint8Array(64 * 32 * 4);
+        data.fill(255);
+        const px = atlasTexture.lock();
+        px.set(data);
+        atlasTexture.unlock();
+      }
+
       function initPlayCanvas() {
         const pc = window.pc;
         if (!pc) {
@@ -212,183 +1469,66 @@
               deviceTypes: ['webgl2', 'webgl1'],
               alpha: false,
               antialias: true,
-              powerPreference: 'high-performance'
+              powerPreference: 'high-performance',
+              preserveDrawingBuffer: true
             }
           });
           console.log('[Effect Lab] PlayCanvas Application criada com sucesso.');
         } catch (e) {
           console.warn('[Effect Lab] Falha ao criar WebGL2, tentando fallback padrao:', e);
-          app = new pc.Application(canvas, {});
+          app = new pc.Application(canvas, {
+            graphicsDeviceOptions: { preserveDrawingBuffer: true }
+          });
         }
 
-        // Shaders Customizados:
-        // 1. gsplatModifyVS: Forca tamanho uniforme e orientacao billboard pura
-        const customModifyVSGLSL = `
-uniform float uSquareSize;
-
-void modifySplatCenter(inout vec3 center) {
-}
-
-void modifySplatRotationScale(vec3 originalCenter, vec3 modifiedCenter, inout vec4 rotation, inout vec3 scale) {
-	float s = max(0.0001, uSquareSize);
-	scale = vec3(s, s, s);
-	rotation = vec4(0.0, 0.0, 0.0, 1.0);
-}
-
-void modifySplatColor(vec3 center, inout vec4 color) {
-	color.a = 1.0;
-}
-`;
-
-        const customModifyVSWGSL = `
-fn modifySplatCenter(center: ptr<function, vec3f>) {
-}
-
-fn modifySplatRotationScale(originalCenter: vec3f, modifiedCenter: vec3f, rotation: ptr<function, vec4f>, scale: ptr<function, vec3f>) {
-	let s: f32 = max(0.0001, uniforms.uSquareSize);
-	*scale = vec3f(s, s, s);
-	*rotation = vec4f(0.0, 0.0, 0.0, 1.0);
-}
-
-fn modifySplatColor(center: vec3f, color: ptr<function, vec4f>) {
-	(*color).w = 1.0;
-}
-`;
-
-        // 2. gsplatPS: Renderiza quadrado 100% solido/opaco sem degradê gaussiano
-        const customPSGLSL = `
-#ifndef DITHER_NONE
-	#include "bayerPS"
-	#include "opacityDitherPS"
-	varying float id;
-#endif
-#if defined(SHADOW_PASS) || defined(PICK_PASS) || defined(PREPASS_PASS)
-	uniform float alphaClip;
-#endif
-#ifdef PREPASS_PASS
-	varying float vLinearDepth;
-	#include "floatAsUintPS"
-#endif
-#if !defined(SHADOW_PASS) && !defined(PICK_PASS) && !defined(PREPASS_PASS)
-	uniform float alphaClipForward;
-#endif
-varying mediump vec2 gaussianUV;
-varying mediump vec4 gaussianColor;
-#if defined(GSPLAT_UNIFIED_ID) && defined(PICK_PASS)
-	flat varying uint vPickId;
-#endif
-#ifdef PICK_PASS
-	#include "pickPS"
-#endif
-#ifdef GSPLAT_USER_VARYINGS
-	#include "gsplatUserVaryingsPS"
-#endif
-#include "gsplatModifyPS"
-
-void main(void) {
-	if (abs(gaussianUV.x) > 1.0 || abs(gaussianUV.y) > 1.0) {
-		discard;
-	}
-	#if defined(SHADOW_PASS) || defined(PICK_PASS) || defined(PREPASS_PASS)
-		// pass
-	#elif SHADOW_PASS
-		gl_FragColor = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
-	#elif PREPASS_PASS
-		gl_FragColor = float2vec4(vLinearDepth);
-	#elif PICK_PASS
-		#ifdef GSPLAT_UNIFIED_ID
-			pcFragColor0 = encodePickOutput(vPickId);
-		#else
-			pcFragColor0 = getPickOutput();
-		#endif
-		#ifdef DEPTH_PICK_PASS
-			pcFragColor1 = getPickDepth();
-		#endif
-	#else
-		vec4 fragColor = vec4(gaussianColor.xyz, 1.0);
-		modifySplatColor(gaussianUV, fragColor);
-		gl_FragColor = vec4(fragColor.xyz, 1.0);
-	#endif
-}
-`;
-
-        const customPSWGSL = `
-varying gaussianUV: half2;
-varying gaussianColor: half4;
-#if defined(GSPLAT_UNIFIED_ID) && defined(PICK_PASS)
-	varying @interpolate(flat) vPickId: u32;
-#endif
-#ifdef PICK_PASS
-	#include "pickPS"
-#endif
-#ifdef GSPLAT_USER_VARYINGS
-	#include "gsplatUserVaryingsPS"
-#endif
-#include "gsplatModifyPS"
-
-@fragment
-fn fragmentMain(input: FragmentInput) -> FragmentOutput {
-	var output: FragmentOutput;
-	if (abs(input.gaussianUV.x) > half(1.0) || abs(input.gaussianUV.y) > half(1.0)) {
-		discard;
-	}
-	#if defined(SHADOW_PASS) || defined(PICK_PASS) || defined(PREPASS_PASS)
-		// pass
-	#elif SHADOW_PASS
-		output.color0 = vec4f(0.0, 0.0, 0.0, 1.0);
-	#elif PREPASS_PASS
-		output.color0 = floatAsUint(input.vLinearDepth);
-	#elif PICK_PASS
-		#ifdef GSPLAT_UNIFIED_ID
-			output.color0 = encodePickOutput(input.vPickId);
-		#else
-			output.color0 = getPickOutput();
-		#endif
-		#ifdef DEPTH_PICK_PASS
-			output.color1 = getPickDepth();
-		#endif
-	#else
-		var fragColor: vec4f = vec4f(input.gaussianColor.xyz, 1.0);
-		modifySplatColor(input.gaussianUV, &fragColor);
-		output.color0 = vec4f(fragColor.xyz, 1.0);
-	#endif
-	return output;
-}
-`;
+        createLUTTexture();
+        createPlaceholderAtlasTexture();
 
         if (pc.ShaderChunks) {
           try {
             const glslChunks = pc.ShaderChunks.get(app.graphicsDevice, 'glsl');
             if (glslChunks) {
-              glslChunks.set('gsplatModifyVS', customModifyVSGLSL);
+              glslChunks.set('gsplatEvalSHVS', customEvalSHGLSL);
+              glslChunks.set('gsplatVS', customVSGLSL);
+              glslChunks.set('gsplatCornerVS', customCornerVSGLSL);
               glslChunks.set('gsplatPS', customPSGLSL);
-              console.log('[Effect Lab] Chunks GLSL registrados com sucesso.');
+              console.log('[Effect Lab] Chunks GLSL registrados no ShaderChunks.');
             }
             const wgslChunks = pc.ShaderChunks.get(app.graphicsDevice, 'wgsl');
             if (wgslChunks) {
-              wgslChunks.set('gsplatModifyVS', customModifyVSWGSL);
+              wgslChunks.set('gsplatCornerVS', customCornerVSWGSL);
               wgslChunks.set('gsplatPS', customPSWGSL);
-              console.log('[Effect Lab] Chunks WGSL registrados com sucesso.');
+              console.log('[Effect Lab] Chunks WGSL registrados no ShaderChunks.');
             }
           } catch (e) {
-            console.warn('[Effect Lab] Falha ao injetar chunks globais:', e);
+            console.warn('[Effect Lab] Falha ao registrar chunks globais:', e);
           }
+        }
+
+        if (app.scene && app.scene.gsplat) {
+          app.scene.gsplat.alphaClipForward = 0.0;
+          app.scene.gsplat.alphaClip = 0.0;
+          app.scene.gsplat.minPixelSize = 0.0;
         }
 
         if (app.systems.gsplat) {
           app.systems.gsplat.on('material:created', (material) => {
-            console.log('[Effect Lab] material:created disparado pelo GSplatSystem.');
+            console.log('[Effect Lab] material:created interceptado.');
             try {
               if (material.shaderChunks && material.shaderChunks.glsl) {
-                material.shaderChunks.glsl.set('gsplatModifyVS', customModifyVSGLSL);
+                material.shaderChunks.glsl.set('gsplatEvalSHVS', customEvalSHGLSL);
+                material.shaderChunks.glsl.set('gsplatVS', customVSGLSL);
+                material.shaderChunks.glsl.set('gsplatCornerVS', customCornerVSGLSL);
                 material.shaderChunks.glsl.set('gsplatPS', customPSGLSL);
               }
-              material.setParameter('uSquareSize', params.squareSize);
+              material.setParameter('alphaClipForward', 0.0);
+              material.setParameter('alphaClip', 0.0);
+              material.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
               material.blendType = pc.BLEND_NONE;
               material.depthWrite = true;
               material.update();
             } catch (err) {
-              console.warn('[Effect Lab] Erro ao configurar material:', err);
+              console.warn('[Effect Lab] Erro no setup do material:', err);
             }
           });
         }
@@ -399,7 +1539,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         cameraEntity = new pc.Entity('MainCamera');
         cameraEntity.addComponent('camera', {
-          clearColor: new pc.Color(1, 1, 1, 1),
+          clearColor: new pc.Color(0.08, 0.09, 0.12, 1),
           nearClip: 0.01,
           farClip: 500,
           fov: 45
@@ -411,6 +1551,9 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         window.addEventListener('resize', handleResize);
         handleResize();
+
+        loadEmojiAssets();
+        setupEmojiModalEvents();
 
         app.on('update', (dt) => {
           const smooth = Math.min(1, dt * 10);
@@ -425,7 +1568,7 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           orbit.panTarget.lerp(orbit.panTarget, orbit.targetPan, smooth);
 
           updateCamera();
-          applySquareSize(params.squareSize);
+          applyShaderParams();
         });
 
         setupInteractionControls();
@@ -476,13 +1619,40 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           currentAsset = null;
         }
 
-        const asset = new pc.Asset('splat-' + Date.now(), 'gsplat', { url: url });
+        const lowerName = (filename || url).toLowerCase();
+        let parserType = 'ply';
+        if (lowerName.includes('.sog')) parserType = 'sog';
+        else if (lowerName.includes('.ply')) parserType = 'ply';
+        else if (lowerName.includes('.json')) parserType = 'json';
+
+        // Garante que o parser do PlayCanvas reconhece .sog mesmo de Blob URLs
+        const gsplatHandler = app.loader ? app.loader.getHandler('gsplat') : null;
+        if (gsplatHandler) {
+          if (!gsplatHandler._origGetParser) {
+            gsplatHandler._origGetParser = gsplatHandler._getParser.bind(gsplatHandler);
+          }
+          gsplatHandler._getParser = function (reqUrl) {
+            const reqLower = (reqUrl || '').toLowerCase();
+            if (reqLower.includes('.sog') || lowerName.includes('.sog')) return this.parsers.sog;
+            if (reqLower.includes('.ply') || lowerName.includes('.ply')) return this.parsers.ply;
+            if (reqLower.includes('.json') || lowerName.includes('.json')) return this.parsers.json;
+            return this.parsers[parserType] || this._origGetParser(reqUrl);
+          };
+        }
+
+        const asset = new pc.Asset('splat-' + Date.now(), 'gsplat', {
+          url: url,
+          filename: filename,
+          original: filename
+        });
+        asset.file = { url: url, filename: filename, original: filename };
+
         currentAsset = asset;
         app.assets.add(asset);
         app.assets.load(asset);
 
         asset.ready(() => {
-          console.log('[Effect Lab] Asset carregado com sucesso pelo PlayCanvas.');
+          console.log('[Effect Lab] Asset carregado pelo PlayCanvas.');
           splatEntity = new pc.Entity('SplatModel');
           splatEntity.addComponent('gsplat', { asset: asset });
           splatPivot.addChild(splatEntity);
@@ -495,19 +1665,17 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           if (resource) {
             if (resource.aabb) {
               const aabb = resource.aabb;
-              console.log('[Effect Lab] AABB encontrado:', aabb.center, aabb.halfExtents);
+              modelRadius = Math.max(0.2, aabb.halfExtents.length());
+              console.log('[Effect Lab] AABB:', aabb.center, aabb.halfExtents, 'Raio:', modelRadius);
               splatEntity.setLocalPosition(-aabb.center.x, -aabb.center.y, -aabb.center.z);
 
-              const radius = aabb.halfExtents.length();
-              if (radius > 0) {
-                const fovRad = (cameraEntity.camera.fov / 2) * (Math.PI / 180);
-                const idealDist = Math.max(0.5, (radius / Math.sin(fovRad)) * 1.15);
-                console.log('[Effect Lab] Distancia de camera ajustada:', idealDist);
-                orbit.distance = idealDist;
-                orbit.targetDistance = idealDist;
-                orbit.minDistance = Math.max(0.05, idealDist * 0.08);
-                orbit.maxDistance = idealDist * 12;
-              }
+              const fovRad = (cameraEntity.camera.fov / 2) * (Math.PI / 180);
+              const idealDist = Math.max(0.5, (modelRadius / Math.sin(fovRad)) * 1.15);
+              console.log('[Effect Lab] Distancia ideal calculada:', idealDist);
+              orbit.distance = idealDist;
+              orbit.targetDistance = idealDist;
+              orbit.minDistance = Math.max(0.05, idealDist * 0.08);
+              orbit.maxDistance = idealDist * 12;
             }
 
             if (resource.gsplatData && resource.gsplatData.numSplats) {
@@ -517,19 +1685,21 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             }
           }
 
-          applySquareSize(params.squareSize);
-
           orbit.targetPan.set(0, 0, 0);
           orbit.panTarget.set(0, 0, 0);
           orbit.targetYaw = 25;
           orbit.targetPitch = 12;
 
-          params.fileName = filename;
-          params.splatCount = count ? count.toLocaleString() : '511,771';
-          if (guiControllers.fileName) guiControllers.fileName.updateDisplay();
-          if (guiControllers.splatCount) guiControllers.splatCount.updateDisplay();
+          lastAppliedLockSH = null;
+          updateSHLockState(true);
+          applyShaderParams();
 
-          console.log('[Effect Lab] Renderizacao do modelo pronta. Total de quadrados:', params.splatCount);
+          params.fileName = filename;
+          rawSplatCount = count || 511771;
+          updateSplatCountDisplay();
+          if (guiControllers.fileName) guiControllers.fileName.updateDisplay();
+
+          console.log('[Effect Lab] Renderizacao concluida. Total de pontos:', params.splatCount);
           hideLoading();
         });
 
@@ -539,19 +1709,27 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
         });
       }
 
-      // Controles Orbitais Mouse & Touch
       function setupInteractionControls() {
         let isDragging = false;
         let isPanning = false;
         let lastX = 0;
         let lastY = 0;
+        let startX = 0;
+        let startY = 0;
         let lastPinchDist = null;
 
         canvas.addEventListener('mousedown', (e) => {
-          isDragging = true;
-          isPanning = (e.button === 2 || e.shiftKey);
+          startX = e.clientX;
+          startY = e.clientY;
           lastX = e.clientX;
           lastY = e.clientY;
+
+          if (isPickerActive && e.button === 0) {
+            return;
+          }
+
+          isDragging = true;
+          isPanning = (e.button === 2 || e.shiftKey);
         });
 
         window.addEventListener('mousemove', (e) => {
@@ -579,7 +1757,12 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           }
         });
 
-        window.addEventListener('mouseup', () => {
+        window.addEventListener('mouseup', (e) => {
+          const moveDist = Math.hypot(e.clientX - startX, e.clientY - startY);
+          if (isPickerActive && moveDist < 6 && e.button === 0) {
+            handlePickerClick(e);
+          }
+
           isDragging = false;
           isPanning = false;
         });
@@ -601,6 +1784,8 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
             isPanning = false;
             lastX = e.touches[0].clientX;
             lastY = e.touches[0].clientY;
+            startX = lastX;
+            startY = lastY;
           } else if (e.touches.length === 2) {
             isDragging = false;
             lastPinchDist = Math.hypot(
@@ -640,29 +1825,575 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
           isDragging = false;
           lastPinchDist = null;
         });
+
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            if (isPickerActive) {
+              setPickerState(false);
+            }
+            const modal = document.getElementById('emoji-modal');
+            if (modal && modal.style.display !== 'none') {
+              modal.style.display = 'none';
+            }
+          }
+        });
       }
 
-      // Funcao dedicada para atualizar o tamanho dos quadrados ao vivo
-      function applySquareSize(val) {
-        params.squareSize = val;
-        try {
-          app.graphicsDevice.scope?.resolve('uSquareSize')?.setValue(val);
-        } catch (err) {}
+      let currentActiveModalTag = '';
+      let currentVisibleEmojiTokens = [];
+      let currentInspectorEmoji = null;
+
+      function isWordMatch(p, op) {
+        if (p === op) return true;
+        if (p.length >= 4 && op.length >= 4) {
+          if (op.startsWith(p) || p.startsWith(op)) return true;
+        }
+        return false;
+      }
+
+      function findEmojiVariations(emoji) {
+        if (!atlasMetadata || !atlasMetadata.emojis || !emoji) return [];
+        const name = emoji.name.toLowerCase();
+        const rawParts = name.split('_').filter(p => p.length >= 3 && !['and', 'with', 'the', 'for', 'sign', 'symbol', 'button', 'selector'].includes(p));
+        if (rawParts.length === 0) return [emoji];
+
+        const results = [];
+        for (let i = 0; i < atlasMetadata.emojis.length; i++) {
+          const other = atlasMetadata.emojis[i];
+          const otherParts = other.name.toLowerCase().split('_');
+          const matches = rawParts.filter(p => otherParts.some(op => isWordMatch(p, op)));
+          if (matches.length > 0) {
+            results.push({ emoji: other, index: i, matchCount: matches.length });
+          }
+        }
+        results.sort((a, b) => b.matchCount - a.matchCount || a.emoji.name.localeCompare(b.emoji.name));
+        return results.map(r => r.emoji);
+      }
+
+      function renderEmojiVariationsInspector(emojiIndex) {
+        const inspector = document.getElementById('emoji-modal-inspector');
+        const title = document.getElementById('inspector-title');
+        const grid = document.getElementById('inspector-grid');
+        if (!inspector || !grid || !atlasMetadata || !atlasMetadata.emojis) return;
+
+        const target = atlasMetadata.emojis[emojiIndex];
+        if (!target) return;
+        currentInspectorEmoji = target;
+
+        const variations = findEmojiVariations(target);
+        if (variations.length === 0) return;
+
+        inspector.style.display = 'flex';
+        title.textContent = `Variações de ${target.name} (${variations.length})`;
+
+        const excludedIndices = parseTokenIndices(params.excludedText);
+        const forcedIndices = parseTokenIndices(params.forcedText);
+
+        let html = '';
+        for (const v of variations) {
+          const token = v.surrogates || v.name;
+          const isBlocked = excludedIndices.has(v.id);
+          const isForced = forcedIndices.has(v.id);
+
+          let cardClass = 'inspector-card';
+          if (isBlocked) cardClass += ' is-blocked';
+          if (isForced) cardClass += ' is-forced';
+
+          let badgeHtml = '<span class="emoji-badge badge-idle">Ativo</span>';
+          if (isBlocked) badgeHtml = '<span class="emoji-badge badge-blocked">Bloqueado</span>';
+          else if (isForced) badgeHtml = '<span class="emoji-badge badge-forced">Forçado</span>';
+
+          html += `
+            <div class="${cardClass}">
+              ${badgeHtml}
+              <img class="inspector-card-img" src="emojis/${v.filename}" alt="${v.name}" loading="lazy" />
+              <div class="inspector-card-name" title="${v.name}">${v.name}</div>
+              <div class="inspector-card-actions">
+                <button class="emoji-action-btn emoji-btn-block ${isBlocked ? 'btn-active' : ''}" onclick="window.__toggleExclusion('${token}')">
+                  ${isBlocked ? 'X' : 'Bloq'}
+                </button>
+                <button class="emoji-action-btn emoji-btn-force ${isForced ? 'btn-active' : ''}" onclick="window.__toggleForced('${token}')">
+                  ${isForced ? 'X' : 'Forc'}
+                </button>
+              </div>
+            </div>
+          `;
+        }
+        grid.innerHTML = html;
+      }
+
+      function closeEmojiInspector() {
+        const inspector = document.getElementById('emoji-modal-inspector');
+        if (inspector) inspector.style.display = 'none';
+        currentInspectorEmoji = null;
+      }
+
+      window.__openVariations = function (emojiIndex) {
+        renderEmojiVariationsInspector(emojiIndex);
+      };
+
+      window.__bulkExclude = function (tokens) {
+        if (!tokens || tokens.length === 0) return;
+        let currentTokens = params.excludedText
+          ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+        for (const t of tokens) {
+          if (!currentTokens.includes(t)) currentTokens.push(t);
+        }
+        params.excludedText = currentTokens.join(', ');
+        if (guiControllers.excludedText) guiControllers.excludedText.setValue(params.excludedText);
+        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+        const searchInput = document.getElementById('emoji-modal-search-input');
+        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
+      };
+
+      window.__bulkForce = function (tokens) {
+        if (!tokens || tokens.length === 0) return;
+        let currentTokens = params.forcedText
+          ? params.forcedText.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+        for (const t of tokens) {
+          if (!currentTokens.includes(t)) currentTokens.push(t);
+        }
+        params.forcedText = currentTokens.join(', ');
+        params.useForced = true;
+        if (guiControllers.forcedText) guiControllers.forcedText.setValue(params.forcedText);
+        if (guiControllers.useForced) guiControllers.useForced.setValue(true);
+        const toggle = document.getElementById('emoji-modal-use-forced-toggle');
+        if (toggle) toggle.checked = true;
+        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+        const searchInput = document.getElementById('emoji-modal-search-input');
+        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
+      };
+
+      window.__bulkClear = function (tokens) {
+        if (!tokens || tokens.length === 0) return;
+        const tokenSet = new Set(tokens);
+        let exTokens = params.excludedText
+          ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+        let foTokens = params.forcedText
+          ? params.forcedText.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+
+        params.excludedText = exTokens.filter(t => !tokenSet.has(t)).join(', ');
+        params.forcedText = foTokens.filter(t => !tokenSet.has(t)).join(', ');
+
+        if (guiControllers.excludedText) guiControllers.excludedText.setValue(params.excludedText);
+        if (guiControllers.forcedText) guiControllers.forcedText.setValue(params.forcedText);
+
+        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+        const searchInput = document.getElementById('emoji-modal-search-input');
+        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
+      };
+
+      function renderEmojiModal(query = '', categoryFilter = '') {
+        const grid = document.getElementById('emoji-modal-grid');
+        const status = document.getElementById('emoji-modal-status');
+        const bulkText = document.getElementById('emoji-modal-bulk-text');
+        if (!grid || !atlasMetadata || !atlasMetadata.emojis) return;
+
+        const q = (query || '').toLowerCase().trim();
+        const catTokens = categoryFilter && !categoryFilter.startsWith('__')
+          ? categoryFilter.toLowerCase().split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+
+        const excludedIndices = parseTokenIndices(params.excludedText);
+        const forcedIndices = parseTokenIndices(params.forcedText);
+
+        const matched = [];
+        currentVisibleEmojiTokens = [];
+
+        for (let i = 0; i < atlasMetadata.emojis.length; i++) {
+          const e = atlasMetadata.emojis[i];
+          const name = e.name.toLowerCase();
+          const surrogates = e.surrogates || '';
+          const codepoint = e.codepoint || '';
+          const allNames = (e.allNames || []).join(' ').toLowerCase();
+
+          const isBlocked = excludedIndices.has(i);
+          const isForced = forcedIndices.has(i);
+
+          if (categoryFilter === '__blocked') {
+            if (!isBlocked) continue;
+          } else if (categoryFilter === '__forced') {
+            if (!isForced) continue;
+          } else if (catTokens.length > 0) {
+            const matchCat = catTokens.some(t => name.includes(t) || allNames.includes(t));
+            if (!matchCat) continue;
+          }
+
+          if (q) {
+            const matchQuery = name.includes(q) || surrogates.includes(q) || codepoint.includes(q) || allNames.includes(q);
+            if (!matchQuery) continue;
+          }
+
+          matched.push({ emoji: e, index: i, isBlocked, isForced });
+          currentVisibleEmojiTokens.push(surrogates || e.name);
+        }
+
+        const forcedStatusHtml = params.useForced
+          ? '<span style="color: #7ee787; font-weight: 600;">[Forcados: ATIVADO]</span>'
+          : '<span style="color: #888; font-weight: 600;">[Forcados: DESATIVADO]</span>';
+
+        if (status) {
+          status.innerHTML = `
+            <span><strong>${matched.length}</strong> exibidos (total: ${numAtlasEmojis})</span>
+            <span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndices.size}</strong></span>
+            <span style="color: #7ee787;">Forcados: <strong>${forcedIndices.size}</strong></span>
+            <span>${forcedStatusHtml}</span>
+          `;
+        }
+
+        if (bulkText) {
+          bulkText.textContent = `Variações correspondentes: ${matched.length}`;
+        }
+
+        const displayList = matched.slice(0, 200);
+        let html = '';
+
+        for (const item of displayList) {
+          const e = item.emoji;
+          const token = e.surrogates || e.name;
+          const isBlocked = item.isBlocked;
+          const isForced = item.isForced;
+
+          let badgeClass = 'badge-idle';
+          let badgeText = 'Ativo';
+          if (isBlocked) {
+            badgeClass = 'badge-blocked';
+            badgeText = 'Bloqueado';
+          } else if (isForced) {
+            badgeClass = 'badge-forced';
+            badgeText = 'Forcado';
+          }
+
+          let cardClass = 'emoji-grid-card';
+          if (isBlocked) cardClass += ' is-blocked';
+          if (isForced) cardClass += ' is-forced';
+
+          const varCount = findEmojiVariations(e).length;
+          const varBadgeHtml = varCount > 1
+            ? `<button class="emoji-variations-badge" onclick="event.stopPropagation(); window.__openVariations(${e.id})">${varCount} variações</button>`
+            : '';
+
+          html += `
+            <div class="${cardClass}" onclick="window.__openVariations(${e.id})" style="cursor: pointer;">
+              <div class="emoji-card-header">
+                <span class="emoji-badge ${badgeClass}">${badgeText}</span>
+              </div>
+              <img class="emoji-grid-img" src="emojis/${e.filename}" alt="${e.name}" loading="lazy" />
+              <div class="emoji-grid-name" title="${e.name}">${e.name}</div>
+              ${varBadgeHtml}
+              <div class="emoji-grid-actions" onclick="event.stopPropagation()">
+                <button class="emoji-action-btn emoji-btn-block ${isBlocked ? 'btn-active' : ''}" onclick="window.__toggleExclusion('${token}')">
+                  ${isBlocked ? 'Desbloquear' : 'Bloquear'}
+                </button>
+                <button class="emoji-action-btn emoji-btn-force ${isForced ? 'btn-active' : ''}" onclick="window.__toggleForced('${token}')">
+                  ${isForced ? 'Desforcar' : 'Forcar'}
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        grid.innerHTML = html || '<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 0; font-size: 11px;">Nenhum emoji encontrado com os filtros atuais.</div>';
+      }
+
+      window.__toggleExclusion = function (token) {
+        let currentTokens = params.excludedText
+          ? params.excludedText.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+
+        if (currentTokens.includes(token)) {
+          currentTokens = currentTokens.filter(t => t !== token);
+        } else {
+          currentTokens.push(token);
+        }
+
+        params.excludedText = currentTokens.join(', ');
+        if (guiControllers.excludedText) {
+          guiControllers.excludedText.setValue(params.excludedText);
+        }
+        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+        const searchInput = document.getElementById('emoji-modal-search-input');
+        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
+      };
+
+      window.__toggleForced = function (token) {
+        let currentTokens = params.forcedText
+          ? params.forcedText.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+
+        if (currentTokens.includes(token)) {
+          currentTokens = currentTokens.filter(t => t !== token);
+        } else {
+          currentTokens.push(token);
+          params.useForced = true;
+          if (guiControllers.useForced) {
+            guiControllers.useForced.setValue(true);
+          }
+          const toggle = document.getElementById('emoji-modal-use-forced-toggle');
+          if (toggle) toggle.checked = true;
+        }
+
+        params.forcedText = currentTokens.join(', ');
+        if (guiControllers.forcedText) {
+          guiControllers.forcedText.setValue(params.forcedText);
+        }
+        rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+        const searchInput = document.getElementById('emoji-modal-search-input');
+        renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+        if (currentInspectorEmoji) renderEmojiVariationsInspector(currentInspectorEmoji.id);
+      };
+
+      // Retrocompatibilidade
+      window.__addExclusion = window.__toggleExclusion;
+      window.__addForced = window.__toggleForced;
+
+      function setupEmojiModalEvents() {
+        const modal = document.getElementById('emoji-modal');
+        const closeBtn = document.getElementById('emoji-modal-close-btn');
+        const searchInput = document.getElementById('emoji-modal-search-input');
+        const clearBtn = document.getElementById('emoji-modal-clear-search');
+        const tagsContainer = document.getElementById('emoji-modal-tags');
+        const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
+
+        const bulkBlockBtn = document.getElementById('bulk-block-btn');
+        const bulkForceBtn = document.getElementById('bulk-force-btn');
+        const bulkClearBtn = document.getElementById('bulk-clear-btn');
+
+        const inspectorCloseBtn = document.getElementById('inspector-close-btn');
+        const inspectorBlockAllBtn = document.getElementById('inspector-block-all-btn');
+        const inspectorForceAllBtn = document.getElementById('inspector-force-all-btn');
+        const inspectorClearAllBtn = document.getElementById('inspector-clear-all-btn');
+
+        if (bulkBlockBtn) {
+          bulkBlockBtn.addEventListener('click', () => window.__bulkExclude(currentVisibleEmojiTokens));
+        }
+        if (bulkForceBtn) {
+          bulkForceBtn.addEventListener('click', () => window.__bulkForce(currentVisibleEmojiTokens));
+        }
+        if (bulkClearBtn) {
+          bulkClearBtn.addEventListener('click', () => window.__bulkClear(currentVisibleEmojiTokens));
+        }
+
+        if (inspectorCloseBtn) {
+          inspectorCloseBtn.addEventListener('click', closeEmojiInspector);
+        }
+        if (inspectorBlockAllBtn) {
+          inspectorBlockAllBtn.addEventListener('click', () => {
+            if (currentInspectorEmoji) {
+              const vars = findEmojiVariations(currentInspectorEmoji).map(v => v.surrogates || v.name);
+              window.__bulkExclude(vars);
+            }
+          });
+        }
+        if (inspectorForceAllBtn) {
+          inspectorForceAllBtn.addEventListener('click', () => {
+            if (currentInspectorEmoji) {
+              const vars = findEmojiVariations(currentInspectorEmoji).map(v => v.surrogates || v.name);
+              window.__bulkForce(vars);
+            }
+          });
+        }
+        if (inspectorClearAllBtn) {
+          inspectorClearAllBtn.addEventListener('click', () => {
+            if (currentInspectorEmoji) {
+              const vars = findEmojiVariations(currentInspectorEmoji).map(v => v.surrogates || v.name);
+              window.__bulkClear(vars);
+            }
+          });
+        }
+
+        if (headerToggle) {
+          headerToggle.addEventListener('change', (e) => {
+            params.useForced = e.target.checked;
+            if (guiControllers.useForced) {
+              guiControllers.useForced.setValue(params.useForced);
+            }
+            rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          });
+        }
+
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => {
+            if (modal) modal.style.display = 'none';
+          });
+        }
+
+        if (modal) {
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+              modal.style.display = 'none';
+            }
+          });
+        }
+
+        if (clearBtn && searchInput) {
+          clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            renderEmojiModal('', currentActiveModalTag);
+            searchInput.focus();
+          });
+        }
+
+        let searchDebounce = null;
+        if (searchInput) {
+          searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchDebounce);
+            searchDebounce = setTimeout(() => {
+              renderEmojiModal(e.target.value, currentActiveModalTag);
+            }, 50);
+          });
+        }
+
+        if (tagsContainer) {
+          tagsContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tag-btn');
+            if (!btn) return;
+
+            tagsContainer.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            currentActiveModalTag = btn.getAttribute('data-filter') || '';
+            const curQuery = searchInput ? searchInput.value : '';
+            renderEmojiModal(curQuery, currentActiveModalTag);
+          });
+        }
+      }
+
+      let lastAppliedLockSH = null;
+
+      function updateSHLockState(force = false) {
+        if (!app) return;
+        const isLocked = !!params.lockSH;
+        if (!force && lastAppliedLockSH === isLocked) return;
+        lastAppliedLockSH = isLocked;
+
+        console.log('[Effect Lab] Atualizando estado de Bloqueio SH:', isLocked);
+
+        const device = app.graphicsDevice;
+        if (device && device.scope) {
+          device.scope.resolve('uLockSH')?.setValue(isLocked ? 1.0 : 0.0);
+        }
+
+        if (app.scene && app.scene.gsplat) {
+          app.scene.gsplat.colorUpdateAngle = isLocked ? 1e9 : 10;
+        }
+
         if (splatEntity && splatEntity.gsplat) {
           try {
-            splatEntity.gsplat.setParameter('uSquareSize', val);
-          } catch (e) {}
-          try {
+            splatEntity.gsplat.setParameter('uLockSH', isLocked ? 1.0 : 0.0);
             if (splatEntity.gsplat.material) {
-              splatEntity.gsplat.material.setParameter('uSquareSize', val);
-              splatEntity.gsplat.material.blendType = pc.BLEND_NONE;
-              splatEntity.gsplat.material.depthWrite = true;
+              splatEntity.gsplat.material.setParameter('uLockSH', isLocked ? 1.0 : 0.0);
             }
           } catch (e) {}
         }
       }
 
-      // Painel Padrao de Shaders (lil-gui)
+      function applyShaderParams() {
+        const camPos = cameraEntity ? cameraEntity.getPosition() : new pc.Vec3(0, 0, orbit.distance);
+        const camDist = camPos.length();
+        const radius = modelRadius > 0 ? modelRadius : 0.5;
+        const minDepth = Math.max(0.01, camDist - radius);
+        const maxDepth = camDist + radius;
+
+        const activeRenderMode = params.useEmojis ? params.renderMode : 2;
+
+        updateSHLockState(false);
+
+        const device = app ? app.graphicsDevice : null;
+        if (device && device.scope) {
+          device.scope.resolve('uSquareSize')?.setValue(params.squareSize);
+          device.scope.resolve('uDensity')?.setValue(params.density / 100.0);
+          device.scope.resolve('uMinOpacity')?.setValue(params.minOpacity);
+          device.scope.resolve('uDepthThreshold')?.setValue(params.depthThreshold);
+          device.scope.resolve('uMinDepth')?.setValue(minDepth);
+          device.scope.resolve('uMaxDepth')?.setValue(maxDepth);
+          device.scope.resolve('uRenderMode')?.setValue(activeRenderMode);
+          device.scope.resolve('uAlphaCutoff')?.setValue(params.alphaCutoff);
+          device.scope.resolve('uTintIntensity')?.setValue(params.tintIntensity);
+          device.scope.resolve('uLockSH')?.setValue(params.lockSH ? 1.0 : 0.0);
+          device.scope.resolve('uUseGaussianSplat')?.setValue(params.useGaussianSplat ? 1.0 : 0.0);
+          device.scope.resolve('alphaClipForward')?.setValue(1e-12);
+          device.scope.resolve('alphaClip')?.setValue(1e-12);
+
+          device.scope.resolve('uHueShift')?.setValue(params.hueShift);
+          device.scope.resolve('uSaturation')?.setValue(params.saturation);
+          device.scope.resolve('uBrightness')?.setValue(params.brightness);
+          device.scope.resolve('uContrast')?.setValue(params.contrast);
+          device.scope.resolve('uGamma')?.setValue(params.gamma);
+
+          if (atlasTexture) {
+            device.scope.resolve('uEmojiAtlas')?.setValue(atlasTexture);
+          }
+          if (lutTexture) {
+            device.scope.resolve('uColorLUT')?.setValue(lutTexture);
+          }
+        }
+
+        if (splatEntity && splatEntity.gsplat) {
+          try {
+            splatEntity.gsplat.setParameter('uSquareSize', params.squareSize);
+            splatEntity.gsplat.setParameter('uDensity', params.density / 100.0);
+            splatEntity.gsplat.setParameter('uMinOpacity', params.minOpacity);
+            splatEntity.gsplat.setParameter('uDepthThreshold', params.depthThreshold);
+            splatEntity.gsplat.setParameter('uMinDepth', minDepth);
+            splatEntity.gsplat.setParameter('uMaxDepth', maxDepth);
+            splatEntity.gsplat.setParameter('uRenderMode', activeRenderMode);
+            splatEntity.gsplat.setParameter('uAlphaCutoff', params.alphaCutoff);
+            splatEntity.gsplat.setParameter('uTintIntensity', params.tintIntensity);
+            splatEntity.gsplat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
+            splatEntity.gsplat.setParameter('uUseGaussianSplat', params.useGaussianSplat ? 1.0 : 0.0);
+            splatEntity.gsplat.setParameter('alphaClipForward', 1e-12);
+            splatEntity.gsplat.setParameter('alphaClip', 1e-12);
+            splatEntity.gsplat.setParameter('uHueShift', params.hueShift);
+            splatEntity.gsplat.setParameter('uSaturation', params.saturation);
+            splatEntity.gsplat.setParameter('uBrightness', params.brightness);
+            splatEntity.gsplat.setParameter('uContrast', params.contrast);
+            splatEntity.gsplat.setParameter('uGamma', params.gamma);
+            if (atlasTexture) splatEntity.gsplat.setParameter('uEmojiAtlas', atlasTexture);
+            if (lutTexture) splatEntity.gsplat.setParameter('uColorLUT', lutTexture);
+          } catch (e) {}
+
+          try {
+            if (splatEntity.gsplat.material) {
+              const mat = splatEntity.gsplat.material;
+              mat.setParameter('uSquareSize', params.squareSize);
+              mat.setParameter('uDensity', params.density / 100.0);
+              mat.setParameter('uMinOpacity', params.minOpacity);
+              mat.setParameter('uDepthThreshold', params.depthThreshold);
+              mat.setParameter('uMinDepth', minDepth);
+              mat.setParameter('uMaxDepth', maxDepth);
+              mat.setParameter('uRenderMode', activeRenderMode);
+              mat.setParameter('uAlphaCutoff', params.alphaCutoff);
+              mat.setParameter('uTintIntensity', params.tintIntensity);
+              mat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
+              mat.setParameter('uUseGaussianSplat', params.useGaussianSplat ? 1.0 : 0.0);
+              mat.setParameter('alphaClipForward', 1e-12);
+              mat.setParameter('alphaClip', 1e-12);
+              mat.setParameter('uHueShift', params.hueShift);
+              mat.setParameter('uSaturation', params.saturation);
+              mat.setParameter('uBrightness', params.brightness);
+              mat.setParameter('uContrast', params.contrast);
+              mat.setParameter('uGamma', params.gamma);
+              if (atlasTexture) mat.setParameter('uEmojiAtlas', atlasTexture);
+              if (lutTexture) mat.setParameter('uColorLUT', lutTexture);
+
+              const isPureGaussian = params.useGaussianSplat && (params.renderMode === 2 || !params.useEmojis);
+              mat.blendType = isPureGaussian ? pc.BLEND_NORMAL : pc.BLEND_NONE;
+              mat.depthWrite = isPureGaussian ? false : true;
+            }
+          } catch (e) {}
+        }
+      }
+
       const guiControllers = {};
 
       function setupGUI() {
@@ -670,19 +2401,173 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         const gui = new lil.GUI({ title: 'Configuracoes' });
 
-        gui.add(params, 'squareSize', 0.0005, 0.05, 0.0005)
-          .name('Tamanho')
+        // Botao de acesso direto no topo do menu
+        gui.add(params, 'openEmojiModal').name('Escolher Emojis (Painel)');
+
+        const effectFolder = gui.addFolder('Modo & Emojis');
+
+        guiControllers.useEmojis = effectFolder.add(params, 'useEmojis')
+          .name('Exibir Emojis')
+          .onChange(() => applyShaderParams());
+
+        guiControllers.useGaussianSplat = effectFolder.add(params, 'useGaussianSplat')
+          .name('Ativar Gaussian Splat')
+          .onChange(() => applyShaderParams());
+
+        effectFolder.add(params, 'renderModeText', ['Emojis Coloridos', 'Emojis Tintados', 'Cores Originais'])
+          .name('Estilo')
           .onChange((val) => {
-            applySquareSize(val);
-          })
-          .onFinishChange((val) => {
-            applySquareSize(val);
+            params.renderMode = renderModeMap[val];
+            if (val === 'Cores Originais') {
+              params.useEmojis = false;
+            } else {
+              params.useEmojis = true;
+            }
+            if (guiControllers.useEmojis) guiControllers.useEmojis.updateDisplay();
+            applyShaderParams();
           });
 
-        gui.add(params, 'autoSpin').name('Giro Automatico');
-        gui.add(params, 'spinSpeed', 1, 60, 1).name('Velocidade Giro');
+        effectFolder.add(params, 'tintIntensity', 0.0, 1.0, 0.05)
+          .name('Intensidade Tint')
+          .onChange(() => applyShaderParams());
 
-        gui.add(params, 'invertX')
+        effectFolder.add(params, 'alphaCutoff', 0.01, 0.8, 0.01)
+          .name('Corte Alpha')
+          .onChange(() => applyShaderParams());
+
+        const colorFolder = gui.addFolder('Filtros de Cor');
+
+        guiControllers.lockSH = colorFolder.add(params, 'lockSH')
+          .name('Travar S.H. (Cores Fixas)')
+          .onChange(() => {
+            updateSHLockState(true);
+            applyShaderParams();
+          });
+
+        guiControllers.hueShift = colorFolder.add(params, 'hueShift', -180, 180, 1)
+          .name('Hue Shift (°)')
+          .onChange(() => applyShaderParams());
+
+        guiControllers.saturation = colorFolder.add(params, 'saturation', 0.0, 3.0, 0.05)
+          .name('Saturacao')
+          .onChange(() => applyShaderParams());
+
+        guiControllers.brightness = colorFolder.add(params, 'brightness', -0.5, 0.5, 0.02)
+          .name('Brilho')
+          .onChange(() => applyShaderParams());
+
+        guiControllers.contrast = colorFolder.add(params, 'contrast', 0.2, 3.0, 0.05)
+          .name('Contraste')
+          .onChange(() => applyShaderParams());
+
+        guiControllers.gamma = colorFolder.add(params, 'gamma', 0.4, 2.5, 0.05)
+          .name('Gama')
+          .onChange(() => applyShaderParams());
+
+        colorFolder.add(params, 'resetColors').name('Resetar Cores');
+
+        const filterFolder = gui.addFolder('Filtros, Bloqueio & Forcar');
+
+        filterFolder.add(params, 'openEmojiModal').name('Escolher Emojis (Painel)');
+
+        guiControllers.pickerMode = filterFolder.add(params, 'pickerMode')
+          .name('Modo Picker (Clique na Nuvem)')
+          .onChange((val) => setPickerState(val));
+
+        // Secao Exclusao
+        guiControllers.excludedText = filterFolder.add(params, 'excludedText')
+          .name('Excluir Emojis')
+          .listen()
+          .onChange((val) => {
+            rebuildColorLUT(val, params.forcedText, params.useForced);
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          })
+          .onFinishChange((val) => {
+            rebuildColorLUT(val, params.forcedText, params.useForced);
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          });
+
+        filterFolder.add(params, 'excludeFlagsPreset').name('Preset: Excluir Bandeiras');
+        filterFolder.add(params, 'clearExclusions').name('Limpar Exclusoes');
+
+        // Secao Forcar / Whitelist
+        guiControllers.useForced = filterFolder.add(params, 'useForced')
+          .name('Ativar Forcados')
+          .listen()
+          .onChange((val) => {
+            const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
+            if (headerToggle) headerToggle.checked = val;
+            rebuildColorLUT(params.excludedText, params.forcedText, val);
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          });
+
+        guiControllers.forcedText = filterFolder.add(params, 'forcedText')
+          .name('Forcar Emojis (Apenas Estes)')
+          .listen()
+          .onChange((val) => {
+            rebuildColorLUT(params.excludedText, val, params.useForced);
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          })
+          .onFinishChange((val) => {
+            rebuildColorLUT(params.excludedText, val, params.useForced);
+            const searchInput = document.getElementById('emoji-modal-search-input');
+            renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag);
+          });
+
+        filterFolder.add(params, 'clearForced').name('Limpar Forcados');
+
+        // Contadores
+        guiControllers.activeEmojisCount = filterFolder.add(params, 'activeEmojisCount')
+          .name('Emojis Ativos')
+          .listen()
+          .disable();
+
+        filterFolder.open();
+
+        guiControllers.excludedCount = filterFolder.add(params, 'excludedCount')
+          .name('Bloqueados')
+          .listen()
+          .disable();
+
+        guiControllers.forcedCount = filterFolder.add(params, 'forcedCount')
+          .name('Forcados')
+          .listen()
+          .disable();
+
+        const geoFolder = gui.addFolder('Geometria & Cena');
+
+        geoFolder.add(params, 'useGaussianSplat')
+          .name('Ativar Gaussian Splat')
+          .listen()
+          .onChange(() => applyShaderParams());
+
+        geoFolder.add(params, 'squareSize', 0.0005, 0.03, 0.0002)
+          .name('Tamanho')
+          .onChange(() => applyShaderParams());
+
+        geoFolder.add(params, 'density', 1, 100, 1)
+          .name('Densidade (%)')
+          .onChange(() => {
+            applyShaderParams();
+            updateSplatCountDisplay();
+          });
+
+        geoFolder.add(params, 'minOpacity', 0.0, 0.95, 0.02)
+          .name('Opacidade Minima')
+          .onChange(() => applyShaderParams());
+
+        geoFolder.add(params, 'depthThreshold', 0.05, 1.0, 0.01)
+          .name('Corte Frontal')
+          .onChange(() => applyShaderParams());
+
+        geoFolder.add(params, 'autoSpin').name('Giro Automatico');
+        geoFolder.add(params, 'spinSpeed', 1, 60, 1).name('Velocidade Giro');
+
+        geoFolder.add(params, 'invertX')
           .name('Inverter X (180°)')
           .onChange((val) => {
             if (splatEntity) {
@@ -699,9 +2584,8 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 
         const infoFolder = gui.addFolder('Info Modelo');
         guiControllers.fileName = infoFolder.add(params, 'fileName').name('Arquivo').listen().disable();
-        guiControllers.splatCount = infoFolder.add(params, 'splatCount').name('Quadrados').listen().disable();
+        guiControllers.splatCount = infoFolder.add(params, 'splatCount').name('Pontos').listen().disable();
 
-        // Drag & Drop
         window.addEventListener('dragover', (e) => {
           e.preventDefault();
           dropzone.classList.add('active');
@@ -746,4 +2630,3 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
   </script>
 </body>
 </html>
-
