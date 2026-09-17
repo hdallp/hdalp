@@ -1,0 +1,389 @@
+/* ==========================================================================
+   EmojiCloud Effect Lab - Category Strip, Active Toolbar & Emoji Grid
+   ========================================================================== */
+
+/* Single Unified Category Strip */
+.category-strip-section {
+  display: flex;
+  flex-direction: column;
+  background: #181818;
+  border-bottom: 1px solid #282828;
+  flex-shrink: 0;
+}
+
+.category-strip-scroll {
+  display: flex;
+  gap: 3px;
+  padding: 5px 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  flex-shrink: 0;
+}
+
+.cat-chip {
+  background: #242424;
+  border: 1px solid #333333;
+  border-radius: 2px;
+  color: #aaaaaa;
+  font-size: 9.5px;
+  font-family: inherit;
+  padding: 3px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 0.12s;
+  flex-shrink: 0;
+}
+.cat-chip:hover {
+  color: #ffffff;
+  background: #2e2e2e;
+  border-color: #4a4a4a;
+}
+.cat-chip.active {
+  background: #1f3b5c;
+  border-color: #58a6ff;
+  color: #58a6ff;
+  font-weight: 600;
+}
+.cat-chip.cat-chip-blocked {
+  background: #3e1b1b;
+  border-color: #7a2828;
+  color: #ff7b72;
+  font-weight: 600;
+}
+.cat-chip.active.cat-chip-blocked {
+  background: #4a2020;
+  border-color: #ff7b72;
+  color: #ffffff;
+}
+.cat-chip.cat-chip-filter-blocked.active {
+  border-color: #ff7b72;
+  color: #ff7b72;
+  background: #2e1818;
+}
+.cat-chip.cat-chip-filter-forced.active {
+  border-color: #7ee787;
+  color: #7ee787;
+  background: #18281b;
+}
+
+/* Active Category Action Toolbar */
+.active-category-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  background: #1c1f26;
+  border-bottom: 1px solid #2d333b;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.active-category-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #58a6ff;
+}
+.active-category-count {
+  font-size: 9px;
+  color: #8b949e;
+  font-weight: 400;
+}
+.active-category-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cat-action-btn {
+  background: #24292f;
+  border: 1px solid #30363d;
+  border-radius: 2px;
+  color: #c9d1d9;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 7px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.cat-action-btn:hover {
+  background: #30363d;
+  color: #ffffff;
+  border-color: #58a6ff;
+}
+.cat-action-btn.cat-action-block {
+  color: #ff7b72;
+  border-color: #592323;
+}
+.cat-action-btn.cat-action-block:hover {
+  background: #491818;
+  border-color: #ff7b72;
+  color: #ffffff;
+}
+.cat-action-btn.cat-action-unblock {
+  color: #7ee787;
+  border-color: #234f2a;
+}
+.cat-action-btn.cat-action-unblock:hover {
+  background: #19381e;
+  border-color: #7ee787;
+  color: #ffffff;
+}
+.cat-action-btn.cat-action-force {
+  color: #79c0ff;
+  border-color: #1f3b5c;
+}
+.cat-action-btn.cat-action-force:hover {
+  background: #1a324b;
+  border-color: #79c0ff;
+  color: #ffffff;
+}
+.cat-action-btn.cat-action-close {
+  color: #8b949e;
+}
+.cat-action-btn.cat-action-close:hover {
+  color: #ffffff;
+  border-color: #8b949e;
+}
+
+/* Badge on emoji card for gradient position */
+.emoji-grad-badge {
+  font-size: 8px;
+  font-weight: 600;
+  color: #58a6ff;
+  background: rgba(88, 166, 255, 0.12);
+  border: 1px solid rgba(88, 166, 255, 0.25);
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+/* Right Main Panel */
+.emoji-modal-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  background: #141414;
+}
+
+.emoji-modal-search-row {
+  display: flex;
+  padding: 6px 10px;
+  gap: 6px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #2e2e2e;
+  flex-shrink: 0;
+}
+
+#emoji-modal-search-input {
+  flex: 1;
+  background: #111111;
+  border: 1px solid #333333;
+  border-radius: 2px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #ffffff;
+  outline: none;
+}
+#emoji-modal-search-input:focus {
+  border-color: #58a6ff;
+}
+
+.emoji-modal-clear-search {
+  background: #2e2e2e;
+  border: 1px solid #3e3e3e;
+  border-radius: 2px;
+  color: #e0e0e0;
+  padding: 0 10px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.emoji-modal-clear-search:hover {
+  background: #3e3e3e;
+  color: #ffffff;
+}
+
+.emoji-modal-status {
+  padding: 5px 10px;
+  font-size: 10px;
+  color: #888888;
+  background: #141414;
+  border-bottom: 1px solid #222222;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.emoji-modal-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 6px;
+  background: #141414;
+  align-content: start;
+}
+
+.emoji-grid-card {
+  background: #1e1e1e;
+  border: 1px solid #2a2a2a;
+  border-radius: 3px;
+  padding: 6px 5px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, opacity 0.1s;
+  user-select: none;
+}
+.emoji-grid-card:hover {
+  background: #252525;
+  border-color: #444444;
+}
+.emoji-grid-card.is-blocked {
+  border-color: #592323;
+  background: #201414;
+  opacity: 0.82;
+}
+.emoji-grid-card.is-blocked:hover {
+  border-color: #ff7b72;
+  background: #281616;
+  opacity: 1;
+}
+.emoji-grid-card.is-forced {
+  border-color: #1f512b;
+  background: #142015;
+}
+.emoji-grid-card.is-forced:hover {
+  border-color: #7ee787;
+}
+
+.emoji-card-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.emoji-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.emoji-badge {
+  font-size: 8px;
+  font-weight: 600;
+  padding: 1px 3px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+.badge-idle {
+  color: #555555;
+}
+.badge-blocked {
+  color: #ff7b72;
+  background: #3e1b1b;
+}
+.badge-forced {
+  color: #7ee787;
+  background: #132d1a;
+}
+
+.emoji-grid-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  margin: 1px 0;
+}
+
+.emoji-grid-name {
+  font-size: 10px;
+  color: #999999;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emoji-grid-actions {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.emoji-action-btn {
+  padding: 3px 0;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.1s;
+}
+
+.emoji-btn-primary {
+  flex: 1;
+  background: #282828;
+  border: 1px solid #383838;
+  color: #cccccc;
+}
+.emoji-btn-primary:hover {
+  background: #383838;
+  color: #ffffff;
+  border-color: #555555;
+}
+.emoji-btn-primary.btn-unblock,
+.emoji-btn-primary.is-blocked {
+  background: #3e1b1b;
+  color: #ff7b72;
+  border-color: #7a2828;
+}
+.emoji-btn-primary.btn-unblock:hover,
+.emoji-btn-primary.is-blocked:hover {
+  background: #542222;
+  color: #ffa198;
+  border-color: #ff7b72;
+}
+
+.emoji-btn-force-icon {
+  width: 34px;
+  flex-shrink: 0;
+  background: #222222;
+  border: 1px solid #333333;
+  color: #888888;
+  font-size: 8.5px;
+}
+.emoji-btn-force-icon:hover {
+  background: #2e2e2e;
+  color: #7ee787;
+  border-color: #2b7a3d;
+}
+.emoji-btn-force-icon.btn-active,
+.emoji-btn-force-icon.is-forced {
+  background: #163d24;
+  color: #7ee787;
+  border-color: #2b7a3d;
+}
+.emoji-btn-force-icon.btn-active:hover,
+.emoji-btn-force-icon.is-forced:hover {
+  background: #205230;
+  color: #aff5b4;
+}

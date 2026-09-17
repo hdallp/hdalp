@@ -1,0 +1,491 @@
+/* ==========================================================================
+   EmojiCloud Effect Lab - Tools, Overlays & Floating HUDs
+   ========================================================================== */
+
+/* Top Toolbar inside Tweakpane Aside */
+.gui-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  background: #181818;
+  border-bottom: 1px solid #2e2e2e;
+  padding: 8px 8px;
+  gap: 5px;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.gui-tool-btn {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 2px 3px 2px;
+  background: #242424;
+  border: 1px solid #333333;
+  border-radius: 5px;
+  color: #9aa2ac;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.gui-tool-btn:hover {
+  background: #2f2f2f;
+  color: #ffffff;
+  border-color: #4f4f4f;
+}
+
+.gui-tool-btn.active {
+  background: rgba(88, 166, 255, 0.18);
+  color: #58a6ff;
+  border-color: #58a6ff;
+  box-shadow: 0 0 10px rgba(88, 166, 255, 0.35), inset 0 0 4px rgba(88, 166, 255, 0.2);
+}
+
+.gui-tool-btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.gui-tool-btn span {
+  font-size: 9.5px;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1;
+  letter-spacing: 0.1px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  text-align: center;
+}
+
+/* Lasso Canvas Overlay */
+.lasso-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Active Tool Top HUD Banner */
+.tool-hud-banner {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 18, 18, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(88, 166, 255, 0.4);
+  border-radius: 20px;
+  padding: 6px 14px;
+  display: none;
+  align-items: center;
+  gap: 9px;
+  color: #e0e0e0;
+  font-size: 11px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 12px rgba(88, 166, 255, 0.25);
+  z-index: 130;
+  user-select: none;
+  pointer-events: auto;
+  animation: slideDownBanner 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tool-hud-banner.visible {
+  display: flex;
+}
+
+@keyframes slideDownBanner {
+  from { opacity: 0; transform: translate(-50%, -12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.tool-hud-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #58a6ff;
+  box-shadow: 0 0 8px #58a6ff;
+  animation: pulseDot 1.4s infinite alternate ease-in-out;
+}
+
+@keyframes pulseDot {
+  from { opacity: 0.4; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1.2); }
+}
+
+.tool-hud-close {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  margin-left: 2px;
+  transition: color 0.1s;
+}
+.tool-hud-close:hover {
+  color: #ffffff;
+}
+
+/* Picker Hover Highlight & Floating Tooltip */
+.picker-reticle {
+  position: fixed;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #58a6ff;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(88, 166, 255, 0.7), inset 0 0 6px rgba(88, 166, 255, 0.4);
+  pointer-events: none;
+  z-index: 120;
+  transform: translate(-50%, -50%);
+  display: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+.picker-reticle.is-locked {
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.picker-reticle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.picker-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 121;
+  display: none;
+  background: rgba(18, 18, 18, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #3e3e3e;
+  border-radius: 6px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.2);
+  padding: 8px 12px;
+  color: #ffffff;
+  font-size: 11px;
+  min-width: 190px;
+  max-width: 260px;
+  flex-direction: column;
+  gap: 6px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.picker-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.picker-tooltip-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.picker-tooltip-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.picker-tooltip-name {
+  font-weight: 700;
+  font-size: 12px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.2px;
+}
+
+.picker-tooltip-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #bbbbbb;
+}
+
+.picker-tooltip-hint {
+  font-size: 9px;
+  font-weight: 500;
+  color: #aaaaaa;
+  border-top: 1px solid #282828;
+  padding-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  letter-spacing: 0.2px;
+}
+
+/* Floating Action Card when clicking a 3D point in Inspector Mode */
+.picker-action-card {
+  position: fixed;
+  z-index: 125;
+  background: rgba(22, 22, 22, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid #444444;
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2);
+  padding: 10px 12px;
+  color: #ffffff;
+  font-size: 11px;
+  min-width: 250px;
+  max-width: 290px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  user-select: none;
+  -webkit-user-select: none;
+  animation: popInAction 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popInAction {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.picker-action-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  position: relative;
+}
+
+.picker-action-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.picker-action-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.picker-action-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.picker-action-name {
+  font-weight: 700;
+  font-size: 12px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.2px;
+}
+
+.picker-action-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: #bbbbbb;
+  flex-wrap: wrap;
+}
+
+.picker-action-coords {
+  font-size: 9px;
+  color: #888888;
+  font-family: monospace;
+  margin-top: 1px;
+}
+
+.picker-action-close {
+  background: transparent;
+  border: none;
+  color: #888888;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  transition: color 0.1s;
+}
+.picker-action-close:hover {
+  color: #ffffff;
+}
+
+.picker-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid #2e2e2e;
+  padding-top: 6px;
+}
+
+.picker-action-btn {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #383838;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  transition: all 0.1s ease;
+}
+.picker-action-btn:hover {
+  background: #383838;
+  color: #ffffff;
+  border-color: #555555;
+}
+
+.picker-btn-pin {
+  background: #1a324b;
+  color: #58a6ff;
+  border-color: #24517d;
+}
+.picker-btn-pin:hover {
+  background: #214467;
+  color: #79b8ff;
+  border-color: #388bfd;
+}
+
+.picker-btn-choose {
+  background: #252e3b;
+  color: #79c0ff;
+  border-color: #314a66;
+}
+.picker-btn-choose:hover {
+  background: #2e3a4a;
+  color: #a5d6ff;
+  border-color: #43648b;
+}
+
+.picker-btn-unpin {
+  background: #3e1b1b;
+  color: #ff7b72;
+  border-color: #6e2727;
+}
+.picker-btn-unpin:hover {
+  background: #542222;
+  color: #ffa198;
+  border-color: #8e3333;
+}
+
+.picker-btn-group {
+  display: flex;
+  gap: 4px;
+}
+.picker-btn-group .picker-action-btn {
+  flex: 1;
+}
+
+/* Modal Pin Banner */
+.modal-pin-banner {
+  background: #1a324b;
+  border-bottom: 1px solid #24517d;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #79c0ff;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.modal-pin-banner code {
+  font-family: monospace;
+  background: rgba(0,0,0,0.3);
+  padding: 1px 4px;
+  border-radius: 2px;
+  color: #a5d6ff;
+}
+.modal-pin-cancel-btn {
+  background: #2e2e2e;
+  border: 1px solid #444444;
+  border-radius: 2px;
+  color: #ffffff;
+  padding: 2px 8px;
+  font-size: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.modal-pin-cancel-btn:hover {
+  background: #3e3e3e;
+}
+
+/* Floating Toast Notification */
+.lab-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #444444;
+  border-radius: 20px;
+  padding: 7px 18px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lab-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

@@ -1,0 +1,266 @@
+/* ==========================================================================
+   EmojiCloud Effect Lab - Base & Global Styles
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+#splat-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  outline: none;
+  background-color: #ffffff;
+}
+
+#splat-canvas.picker-active {
+  cursor: crosshair !important;
+}
+
+/* Tweakpane como painel FLUTUANTE (tema escuro do lab) */
+.tp-dfwv {
+  position: fixed !important;
+  top: 10px !important;
+  right: 10px !important;
+  bottom: auto !important;
+  width: 300px !important;
+  max-height: calc(100vh - 20px) !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100 !important;
+  padding: 0 !important;
+  border-radius: 6px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+  --tp-base-background-color: #1a1a1a;
+  --tp-base-border-radius: 0px;
+  --tp-base-shadow-color: rgba(0, 0, 0, 0.5);
+  --tp-base-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
+  --tp-blade-border-radius: 3px;
+  --tp-button-background-color: #2e2e2e;
+  --tp-button-background-color-hover: #3e3e3e;
+  --tp-button-background-color-focus: #3e3e3e;
+  --tp-button-background-color-active: #4a4a4a;
+  --tp-button-foreground-color: #d5dae1;
+  --tp-container-background-color: #242424;
+  --tp-container-background-color-hover: #2c2c2c;
+  --tp-container-background-color-focus: #2c2c2c;
+  --tp-container-background-color-active: #333333;
+  --tp-container-foreground-color: #c8ced6;
+  --tp-container-horizontal-padding: 6px;
+  --tp-input-background-color: #2e2e2e;
+  --tp-input-background-color-hover: #383838;
+  --tp-input-background-color-focus: #3e3e3e;
+  --tp-input-background-color-active: #4a4a4a;
+  --tp-input-foreground-color: #58a6ff;
+  --tp-label-foreground-color: rgba(200, 206, 214, 0.78);
+  --tp-monitor-background-color: #161616;
+  --tp-monitor-foreground-color: #7ee787;
+  --tp-groove-foreground-color: #333333;
+  font-size: 11px;
+}
+
+/* Barra de título do painel */
+.tp-dfwv .tp-rotv_b {
+  border-radius: 6px 6px 0 0 !important;
+  background-color: #242424;
+  height: 32px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #2e2e2e;
+  text-align: left;
+}
+
+/* Standard Global Scrollbar */
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: #141416;
+}
+
+*::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: #2e2e36;
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: #484856;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2e2e36 #141416;
+}
+
+/* Campos de texto (excluir/restringir emojis) */
+.tp-dfwv .tp-txtv_i {
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.loading-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0f172a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Drop Zone */
+.dropzone-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px dashed #000000;
+  z-index: 80;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
+  pointer-events: none;
+}
+
+.dropzone-overlay.active {
+  display: flex;
+}
+
+#file-input {
+  display: none;
+}
+
+/* Standardized Modern Dark Checkbox */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  background: #18181c;
+  border: 1px solid #383844;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  vertical-align: middle;
+  transition: border-color 0.12s, background-color 0.12s;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"]:hover {
+  border-color: #58a6ff;
+  background: #22222a;
+}
+
+input[type="checkbox"]:checked {
+  background: #1f6feb;
+  border-color: #58a6ff;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "";
+  width: 3.5px;
+  height: 6.5px;
+  border: solid #ffffff;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg) translate(-0.5px, -0.5px);
+  display: block;
+}
+
+input[type="checkbox"]:focus-visible {
+  box-shadow: 0 0 0 1px #58a6ff;
+}
+
+/* UI Presentation Mode (Toggle with H) */
+body.ui-hidden .tp-dfwv,
+body.ui-hidden #emoji-catalog-panel,
+body.ui-hidden #tool-hud-banner,
+body.ui-hidden #picker-reticle,
+body.ui-hidden #picker-tooltip,
+body.ui-hidden #picker-action-card,
+body.ui-hidden #modal-pin-banner,
+body.ui-hidden .lasso-canvas,
+body.ui-hidden .dropzone-overlay {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
