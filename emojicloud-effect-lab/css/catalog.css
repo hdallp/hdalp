@@ -151,6 +151,40 @@
   color: #888888;
 }
 
+/* Color Mode Tabs (Caixa 2D / Roda HSB) */
+.color-mode-tabs {
+  display: flex;
+  background: #181818;
+  border: 1px solid #333333;
+  border-radius: 3px;
+  padding: 1px;
+  gap: 2px;
+}
+
+.color-mode-btn {
+  background: transparent;
+  border: none;
+  color: #888888;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 2px 7px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.color-mode-btn:hover {
+  color: #ffffff;
+  background: #282828;
+}
+
+.color-mode-btn.active {
+  background: #2c3848;
+  color: #58a6ff;
+  border: 1px solid #3b597c;
+}
+
 .sidebar-mini-reset {
   background: #242424;
   border: 1px solid #383838;
@@ -173,6 +207,163 @@
   background: #282828;
   margin: 4px 0;
   flex-shrink: 0;
+}
+
+/* HSB Controls Card (Photoshop/Painter Style) */
+.hsb-controls-card {
+  display: flex;
+  gap: 8px;
+  background: #202020;
+  border: 1px solid #2e2e2e;
+  border-radius: 4px;
+  padding: 6px;
+  margin-bottom: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.hsb-swatches-box {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.hsb-swatch-prev {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  background: #000000;
+  border: 1px solid #555555;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.hsb-swatch-current {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  background: #ffff00;
+  border: 1.5px solid #ffffff;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  z-index: 2;
+}
+
+.hsb-sliders-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.hsb-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hsb-channel-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #888888;
+  width: 10px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.hsb-slider-track {
+  position: relative;
+  flex: 1;
+  height: 9px;
+  border-radius: 2px;
+  border: 1px solid #383838;
+  cursor: pointer;
+  user-select: none;
+}
+
+.hsb-track-h {
+  background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+}
+
+.hsb-track-s {
+  background: linear-gradient(to right, #ffffff, #ffff00);
+}
+
+.hsb-track-b {
+  background: linear-gradient(to right, #000000, #ffff00);
+}
+
+.hsb-slider-thumb {
+  position: absolute;
+  top: -3px;
+  width: 7px;
+  height: 13px;
+  background: #ffffff;
+  border: 1px solid #111111;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  left: 50%;
+}
+
+.hsb-val-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.hsb-num-input {
+  width: 30px;
+  background: #141414;
+  border: 1px solid #333333;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-family: inherit;
+  padding: 1px 2px;
+  border-radius: 2px;
+  text-align: right;
+  outline: none;
+}
+
+.hsb-num-input:focus {
+  border-color: #58a6ff;
+}
+
+.hsb-unit {
+  font-size: 9px;
+  color: #777777;
+  width: 8px;
+  text-align: left;
+}
+
+/* Wheel Canvas Container */
+.wheel-canvas-container {
+  position: relative;
+  width: 210px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #191919;
+  border: 1px solid #2c2c2c;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  user-select: none;
+  cursor: crosshair;
+}
+
+#wheel-triangle-canvas {
+  width: 200px;
+  height: 200px;
+  display: block;
 }
 
 /* 2D Color Box & Crosshair */

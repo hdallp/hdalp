@@ -22,7 +22,7 @@
     </div>
 
     <div class="dropzone-overlay" id="dropzone">
-      Solte o arquivo .sog aqui
+      Solte o arquivo sog/ply aqui
     </div>
 
     <input type="file" id="file-input" accept=".sog,.ply" />
@@ -80,7 +80,7 @@
         </button>
         <div class="picker-btn-group">
           <button class="picker-action-btn" id="picker-btn-block" title="Bloqueia este emoji globalmente">Bloquear Emoji</button>
-          <button class="picker-action-btn" id="picker-btn-force" title="Adiciona à lista de emojis restritos">Restringir a Este</button>
+          <button class="picker-action-btn" id="picker-btn-force" title="Foca a nuvem 3D neste emoji">Focar Emoji</button>
         </div>
         <button class="picker-action-btn picker-btn-unpin" id="picker-btn-unpin" style="display: none;" title="Remove a fixação deste ponto 3D">
           Desfixar Ponto
@@ -101,9 +101,9 @@
           <span id="emoji-modal-header-count" class="header-count-tag"></span>
         </div>
         <div class="emoji-modal-header-right">
-          <label class="modal-toggle-label" title="Ativa ou desativa o uso exclusivo da lista de restritos">
+          <label class="modal-toggle-label" title="Ativa ou desativa o modo de foco nos emojis selecionados">
             <input type="checkbox" id="emoji-modal-use-forced-toggle" checked />
-            Usar Restritos
+            Modo Foco
           </label>
           <button class="emoji-panel-header-btn" id="emoji-panel-min-btn" title="Minimizar / Expandir painel" style="font-size: 14px; font-weight: bold; line-height: 0.8;">&minus;</button>
           <button class="emoji-panel-header-btn" id="emoji-modal-close-btn" title="Fechar Painel" style="font-size: 18px;">&times;</button>
@@ -122,21 +122,74 @@
         <aside class="emoji-modal-sidebar">
           <!-- SEÇÃO 1: FILTRO DE COR (TOP) -->
           <div class="sidebar-section-header">
-            <span class="sidebar-section-title">Filtro de Cor</span>
+            <div class="color-mode-tabs">
+              <button class="color-mode-btn active" id="btn-color-mode-wheel" title="Modo Roda & Triângulo HSB">Roda HSB</button>
+              <button class="color-mode-btn" id="btn-color-mode-box" title="Modo Caixa 2D">Caixa</button>
+            </div>
             <button class="sidebar-mini-reset" id="color-reset-btn" title="Exibir todas as cores">Limpar</button>
           </div>
 
-          <!-- 2D Color Box (Saturation x Value) with Crosshair Reticle -->
-          <div class="color-picker-box-container" id="color-box-container" title="Clique ou arraste para selecionar saturação e brilho">
-            <canvas id="color-box-canvas" width="210" height="110"></canvas>
-            <div class="crosshair-h" id="crosshair-h"></div>
-            <div class="crosshair-v" id="crosshair-v"></div>
-            <div class="crosshair-ring" id="crosshair-ring"></div>
+          <!-- Modo Roda & Triângulo HSB (padrão) -->
+          <div id="color-wheel-view">
+            <div class="hsb-controls-card">
+              <div class="hsb-swatches-box">
+                <div class="hsb-swatch-current" id="hsb-swatch-current" title="Cor Atual"></div>
+                <div class="hsb-swatch-prev" id="hsb-swatch-prev" title="Cor Base"></div>
+              </div>
+              <div class="hsb-sliders-col">
+                <div class="hsb-slider-row">
+                  <span class="hsb-channel-label">H</span>
+                  <div class="hsb-slider-track hsb-track-h" id="hsb-track-h" title="Arraste para alterar Matiz (Hue)">
+                    <div class="hsb-slider-thumb" id="hsb-thumb-h"></div>
+                  </div>
+                  <div class="hsb-val-wrap">
+                    <input type="number" id="hsb-input-h" min="0" max="360" value="0" class="hsb-num-input" />
+                    <span class="hsb-unit">°</span>
+                  </div>
+                </div>
+                <div class="hsb-slider-row">
+                  <span class="hsb-channel-label">S</span>
+                  <div class="hsb-slider-track hsb-track-s" id="hsb-track-s" title="Arraste para alterar Saturação">
+                    <div class="hsb-slider-thumb" id="hsb-thumb-s"></div>
+                  </div>
+                  <div class="hsb-val-wrap">
+                    <input type="number" id="hsb-input-s" min="0" max="100" value="100" class="hsb-num-input" />
+                    <span class="hsb-unit">%</span>
+                  </div>
+                </div>
+                <div class="hsb-slider-row">
+                  <span class="hsb-channel-label">B</span>
+                  <div class="hsb-slider-track hsb-track-b" id="hsb-track-b" title="Arraste para alterar Brilho">
+                    <div class="hsb-slider-thumb" id="hsb-thumb-b"></div>
+                  </div>
+                  <div class="hsb-val-wrap">
+                    <input type="number" id="hsb-input-b" min="0" max="100" value="100" class="hsb-num-input" />
+                    <span class="hsb-unit">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Roda Cromática e Triângulo HSB -->
+            <div class="wheel-canvas-container" id="wheel-canvas-container" title="Clique ou arraste no anel para o Matiz, e no triângulo para Saturação e Brilho">
+              <canvas id="wheel-triangle-canvas" width="200" height="200"></canvas>
+            </div>
           </div>
 
-          <!-- Hue Rainbow Bar -->
-          <div class="hue-bar-container" id="hue-bar-container" title="Arraste para selecionar a tonalidade">
-            <div class="hue-cursor" id="hue-cursor"></div>
+          <!-- Modo Caixa 2D (secundário) -->
+          <div id="color-box-view" style="display: none;">
+            <!-- 2D Color Box (Saturation x Value) with Crosshair Reticle -->
+            <div class="color-picker-box-container" id="color-box-container" title="Clique ou arraste para selecionar saturação e brilho">
+              <canvas id="color-box-canvas" width="210" height="110"></canvas>
+              <div class="crosshair-h" id="crosshair-h"></div>
+              <div class="crosshair-v" id="crosshair-v"></div>
+              <div class="crosshair-ring" id="crosshair-ring"></div>
+            </div>
+
+            <!-- Hue Rainbow Bar -->
+            <div class="hue-bar-container" id="hue-bar-container" title="Arraste para selecionar a tonalidade">
+              <div class="hue-cursor" id="hue-cursor"></div>
+            </div>
           </div>
 
           <!-- Active Color Indicator & Reset -->
@@ -195,8 +248,8 @@
               <input type="checkbox" id="chk-gradient-map-3d" style="accent-color: #58a6ff;" />
               <span style="color: #79c0ff; font-weight: 600;">Mapear Nuvem 3D</span>
             </label>
-            <button class="sidebar-action-btn grad-action-primary" id="btn-restrict-gradient" title="Restringe os emojis ativos do lab aos que melhor compõem esse gradiente">
-              Restringir ao Gradiente
+            <button class="sidebar-action-btn grad-action-primary" id="btn-restrict-gradient" title="Foca a nuvem 3D nos emojis que melhor compõem esse gradiente">
+              Focar no Gradiente
             </button>
             <button class="sidebar-action-btn" id="btn-reverse-gradient" title="Inverte as posições das cores">
               Inverter Gradiente
@@ -221,21 +274,25 @@
           <div class="sidebar-section-title">Ações Rápidas</div>
           <div class="sidebar-actions-col">
             <button class="sidebar-action-btn" id="sidebar-unblock-all-btn">Desbloquear Todos</button>
-            <button class="sidebar-action-btn" id="sidebar-clear-forced-btn">Limpar Restrições</button>
+            <button class="sidebar-action-btn" id="sidebar-clear-forced-btn">Limpar Focados</button>
           </div>
         </aside>
 
-        <!-- Right Content: Search, Tags, Category Block Strip, Status & Infinite Scroll Grid -->
+        <!-- Right Content: Tags & Search Pills, Status & 1:1 Emoji Grid -->
         <main class="emoji-modal-main">
-          <div class="emoji-modal-search-row">
-            <input type="text" id="emoji-modal-search-input" placeholder="Buscar por nome ou emoji (ex: fire, skull, heart, flag, #ff0000)..." autocomplete="off" />
-            <button class="emoji-modal-clear-search" id="emoji-modal-clear-search">Limpar</button>
-          </div>
-
-          <!-- Single Unified Category Strip -->
+          <!-- Single Unified Category Strip (Search Pill First + Wrapping Pills) -->
           <div class="category-strip-section">
             <div class="category-strip-scroll" id="unified-category-strip">
+              <!-- Integrated Search Pill (First) -->
+              <div class="search-pill-container" id="search-pill-container">
+                <svg class="search-pill-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="emoji-modal-search-input" class="search-pill-input" placeholder="Buscar emoji..." autocomplete="off" />
+                <button class="search-pill-clear" id="emoji-modal-clear-search" title="Limpar busca">&times;</button>
+              </div>
+
               <button class="cat-chip active" data-cat-id="__all">Todos</button>
+              <button class="cat-chip cat-chip-filter-blocked" data-cat-id="__blocked">Bloqueados</button>
+              <button class="cat-chip cat-chip-filter-forced" data-cat-id="__forced">Focados</button>
               <button class="cat-chip" data-cat-id="emojis">Emojis</button>
               <button class="cat-chip" data-cat-id="human">Pessoas</button>
               <button class="cat-chip" data-cat-id="animals">Animais</button>
@@ -248,8 +305,6 @@
               <button class="cat-chip" data-cat-id="activities">Atividades</button>
               <button class="cat-chip" data-cat-id="religion">Religião</button>
               <button class="cat-chip" data-cat-id="flags">Bandeiras</button>
-              <button class="cat-chip cat-chip-filter-blocked" data-cat-id="__blocked">Bloqueados</button>
-              <button class="cat-chip cat-chip-filter-forced" data-cat-id="__forced">Restritos</button>
             </div>
           </div>
 
@@ -262,7 +317,7 @@
             <div class="active-category-actions">
               <button class="cat-action-btn cat-action-block" id="btn-cat-block-all" title="Bloquear todos os emojis desta categoria">Bloquear Todos</button>
               <button class="cat-action-btn cat-action-unblock" id="btn-cat-unblock-all" title="Liberar todos os emojis desta categoria">Liberar Todos</button>
-              <button class="cat-action-btn cat-action-force" id="btn-cat-force-all" title="Restringir o render 3D somente a esta categoria">Restringir a Esta</button>
+              <button class="cat-action-btn cat-action-force" id="btn-cat-force-all" title="Foca a nuvem 3D exclusivamente nesta categoria">Focar Categoria</button>
               <button class="cat-action-btn cat-action-close" id="btn-cat-clear-filter" title="Voltar a exibir todos os emojis">Ver Todos</button>
             </div>
           </div>

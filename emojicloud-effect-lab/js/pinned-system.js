@@ -729,7 +729,7 @@ function updatePickerHover(clientX, clientY) {
       reticle.style.boxShadow = '0 0 14px rgba(255, 123, 114, 0.8), inset 0 0 6px rgba(255, 123, 114, 0.4)';
     } else if (isForced) {
       badge.className = 'emoji-badge badge-forced';
-      badge.textContent = 'Restrito';
+      badge.textContent = 'Exclusivo';
       hintText.innerHTML = 'Clique para Opções';
       reticle.style.borderColor = '#7ee787';
       reticle.style.boxShadow = '0 0 14px rgba(126, 231, 135, 0.8), inset 0 0 6px rgba(126, 231, 135, 0.4)';

@@ -26,8 +26,10 @@ function blockAllCurrentCategory() {
   if (!currentActiveCategory || currentActiveCategory === '__all') {
     for (let i = 0; i < numAtlasEmojis; i++) {
       excludedIndicesSet.add(i);
+      forcedIndicesSet.delete(i);
     }
     syncExcludedTextFromSet();
+    syncForcedTextFromSet();
     rebuildColorLUT();
     updateCategoryChipsUI();
     const searchInput = document.getElementById('emoji-modal-search-input');
@@ -38,9 +40,12 @@ function blockAllCurrentCategory() {
 
   const indices = categoryIndicesMap[currentActiveCategory] || [];
   for (let i = 0; i < indices.length; i++) {
-    excludedIndicesSet.add(indices[i]);
+    const idx = indices[i];
+    excludedIndicesSet.add(idx);
+    forcedIndicesSet.delete(idx);
   }
   syncExcludedTextFromSet();
+  syncForcedTextFromSet();
   rebuildColorLUT();
   updateCategoryChipsUI();
   const searchInput = document.getElementById('emoji-modal-search-input');
@@ -85,8 +90,12 @@ function forceAllCurrentCategory() {
   }
 
   forcedIndicesSet = new Set(indices);
+  for (let i = 0; i < indices.length; i++) {
+    excludedIndicesSet.delete(indices[i]);
+  }
   params.useForced = true;
   syncForcedTextFromSet();
+  syncExcludedTextFromSet();
 
   if (typeof guiControllers !== 'undefined' && guiControllers.useForced) guiControllers.useForced.setValue(true);
 
@@ -94,10 +103,11 @@ function forceAllCurrentCategory() {
   if (headerToggle) headerToggle.checked = true;
 
   rebuildColorLUT();
+  updateCategoryChipsUI();
   const searchInput = document.getElementById('emoji-modal-search-input');
   renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
   const def = CATEGORY_DEFINITIONS.find(d => d.id === currentActiveCategory);
-  showToast(`Restrito aos emojis de: ${def ? def.label : 'Todos'}`);
+  showToast(`Exclusivo aos emojis de: ${def ? def.label : 'Todos'}`);
 }
 
 function updateCategoryChipsUI() {
@@ -243,7 +253,7 @@ let currentColorVal = 1.0;
 let isColorFilterActive = false;
 let selectedHexColor = '';
 let currentActiveModalTag = '';
-let currentActiveModalColor = '';
+let activeColorMode = 'wheel'; // 'wheel' (default) or 'box'
 
 // State for Gradient Map Mode
 let gradientEngine = typeof GradientEngine !== 'undefined' ? new GradientEngine() : null;
@@ -252,7 +262,49 @@ let activeGradientPresetName = 'Roxo Neon';
 
 let currentMatchedList = [];
 let renderedEmojiCount = 0;
-const EMOJI_BATCH_SIZE = 120;
+const EMOJI_BATCH_SIZE = 80;
+
+// Progressive and Throttled Rendering State
+let progressiveRenderTimer = null;
+let progressiveRenderRafId = null;
+let renderEmojiModalRafId = null;
+let renderEmojiModalTimer = null;
+
+function cancelProgressiveRender() {
+  if (progressiveRenderTimer) {
+    clearTimeout(progressiveRenderTimer);
+    progressiveRenderTimer = null;
+  }
+  if (progressiveRenderRafId) {
+    cancelAnimationFrame(progressiveRenderRafId);
+    progressiveRenderRafId = null;
+  }
+}
+
+function requestEmojiModalRender(immediate = false) {
+  if (renderEmojiModalTimer) {
+    clearTimeout(renderEmojiModalTimer);
+    renderEmojiModalTimer = null;
+  }
+  if (renderEmojiModalRafId) {
+    cancelAnimationFrame(renderEmojiModalRafId);
+    renderEmojiModalRafId = null;
+  }
+
+  if (immediate) {
+    const searchInput = document.getElementById('emoji-modal-search-input');
+    renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+    return;
+  }
+
+  renderEmojiModalTimer = setTimeout(() => {
+    renderEmojiModalRafId = requestAnimationFrame(() => {
+      renderEmojiModalRafId = null;
+      const searchInput = document.getElementById('emoji-modal-search-input');
+      renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+    });
+  }, 35);
+}
 
 function drawColorBox(hue) {
   const canvas = document.getElementById('color-box-canvas');
@@ -277,6 +329,208 @@ function drawColorBox(hue) {
   gradV.addColorStop(1, 'rgba(0,0,0,1)');
   ctx.fillStyle = gradV;
   ctx.fillRect(0, 0, w, h);
+}
+
+// Offscreen Caching for Color Wheel
+let cachedRingCanvas = null;
+let cachedTriCanvas = null;
+let cachedTriHue = -1;
+
+function getCachedRingCanvas() {
+  if (cachedRingCanvas) return cachedRingCanvas;
+  cachedRingCanvas = document.createElement('canvas');
+  cachedRingCanvas.width = 200;
+  cachedRingCanvas.height = 200;
+  const ctx = cachedRingCanvas.getContext('2d');
+  const cx = 100;
+  const cy = 100;
+  const rOut = 94;
+  const rIn = 72;
+
+  // 1. Draw Hue Spectrum Ring (Counter-Clockwise matching Photoshop reference)
+  for (let angle = 0; angle < 360; angle += 1) {
+    const startRad = -(angle + 1.8) * Math.PI / 180;
+    const endRad = -(angle - 0.8) * Math.PI / 180;
+    ctx.beginPath();
+    ctx.arc(cx, cy, (rOut + rIn) / 2, startRad, endRad);
+    ctx.strokeStyle = `hsl(${angle}, 100%, 50%)`;
+    ctx.lineWidth = (rOut - rIn);
+    ctx.stroke();
+  }
+
+  // Ring outer & inner subtle border
+  ctx.beginPath();
+  ctx.arc(cx, cy, rOut + 0.5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#383838';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, rIn - 0.5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#383838';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  return cachedRingCanvas;
+}
+
+function getCachedTriangleCanvas(hue) {
+  const roundedHue = ((Math.round(hue) % 360) + 360) % 360;
+  if (cachedTriCanvas && cachedTriHue === roundedHue) {
+    return cachedTriCanvas;
+  }
+  if (!cachedTriCanvas) {
+    cachedTriCanvas = document.createElement('canvas');
+    cachedTriCanvas.width = 200;
+    cachedTriCanvas.height = 200;
+  }
+  cachedTriHue = roundedHue;
+  const ctx = cachedTriCanvas.getContext('2d');
+  ctx.clearRect(0, 0, 200, 200);
+
+  const cx = 100;
+  const cy = 100;
+  const rTri = 68;
+  const pW = { x: cx - rTri * 0.5, y: cy - rTri * 0.866 }; // White (S=0, B=1)
+  const pK = { x: cx - rTri * 0.5, y: cy + rTri * 0.866 }; // Black (B=0)
+  const pC = { x: cx + rTri, y: cy };                      // Pure Hue (S=1, B=1)
+
+  const [hr, hg, hb] = hsvToRgb(roundedHue, 1, 1);
+  const imgData = ctx.createImageData(200, 200);
+  const data32 = new Uint32Array(imgData.data.buffer);
+
+  const minX = Math.floor(Math.min(pW.x, pK.x, pC.x));
+  const maxX = Math.ceil(Math.max(pW.x, pK.x, pC.x));
+  const minY = Math.floor(Math.min(pW.y, pK.y, pC.y));
+  const maxY = Math.ceil(Math.max(pW.y, pK.y, pC.y));
+
+  const denom = (pK.y - pC.y) * (pW.x - pC.x) + (pC.x - pK.x) * (pW.y - pC.y);
+
+  for (let py = minY; py <= maxY; py++) {
+    if (py < 0 || py >= 200) continue;
+    const rowOffset = py * 200;
+    for (let px = minX; px <= maxX; px++) {
+      if (px < 0 || px >= 200) continue;
+
+      const wW = ((pK.y - pC.y) * (px - pC.x) + (pC.x - pK.x) * (py - pC.y)) / denom;
+      const wK = ((pC.y - pW.y) * (px - pC.x) + (pW.x - pC.x) * (py - pC.y)) / denom;
+      const wC = 1 - wW - wK;
+
+      if (wW >= 0 && wK >= 0 && wC >= 0) {
+        const r = Math.round(wW * 255 + wC * hr);
+        const g = Math.round(wW * 255 + wC * hg);
+        const b = Math.round(wW * 255 + wC * hb);
+        data32[rowOffset + px] = (255 << 24) | (b << 16) | (g << 8) | r;
+      }
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+
+  // Triangle outline
+  ctx.beginPath();
+  ctx.moveTo(pW.x, pW.y);
+  ctx.lineTo(pC.x, pC.y);
+  ctx.lineTo(pK.x, pK.y);
+  ctx.closePath();
+  ctx.strokeStyle = '#444444';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  return cachedTriCanvas;
+}
+
+function drawColorWheelTriangle(hue, sat, val) {
+  const canvas = document.getElementById('wheel-triangle-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const w = canvas.width;
+  const h = canvas.height;
+  const cx = w / 2;
+  const cy = h / 2;
+  const rOut = 94;
+  const rIn = 72;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // 1. Draw cached ring (0ms cost)
+  ctx.drawImage(getCachedRingCanvas(), 0, 0);
+
+  // 2. Draw cached triangle (0ms cost for sat/val drag, ~0.15ms for hue drag)
+  ctx.drawImage(getCachedTriangleCanvas(hue), 0, 0);
+
+  // 3. Draw Hue reticle ring marker on wheel
+  const hueRad = (hue % 360) * Math.PI / 180;
+  const midR = (rOut + rIn) / 2;
+  const hx = cx + midR * Math.cos(hueRad);
+  const hy = cy - midR * Math.sin(hueRad); // Inverted Y for counter-clockwise!
+
+  ctx.beginPath();
+  ctx.arc(hx, hy, 5.5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // 4. Draw Saturation/Brightness Reticle Marker inside triangle
+  const rTri = 68;
+  const pW = { x: cx - rTri * 0.5, y: cy - rTri * 0.866 };
+  const pK = { x: cx - rTri * 0.5, y: cy + rTri * 0.866 };
+  const pC = { x: cx + rTri, y: cy };
+
+  const wK_pos = 1 - val;
+  const wC_pos = sat * val;
+  const wW_pos = (1 - sat) * val;
+
+  const markerX = wW_pos * pW.x + wK_pos * pK.x + wC_pos * pC.x;
+  const markerY = wW_pos * pW.y + wK_pos * pK.y + wC_pos * pC.y;
+
+  ctx.beginPath();
+  ctx.arc(markerX, markerY, 5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function updateHsbUi(hue, sat, val) {
+  const thumbH = document.getElementById('hsb-thumb-h');
+  const thumbS = document.getElementById('hsb-thumb-s');
+  const thumbB = document.getElementById('hsb-thumb-b');
+
+  const inputH = document.getElementById('hsb-input-h');
+  const inputS = document.getElementById('hsb-input-s');
+  const inputB = document.getElementById('hsb-input-b');
+
+  const trackS = document.getElementById('hsb-track-s');
+  const trackB = document.getElementById('hsb-track-b');
+  const swatchCurrent = document.getElementById('hsb-swatch-current');
+
+  if (thumbH) thumbH.style.left = `${(hue / 360) * 100}%`;
+  if (thumbS) thumbS.style.left = `${sat * 100}%`;
+  if (thumbB) thumbB.style.left = `${val * 100}%`;
+
+  if (inputH && document.activeElement !== inputH) inputH.value = Math.round(hue);
+  if (inputS && document.activeElement !== inputS) inputS.value = Math.round(sat * 100);
+  if (inputB && document.activeElement !== inputB) inputB.value = Math.round(val * 100);
+
+  const [hr, hg, hb] = hsvToRgb(hue, 1, 1);
+  const pureHex = rgbToHex(hr, hg, hb);
+
+  const [cr, cg, cb] = hsvToRgb(hue, sat, val);
+  const currHex = rgbToHex(cr, cg, cb);
+
+  if (trackS) trackS.style.background = `linear-gradient(to right, #ffffff, ${pureHex})`;
+  if (trackB) trackB.style.background = `linear-gradient(to right, #000000, ${pureHex})`;
+  if (swatchCurrent) swatchCurrent.style.backgroundColor = currHex;
+
+  drawColorWheelTriangle(hue, sat, val);
 }
 
 function updateCrosshairUI() {
@@ -328,9 +582,11 @@ function updateCrosshairUI() {
       resetBtn.style.color = '#888888';
     }
   }
+
+  updateHsbUi(currentColorHue, currentColorSat, currentColorVal);
 }
 
-function setColorFromHsv(h, s, v, triggerFilter = true) {
+function setColorFromHsv(h, s, v, triggerFilter = true, isDragging = false) {
   currentColorHue = Math.max(0, Math.min(360, h));
   currentColorSat = Math.max(0, Math.min(1, s));
   currentColorVal = Math.max(0, Math.min(1, v));
@@ -363,8 +619,7 @@ function setColorFromHsv(h, s, v, triggerFilter = true) {
   }
 
   if (triggerFilter) {
-    const searchInput = document.getElementById('emoji-modal-search-input');
-    renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+    requestEmojiModalRender(!isDragging);
   }
 }
 
@@ -372,7 +627,7 @@ function setColorFromHex(hex, triggerFilter = true) {
   const rgb = hexToRgb(hex);
   if (!rgb) return;
   const [h, s, v] = rgbToHsv(rgb[0], rgb[1], rgb[2]);
-  setColorFromHsv(h, s, v, triggerFilter);
+  setColorFromHsv(h, s, v, triggerFilter, false);
 }
 
 function resetColorFilter() {
@@ -382,7 +637,7 @@ function resetColorFilter() {
   updateCrosshairUI();
 
   const searchInput = document.getElementById('emoji-modal-search-input');
-  renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, '');
+  requestEmojiModalRender(true);
 }
 
 function refreshGradientWidget() {
@@ -534,8 +789,12 @@ function restrictEmojisToGradient() {
   }
 
   forcedIndicesSet = selectedIndices;
+  for (const idx of selectedIndices) {
+    excludedIndicesSet.delete(idx);
+  }
   params.useForced = true;
   syncForcedTextFromSet();
+  syncExcludedTextFromSet();
 
   if (typeof guiControllers !== 'undefined' && guiControllers.useForced) guiControllers.useForced.setValue(true);
 
@@ -543,11 +802,12 @@ function restrictEmojisToGradient() {
   if (headerToggle) headerToggle.checked = true;
 
   rebuildColorLUT();
+  updateCategoryChipsUI();
 
   const searchInput = document.getElementById('emoji-modal-search-input');
   renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
 
-  showToast(`Restrito a ${selectedIndices.size} emojis do gradiente.`);
+  showToast(`Exclusivo a ${selectedIndices.size} emojis do gradiente.`);
 }
 
 function toggleGradientMap3D(forceState) {
@@ -584,6 +844,9 @@ function renderNextBatch() {
     const isBlocked = excludedIndicesSet.has(idx);
     const isForced = forcedIndicesSet.has(idx);
     const hex = e.avgColor ? e.avgColor.hex : '#888888';
+    const col = (e.slot && typeof e.slot.col === 'number') ? e.slot.col : (emojiCols ? emojiCols[idx] : 0);
+    const row = (e.slot && typeof e.slot.row === 'number') ? e.slot.row : (emojiRows ? emojiRows[idx] : 0);
+    const spritePos = `background-position: -${col * 40}px -${row * 40}px;`;
 
     let badgeClass = 'badge-idle';
     let badgeText = 'Ativo';
@@ -592,18 +855,12 @@ function renderNextBatch() {
       badgeText = 'Bloqueado';
     } else if (isForced) {
       badgeClass = 'badge-forced';
-      badgeText = 'Restrito';
+      badgeText = 'Foco';
     }
 
     let cardClass = 'emoji-grid-card';
     if (isBlocked) cardClass += ' is-blocked';
     if (isForced) cardClass += ' is-forced';
-
-    let gradTagHtml = '';
-    if (item.gradBestT !== undefined && gradientEngine) {
-      const pct = Math.round(item.gradBestT * 100);
-      gradTagHtml = `<span class="emoji-grad-badge" title="Posição no gradiente: ${pct}%">${pct}%</span>`;
-    }
 
     const card = document.createElement('div');
     card.className = cardClass;
@@ -615,13 +872,12 @@ function renderNextBatch() {
       card.innerHTML = `
         <div class="emoji-card-header">
           <span class="emoji-color-dot" style="background-color: ${hex};" title="Cor: ${hex}"></span>
-          ${gradTagHtml}
           <span class="emoji-badge ${badgeClass}">${badgeText}</span>
         </div>
-        <img class="emoji-grid-img" src="emojis/${e.filename}" alt="${e.name}" loading="lazy" />
+        <div class="emoji-atlas-sprite" style="${spritePos}"></div>
         <div class="emoji-grid-name" title="${e.name} (${hex})">${e.name}</div>
         <div class="emoji-grid-actions">
-          <button class="emoji-btn-primary" style="background: #1a324b; color: #79b8ff; border-color: #24517d;" onclick="event.stopPropagation(); window.__selectEmojiForPin(${idx})">Fixar na Seleção</button>
+          <button class="emoji-btn-pin-action" onclick="event.stopPropagation(); window.__selectEmojiForPin(${idx})">Fixar Ponto</button>
         </div>
       `;
     } else {
@@ -629,17 +885,16 @@ function renderNextBatch() {
       card.innerHTML = `
         <div class="emoji-card-header">
           <span class="emoji-color-dot" style="background-color: ${hex};" title="Cor: ${hex}"></span>
-          ${gradTagHtml}
           <span class="emoji-badge ${badgeClass}">${badgeText}</span>
         </div>
-        <img class="emoji-grid-img" src="emojis/${e.filename}" alt="${e.name}" loading="lazy" />
+        <div class="emoji-atlas-sprite" style="${spritePos}"></div>
         <div class="emoji-grid-name" title="${e.name} (${hex})">${e.name}</div>
         <div class="emoji-grid-actions">
-          <button class="emoji-btn-primary ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="event.stopPropagation(); window.__toggleSingleEmoji(${idx})" title="${isBlocked ? 'Liberar este emoji' : 'Bloquear este emoji'}">
+          <button class="emoji-action-btn emoji-btn-block ${isBlocked ? 'is-blocked' : ''}" onclick="event.stopPropagation(); window.__toggleSingleEmoji(${idx})" title="${isBlocked ? 'Liberar este emoji' : 'Bloquear este emoji'}">
             ${isBlocked ? 'Liberar' : 'Bloquear'}
           </button>
-          <button class="emoji-btn-force-icon ${isForced ? 'btn-active' : ''}" onclick="event.stopPropagation(); window.__toggleSingleForced(${idx})" title="${isForced ? 'Remover restrição deste emoji' : 'Restringir render a este emoji'}">
-            ${isForced ? 'Restrito' : 'Restringir'}
+          <button class="emoji-action-btn emoji-btn-force ${isForced ? 'is-forced' : ''}" onclick="event.stopPropagation(); window.__toggleSingleForced(${idx})" title="${isForced ? 'Remover do foco' : 'Focar neste emoji'}">
+            ${isForced ? 'Desfocar' : 'Focar'}
           </button>
         </div>
       `;
@@ -660,8 +915,8 @@ function updateStatusCounter() {
   if (!status) return;
 
   const forcedStatusHtml = params.useForced
-    ? '<span style="color: #7ee787; font-weight: 600;">[Restritos: ATIVO]</span>'
-    : '<span style="color: #888; font-weight: 600;">[Restritos: DESATIVADO]</span>';
+    ? '<span style="color: #7ee787; font-weight: 600;">[Modo Foco: ATIVO]</span>'
+    : '<span style="color: #888; font-weight: 600;">[Modo Foco: DESATIVADO]</span>';
 
   let modeIndicator = '';
   if (params.gradientMap3D) {
@@ -678,7 +933,7 @@ function updateStatusCounter() {
     <span>${loadedText}</span>
     ${modeIndicator}
     <span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndicesSet.size}</strong></span>
-    <span style="color: #7ee787;">Restritos: <strong>${forcedIndicesSet.size}</strong></span>
+    <span style="color: #7ee787;">Focados: <strong>${forcedIndicesSet.size}</strong></span>
     <span>${forcedStatusHtml}</span>
   `;
 
@@ -808,6 +1063,7 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
 
   currentMatchedList = matched;
   renderedEmojiCount = 0;
+  cancelProgressiveRender();
   grid.innerHTML = '';
 
   const activeBar = document.getElementById('active-category-bar');
@@ -824,7 +1080,7 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
       activeCount.textContent = `(${matched.length} emojis)`;
     } else if (currentActiveCategory === '__forced') {
       activeBar.style.display = 'flex';
-      activeName.textContent = 'Emojis Restritos';
+      activeName.textContent = 'Emojis Focados';
       activeCount.textContent = `(${matched.length} emojis)`;
     } else {
       activeBar.style.display = 'none';
@@ -845,6 +1101,11 @@ window.__toggleSingleEmoji = function (atlasIndex) {
     excludedIndicesSet.delete(atlasIndex);
   } else {
     excludedIndicesSet.add(atlasIndex);
+    // Strict mutual exclusion: cannot be blocked and exclusive at the same time
+    if (forcedIndicesSet.has(atlasIndex)) {
+      forcedIndicesSet.delete(atlasIndex);
+      syncForcedTextFromSet();
+    }
   }
   syncExcludedTextFromSet();
   rebuildColorLUT();
@@ -859,6 +1120,11 @@ window.__toggleSingleForced = function (atlasIndex) {
     forcedIndicesSet.delete(atlasIndex);
   } else {
     forcedIndicesSet.add(atlasIndex);
+    // Strict mutual exclusion: cannot be blocked and exclusive at the same time
+    if (excludedIndicesSet.has(atlasIndex)) {
+      excludedIndicesSet.delete(atlasIndex);
+      syncExcludedTextFromSet();
+    }
     params.useForced = true;
     if (typeof guiControllers !== 'undefined' && guiControllers.useForced) guiControllers.useForced.setValue(true);
     const toggle = document.getElementById('emoji-modal-use-forced-toggle');
@@ -866,6 +1132,7 @@ window.__toggleSingleForced = function (atlasIndex) {
   }
   syncForcedTextFromSet();
   rebuildColorLUT();
+  updateCategoryChipsUI();
   const searchInput = document.getElementById('emoji-modal-search-input');
   renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
 };
@@ -885,7 +1152,11 @@ window.__toggleExclusion = function (token) {
   if (allPresent) {
     for (const idx of indices) excludedIndicesSet.delete(idx);
   } else {
-    for (const idx of indices) excludedIndicesSet.add(idx);
+    for (const idx of indices) {
+      excludedIndicesSet.add(idx);
+      forcedIndicesSet.delete(idx);
+    }
+    syncForcedTextFromSet();
   }
   syncExcludedTextFromSet();
   rebuildColorLUT();
@@ -909,7 +1180,11 @@ window.__toggleForced = function (token) {
   if (allPresent) {
     for (const idx of indices) forcedIndicesSet.delete(idx);
   } else {
-    for (const idx of indices) forcedIndicesSet.add(idx);
+    for (const idx of indices) {
+      forcedIndicesSet.add(idx);
+      excludedIndicesSet.delete(idx);
+    }
+    syncExcludedTextFromSet();
     params.useForced = true;
     if (typeof guiControllers !== 'undefined' && guiControllers.useForced) guiControllers.useForced.setValue(true);
     const toggle = document.getElementById('emoji-modal-use-forced-toggle');
@@ -917,6 +1192,7 @@ window.__toggleForced = function (token) {
   }
   syncForcedTextFromSet();
   rebuildColorLUT();
+  updateCategoryChipsUI();
   const searchInput = document.getElementById('emoji-modal-search-input');
   renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
 };
@@ -1083,8 +1359,10 @@ function loadEmojiAssets() {
       if (app && app.graphicsDevice) {
         createLUTTexture();
         rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
-        updateCategoryChipsUI();
       }
+      updateCategoryChipsUI();
+      const searchInput = document.getElementById('emoji-modal-search-input');
+      renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
     })
     .catch(err => console.error('[Effect Lab] Erro ao carregar emoji_atlas.json:', err));
 
@@ -1116,9 +1394,15 @@ function setupEmojiModalEvents() {
   const closeBtn = document.getElementById('emoji-modal-close-btn');
   const searchInput = document.getElementById('emoji-modal-search-input');
   const clearBtn = document.getElementById('emoji-modal-clear-search');
+  const searchPillContainer = document.getElementById('search-pill-container');
   const categoryStrip = document.getElementById('unified-category-strip');
   const headerToggle = document.getElementById('emoji-modal-use-forced-toggle');
   const grid = document.getElementById('emoji-modal-grid');
+
+  const btnModeBox = document.getElementById('btn-color-mode-box');
+  const btnModeWheel = document.getElementById('btn-color-mode-wheel');
+  const colorBoxView = document.getElementById('color-box-view');
+  const colorWheelView = document.getElementById('color-wheel-view');
 
   const boxContainer = document.getElementById('color-box-container');
   const hueContainer = document.getElementById('hue-bar-container');
@@ -1126,6 +1410,14 @@ function setupEmojiModalEvents() {
   const swatchesGrid = document.getElementById('sidebar-swatches-grid');
   const unblockAllBtn = document.getElementById('sidebar-unblock-all-btn');
   const clearForcedBtn = document.getElementById('sidebar-clear-forced-btn');
+
+  const wheelCanvas = document.getElementById('wheel-triangle-canvas');
+  const trackH = document.getElementById('hsb-track-h');
+  const trackS = document.getElementById('hsb-track-s');
+  const trackB = document.getElementById('hsb-track-b');
+  const inputH = document.getElementById('hsb-input-h');
+  const inputS = document.getElementById('hsb-input-s');
+  const inputB = document.getElementById('hsb-input-b');
 
   const btnSaveCustomGrad = document.getElementById('btn-save-custom-grad');
   const inputCustomGradName = document.getElementById('custom-grad-name');
@@ -1140,10 +1432,33 @@ function setupEmojiModalEvents() {
 
   drawColorBox(currentColorHue);
   updateCrosshairUI();
+  updateHsbUi(currentColorHue, currentColorSat, currentColorVal);
   renderGradientLibrary();
   renderCustomGradientsList();
   updateCategoryChipsUI();
   refreshGradientWidget();
+
+  // Color Mode Tabs
+  if (btnModeBox && btnModeWheel && colorBoxView && colorWheelView) {
+    btnModeBox.addEventListener('click', () => {
+      activeColorMode = 'box';
+      btnModeBox.classList.add('active');
+      btnModeWheel.classList.remove('active');
+      colorBoxView.style.display = 'block';
+      colorWheelView.style.display = 'none';
+      drawColorBox(currentColorHue);
+      updateCrosshairUI();
+    });
+
+    btnModeWheel.addEventListener('click', () => {
+      activeColorMode = 'wheel';
+      btnModeWheel.classList.add('active');
+      btnModeBox.classList.remove('active');
+      colorBoxView.style.display = 'none';
+      colorWheelView.style.display = 'block';
+      updateHsbUi(currentColorHue, currentColorSat, currentColorVal);
+    });
+  }
 
   if (panel && header) {
     makeElementDraggable(panel, header);
@@ -1286,6 +1601,7 @@ function setupEmojiModalEvents() {
     });
   }
 
+  // 2D Box Dragging State
   let isDraggingBox = false;
   let isDraggingHue = false;
 
@@ -1296,7 +1612,7 @@ function setupEmojiModalEvents() {
     const y = Math.max(0, Math.min(rect.height, clientY - rect.top));
     const s = x / rect.width;
     const v = 1 - (y / rect.height);
-    setColorFromHsv(currentColorHue, s, v, true);
+    setColorFromHsv(currentColorHue, s, v, true, true);
   };
 
   const handleHueMove = (clientX) => {
@@ -1304,7 +1620,7 @@ function setupEmojiModalEvents() {
     const rect = hueContainer.getBoundingClientRect();
     const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
     const h = (x / rect.width) * 360;
-    setColorFromHsv(h, currentColorSat, currentColorVal, true);
+    setColorFromHsv(h, currentColorSat, currentColorVal, true, true);
   };
 
   if (boxContainer) {
@@ -1333,26 +1649,201 @@ function setupEmojiModalEvents() {
     }, { passive: true });
   }
 
+  // Wheel & Triangle Dragging State
+  let isDraggingWheelRing = false;
+  let isDraggingWheelTri = false;
+
+  const handleWheelPointer = (clientX, clientY) => {
+    if (!wheelCanvas) return;
+    const rect = wheelCanvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const scaleX = wheelCanvas.width / rect.width;
+    const scaleY = wheelCanvas.height / rect.height;
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
+    const cx = wheelCanvas.width / 2;
+    const cy = wheelCanvas.height / 2;
+    const dx = x - cx;
+    const dy = cy - y; // Counter-clockwise math (matching reference image)
+
+    if (isDraggingWheelRing) {
+      let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      if (angle < 0) angle += 360;
+      setColorFromHsv(Math.round(angle), currentColorSat, currentColorVal, true, true);
+    } else if (isDraggingWheelTri) {
+      const rTri = 68;
+      const pW = { x: cx - rTri * 0.5, y: cy - rTri * 0.866 };
+      const pK = { x: cx - rTri * 0.5, y: cy + rTri * 0.866 };
+      const pC = { x: cx + rTri, y: cy };
+
+      const denom = (pK.y - pC.y) * (pW.x - pC.x) + (pC.x - pK.x) * (pW.y - pC.y);
+      let wW = ((pK.y - pC.y) * (x - pC.x) + (pC.x - pK.x) * (y - pC.y)) / denom;
+      let wK = ((pC.y - pW.y) * (x - pC.x) + (pW.x - pC.x) * (y - pC.y)) / denom;
+      let wC = 1 - wW - wK;
+
+      wW = Math.max(0, wW);
+      wK = Math.max(0, wK);
+      wC = Math.max(0, wC);
+      const sum = wW + wK + wC;
+      if (sum > 0) {
+        wW /= sum;
+        wK /= sum;
+        wC /= sum;
+      }
+      const val = Math.max(0, Math.min(1, 1 - wK));
+      const sat = val > 0.001 ? Math.max(0, Math.min(1, wC / val)) : 0;
+
+      setColorFromHsv(currentColorHue, sat, val, true, true);
+    }
+  };
+
+  if (wheelCanvas) {
+    const startWheelDrag = (clientX, clientY) => {
+      const rect = wheelCanvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      const scaleX = wheelCanvas.width / rect.width;
+      const scaleY = wheelCanvas.height / rect.height;
+      const x = (clientX - rect.left) * scaleX;
+      const y = (clientY - rect.top) * scaleY;
+      const cx = wheelCanvas.width / 2;
+      const cy = wheelCanvas.height / 2;
+      const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+      if (dist >= 68) {
+        isDraggingWheelRing = true;
+        isDraggingWheelTri = false;
+      } else {
+        isDraggingWheelTri = true;
+        isDraggingWheelRing = false;
+      }
+      handleWheelPointer(clientX, clientY);
+    };
+
+    wheelCanvas.addEventListener('mousedown', (e) => startWheelDrag(e.clientX, e.clientY));
+    wheelCanvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) startWheelDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+  }
+
+  // HSB Sliders Dragging State
+  let isDraggingTrackH = false;
+  let isDraggingTrackS = false;
+  let isDraggingTrackB = false;
+
+  const handleTrackH = (clientX) => {
+    if (!trackH) return;
+    const rect = trackH.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+    const h = (x / rect.width) * 360;
+    setColorFromHsv(h, currentColorSat, currentColorVal, true, true);
+  };
+
+  const handleTrackS = (clientX) => {
+    if (!trackS) return;
+    const rect = trackS.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+    const s = x / rect.width;
+    setColorFromHsv(currentColorHue, s, currentColorVal, true, true);
+  };
+
+  const handleTrackB = (clientX) => {
+    if (!trackB) return;
+    const rect = trackB.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+    const b = x / rect.width;
+    setColorFromHsv(currentColorHue, currentColorSat, b, true, true);
+  };
+
+  if (trackH) {
+    trackH.addEventListener('mousedown', (e) => { isDraggingTrackH = true; handleTrackH(e.clientX); });
+    trackH.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) { isDraggingTrackH = true; handleTrackH(e.touches[0].clientX); }
+    }, { passive: true });
+  }
+
+  if (trackS) {
+    trackS.addEventListener('mousedown', (e) => { isDraggingTrackS = true; handleTrackS(e.clientX); });
+    trackS.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) { isDraggingTrackS = true; handleTrackS(e.touches[0].clientX); }
+    }, { passive: true });
+  }
+
+  if (trackB) {
+    trackB.addEventListener('mousedown', (e) => { isDraggingTrackB = true; handleTrackB(e.clientX); });
+    trackB.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) { isDraggingTrackB = true; handleTrackB(e.touches[0].clientX); }
+    }, { passive: true });
+  }
+
+  // HSB Numeric Inputs
+  if (inputH) {
+    inputH.addEventListener('input', (e) => {
+      const val = Math.max(0, Math.min(360, parseInt(e.target.value) || 0));
+      setColorFromHsv(val, currentColorSat, currentColorVal, true, false);
+    });
+  }
+
+  if (inputS) {
+    inputS.addEventListener('input', (e) => {
+      const val = Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) / 100;
+      setColorFromHsv(currentColorHue, val, currentColorVal, true, false);
+    });
+  }
+
+  if (inputB) {
+    inputB.addEventListener('input', (e) => {
+      const val = Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) / 100;
+      setColorFromHsv(currentColorHue, currentColorSat, val, true, false);
+    });
+  }
+
+  // Global window pointer move & up
   window.addEventListener('mousemove', (e) => {
     if (isDraggingBox) handleBoxMove(e.clientX, e.clientY);
     if (isDraggingHue) handleHueMove(e.clientX);
+    if (isDraggingWheelRing || isDraggingWheelTri) handleWheelPointer(e.clientX, e.clientY);
+    if (isDraggingTrackH) handleTrackH(e.clientX);
+    if (isDraggingTrackS) handleTrackS(e.clientX);
+    if (isDraggingTrackB) handleTrackB(e.clientX);
   });
 
   window.addEventListener('touchmove', (e) => {
     if (e.touches.length === 1) {
       if (isDraggingBox) handleBoxMove(e.touches[0].clientX, e.touches[0].clientY);
       if (isDraggingHue) handleHueMove(e.touches[0].clientX);
+      if (isDraggingWheelRing || isDraggingWheelTri) handleWheelPointer(e.touches[0].clientX, e.touches[0].clientY);
+      if (isDraggingTrackH) handleTrackH(e.touches[0].clientX);
+      if (isDraggingTrackS) handleTrackS(e.touches[0].clientX);
+      if (isDraggingTrackB) handleTrackB(e.touches[0].clientX);
     }
   }, { passive: true });
 
   window.addEventListener('mouseup', () => {
+    const wasDragging = isDraggingBox || isDraggingHue || isDraggingWheelRing || isDraggingWheelTri || isDraggingTrackH || isDraggingTrackS || isDraggingTrackB;
     isDraggingBox = false;
     isDraggingHue = false;
+    isDraggingWheelRing = false;
+    isDraggingWheelTri = false;
+    isDraggingTrackH = false;
+    isDraggingTrackS = false;
+    isDraggingTrackB = false;
+    if (wasDragging) {
+      requestEmojiModalRender(true);
+    }
   });
 
   window.addEventListener('touchend', () => {
+    const wasDragging = isDraggingBox || isDraggingHue || isDraggingWheelRing || isDraggingWheelTri || isDraggingTrackH || isDraggingTrackS || isDraggingTrackB;
     isDraggingBox = false;
     isDraggingHue = false;
+    isDraggingWheelRing = false;
+    isDraggingWheelTri = false;
+    isDraggingTrackH = false;
+    isDraggingTrackS = false;
+    isDraggingTrackB = false;
+    if (wasDragging) {
+      requestEmojiModalRender(true);
+    }
   });
 
   if (resetBtn) {
@@ -1389,7 +1880,7 @@ function setupEmojiModalEvents() {
       rebuildColorLUT();
       const searchInput = document.getElementById('emoji-modal-search-input');
       renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
-      showToast('Limpas todas as restrições.');
+      showToast('Foco limpo em todos os emojis.');
     });
   }
 
@@ -1413,6 +1904,7 @@ function setupEmojiModalEvents() {
   if (clearBtn && searchInput) {
     clearBtn.addEventListener('click', () => {
       searchInput.value = '';
+      if (searchPillContainer) searchPillContainer.classList.remove('has-value');
       renderEmojiModal('', currentActiveModalTag, currentActiveModalColor);
       searchInput.focus();
     });
@@ -1421,6 +1913,9 @@ function setupEmojiModalEvents() {
   let searchDebounce = null;
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
+      if (searchPillContainer) {
+        searchPillContainer.classList.toggle('has-value', !!e.target.value.trim());
+      }
       clearTimeout(searchDebounce);
       searchDebounce = setTimeout(() => {
         renderEmojiModal(e.target.value, currentActiveModalTag, currentActiveModalColor);

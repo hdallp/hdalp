@@ -59,7 +59,7 @@ function showPickerActionMenu(clientX, clientY, emoji, localPos) {
       badge.textContent = 'Bloqueado';
     } else if (isForced) {
       badge.className = 'emoji-badge badge-forced';
-      badge.textContent = 'Restrito';
+      badge.textContent = 'Exclusivo';
     } else {
       badge.className = 'emoji-badge badge-idle';
       badge.textContent = 'Ativo';
@@ -480,17 +480,17 @@ function setupGUI() {
     renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
   });
 
-  bindControl(filterFolder, 'forcedText', { label: 'Restringir a Emojis' }, (val) => {
+  bindControl(filterFolder, 'forcedText', { label: 'Emojis Exclusivos' }, (val) => {
     rebuildColorLUT(params.excludedText, val, params.useForced);
     const searchInput = document.getElementById('emoji-modal-search-input');
     renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
   });
 
-  addAction(filterFolder, 'Limpar Restrições', () => params.clearForced());
+  addAction(filterFolder, 'Limpar Exclusivos', () => params.clearForced());
 
   bindControl(filterFolder, 'activeEmojisCount', { label: 'Total Ativo', readonly: true });
   bindControl(filterFolder, 'excludedCount', { label: 'Bloqueados', readonly: true });
-  bindControl(filterFolder, 'forcedCount', { label: 'Restritos', readonly: true });
+  bindControl(filterFolder, 'forcedCount', { label: 'Exclusivos', readonly: true });
 
   // Geometria & Densidade
   const geoFolder = pageScene.addFolder({ title: 'Geometria & Densidade' });

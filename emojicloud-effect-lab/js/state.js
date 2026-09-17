@@ -111,6 +111,9 @@ const params = {
           drawColorBox(currentColorHue);
           updateCrosshairUI();
         }
+        if (typeof updateHsbUi === 'function') {
+          updateHsbUi(currentColorHue, currentColorSat, currentColorVal);
+        }
         if (typeof renderGradientLibrary === 'function') {
           renderGradientLibrary();
           refreshGradientWidget();
