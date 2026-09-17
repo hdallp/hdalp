@@ -67,11 +67,10 @@ void main(void) {
 				return;
 			}
 		} else {
-			// --- Modo Aleatório (Original) ---
-			uint h = splat.index * 747796405u + 2891336453u;
-			h = ((h >> ((h >> 28u) + 4u)) ^ h) * 277803737u;
-			h = (h >> 22u) ^ h;
-			float randVal = float(h & 0xFFFFFFu) / 16777215.0;
+			// --- Modo Aleatório Estável (Baseado na posição 3D local do modelo - zero flicker) ---
+			vec3 p3 = fract(modelCenter * vec3(443.897, 441.423, 437.195));
+			p3 += dot(p3, p3.yzx + 19.19);
+			float randVal = fract((p3.x + p3.y) * p3.z);
 			if (randVal > uDensity) {
 				gl_Position = discardVec;
 				return;
@@ -326,6 +325,8 @@ varying float vSplatIndex;
 uniform sampler2D uEmojiAtlas;
 uniform sampler2D uColorLUT;
 uniform int uRenderMode;
+uniform int uDistMode;
+uniform float uEmojiVariety;
 uniform float uAlphaCutoff;
 uniform float uTintIntensity;
 uniform float uModelRadius;
@@ -376,6 +377,18 @@ vec3 applyColorGrading(vec3 col) {
 	return clamp(rgb, 0.0, 1.0);
 }
 
+float hashPos(vec3 p) {
+	vec3 p3 = fract(p * vec3(443.897, 441.423, 437.195));
+	p3 += dot(p3, p3.yzx + 19.19);
+	return fract((p3.x + p3.y) * p3.z);
+}
+
+vec3 hashPos3(vec3 p) {
+	vec3 p3 = fract(p * vec3(443.897, 441.423, 437.195));
+	p3 += dot(p3, p3.yzx + 19.19);
+	return fract((p3.xxy + p3.yzz) * p3.zyx);
+}
+
 void main(void) {
 	#if defined(SHADOW_PASS) || defined(PICK_PASS) || defined(PREPASS_PASS)
 		// pass
@@ -403,9 +416,24 @@ void main(void) {
 		vec2 localUV = vec2(gaussianUV.x * 0.5 + 0.5, -gaussianUV.y * 0.5 + 0.5);
 		vec2 clampedUV = clamp(localUV, 0.0, 1.0);
 
-		vec3 voxel = floor(splatColor * 15.0 + 0.5);
+		vec3 voxel = clamp(floor(splatColor * 15.0 + 0.5), vec3(0.0), vec3(15.0));
 		float lutX = (voxel.r * 16.0 + voxel.g + 0.5) / 256.0;
 		float lutY = (voxel.b + 0.5) / 16.0;
+
+		if (uDistMode == 2) {
+			// Modo Aleatório: distribui splats uniformemente pela LUT baseado na posição 3D local fixa (zero flicker)
+			float rnd = hashPos(vModelCenter * 80.0);
+			float randVoxel = floor(rnd * 4095.0 + 0.5);
+			lutX = (mod(randVoxel, 256.0) + 0.5) / 256.0;
+			lutY = (floor(randVoxel / 256.0) + 0.5) / 16.0;
+		} else if (uEmojiVariety > 0.05) {
+			// Dither espacial suave entre splats vizinhos baseado na posição 3D local fixa (zero flicker)
+			vec3 h3 = hashPos3(vModelCenter * 80.0) - 0.5;
+			vec3 jitter = h3 * (uEmojiVariety * 0.95);
+			vec3 jitVoxel = clamp(floor(splatColor * 15.0 + jitter + 0.5), vec3(0.0), vec3(15.0));
+			lutX = (jitVoxel.r * 16.0 + jitVoxel.g + 0.5) / 256.0;
+			lutY = (jitVoxel.b + 0.5) / 16.0;
+		}
 
 		vec4 lutSample = texture2D(uColorLUT, vec2(lutX, lutY));
 		float col = floor(lutSample.r * 255.0 + 0.5);
@@ -473,6 +501,18 @@ varying gaussianColor: half4;
 	#include "pickPS"
 #endif
 
+fn hashPosWG(p: vec3f) -> f32 {
+	var p3 = fract(p * vec3f(443.897, 441.423, 437.195));
+	p3 += dot(p3, p3.yzx + 19.19);
+	return fract((p3.x + p3.y) * p3.z);
+}
+
+fn hashPos3WG(p: vec3f) -> vec3f {
+	var p3 = fract(p * vec3f(443.897, 441.423, 437.195));
+	p3 += dot(p3, p3.yzx + 19.19);
+	return fract((p3.xxy + p3.yzz) * p3.zyx);
+}
+
 @fragment
 fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 	var output: FragmentOutput;
@@ -494,9 +534,22 @@ fn fragmentMain(input: FragmentInput) -> FragmentOutput {
 		let localUV = vec2f(f32(input.gaussianUV.x) * 0.5 + 0.5, -f32(input.gaussianUV.y) * 0.5 + 0.5);
 		let clampedUV = clamp(localUV, vec2f(0.0), vec2f(1.0));
 
-		let voxel = floor(splatColor * 15.0 + 0.5);
-		let lutX = (voxel.r * 16.0 + voxel.g + 0.5) / 256.0;
-		let lutY = (voxel.b + 0.5) / 16.0;
+		var voxel = clamp(floor(splatColor * 15.0 + 0.5), vec3f(0.0), vec3f(15.0));
+		var lutX = (voxel.r * 16.0 + voxel.g + 0.5) / 256.0;
+		var lutY = (voxel.b + 0.5) / 16.0;
+
+		if (uniforms.uDistMode == 2) {
+			let rnd = hashPosWG(vec3f(input.gaussianUV.x, input.gaussianUV.y, splatColor.r) * 80.0);
+			let randVoxel = floor(rnd * 4095.0 + 0.5);
+			lutX = (fract(randVoxel / 256.0) * 256.0 + 0.5) / 256.0;
+			lutY = (floor(randVoxel / 256.0) + 0.5) / 16.0;
+		} else if (uniforms.uEmojiVariety > 0.05) {
+			let h3 = hashPos3WG(vec3f(input.gaussianUV.x, input.gaussianUV.y, splatColor.r) * 80.0) - 0.5;
+			let jitter = h3 * (uniforms.uEmojiVariety * 0.95);
+			let jitVoxel = clamp(floor(splatColor * 15.0 + jitter + 0.5), vec3f(0.0), vec3f(15.0));
+			lutX = (jitVoxel.r * 16.0 + jitVoxel.g + 0.5) / 256.0;
+			lutY = (jitVoxel.b + 0.5) / 16.0;
+		}
 
 		let lutSample = textureSample(uColorLUT, uColorLUTSampler, vec2f(lutX, lutY));
 		let col = floor(lutSample.r * 255.0 + 0.5);

@@ -188,6 +188,9 @@ function saveCurrentPreset(name) {
       useEmojis: params.useEmojis,
       renderModeText: params.renderModeText,
       renderMode: params.renderMode,
+      distModeText: params.distModeText,
+      distMode: params.distMode,
+      emojiVariety: params.emojiVariety,
       tintIntensity: params.tintIntensity,
       alphaCutoff: params.alphaCutoff,
       lockSH: params.lockSH,
@@ -240,6 +243,9 @@ function loadPreset(name) {
       else params.renderModeText = p.renderModeText;
     }
     if (p.renderMode !== undefined) params.renderMode = p.renderMode;
+    if (p.distModeText !== undefined) params.distModeText = p.distModeText;
+    if (p.distMode !== undefined) params.distMode = p.distMode;
+    if (p.emojiVariety !== undefined) params.emojiVariety = p.emojiVariety;
     if (p.tintIntensity !== undefined) params.tintIntensity = p.tintIntensity;
     if (p.alphaCutoff !== undefined) params.alphaCutoff = p.alphaCutoff;
     if (p.lockSH !== undefined) params.lockSH = p.lockSH;

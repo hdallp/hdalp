@@ -423,6 +423,50 @@
   border-color: #8e3333;
 }
 
+.picker-btn-block {
+  background: #332020;
+  color: #ff7b72;
+  border-color: #5c2626;
+}
+.picker-btn-block:hover {
+  background: #482323;
+  color: #ffa198;
+  border-color: #7d3232;
+}
+
+.picker-btn-unblock {
+  background: #1c3325;
+  color: #7ee787;
+  border-color: #275637;
+}
+.picker-btn-unblock:hover {
+  background: #254632;
+  color: #a8f7b0;
+  border-color: #387b4f;
+}
+
+.picker-btn-force {
+  background: #1b2f3d;
+  color: #79c0ff;
+  border-color: #2a4c66;
+}
+.picker-btn-force:hover {
+  background: #234055;
+  color: #a5d6ff;
+  border-color: #38678d;
+}
+
+.picker-btn-unforce {
+  background: #382d1c;
+  color: #f0b72f;
+  border-color: #614a22;
+}
+.picker-btn-unforce:hover {
+  background: #4c3c21;
+  color: #ffd666;
+  border-color: #82632b;
+}
+
 .picker-btn-group {
   display: flex;
   gap: 4px;

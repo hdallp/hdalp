@@ -23,6 +23,8 @@ function clearCategoryFilter() {
 
 function blockAllCurrentCategory() {
   if (!atlasMetadata || !atlasMetadata.emojis) return;
+  if (currentActiveCategory === '__blocked') return;
+
   if (!currentActiveCategory || currentActiveCategory === '__all') {
     for (let i = 0; i < numAtlasEmojis; i++) {
       excludedIndicesSet.add(i);
@@ -56,14 +58,27 @@ function blockAllCurrentCategory() {
 
 function unblockAllCurrentCategory() {
   if (!atlasMetadata || !atlasMetadata.emojis) return;
-  if (!currentActiveCategory || currentActiveCategory === '__all') {
+  if (!currentActiveCategory || currentActiveCategory === '__all' || currentActiveCategory === '__blocked') {
     excludedIndicesSet.clear();
     syncExcludedTextFromSet();
     rebuildColorLUT();
     updateCategoryChipsUI();
     const searchInput = document.getElementById('emoji-modal-search-input');
     renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
-    showToast('Liberados todos os emojis.');
+    showToast('Liberados todos os emojis bloqueados.');
+    return;
+  }
+
+  if (currentActiveCategory === '__forced') {
+    forcedIndicesSet.clear();
+    params.forcedText = '';
+    if (typeof guiControllers !== 'undefined' && guiControllers.forcedText) guiControllers.forcedText.setValue('');
+    syncForcedTextFromSet();
+    rebuildColorLUT();
+    updateCategoryChipsUI();
+    const searchInput = document.getElementById('emoji-modal-search-input');
+    renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+    showToast('Foco limpo em todos os emojis.');
     return;
   }
 
@@ -82,6 +97,12 @@ function unblockAllCurrentCategory() {
 
 function forceAllCurrentCategory() {
   if (!atlasMetadata || !atlasMetadata.emojis) return;
+  if (currentActiveCategory === '__blocked') return;
+  if (currentActiveCategory === '__forced') {
+    unblockAllCurrentCategory();
+    return;
+  }
+
   let indices = [];
   if (!currentActiveCategory || currentActiveCategory === '__all') {
     indices = Array.from({ length: numAtlasEmojis }, (_, i) => i);
@@ -107,7 +128,7 @@ function forceAllCurrentCategory() {
   const searchInput = document.getElementById('emoji-modal-search-input');
   renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
   const def = CATEGORY_DEFINITIONS.find(d => d.id === currentActiveCategory);
-  showToast(`Exclusivo aos emojis de: ${def ? def.label : 'Todos'}`);
+  showToast(`Foco aplicado aos emojis de: ${def ? def.label : 'Todos'}`);
 }
 
 function updateCategoryChipsUI() {
@@ -233,10 +254,11 @@ function applyCustomGradient(item) {
   const chkGrad3d = document.getElementById('chk-gradient-map-3d');
   if (chkGrad3d) chkGrad3d.checked = true;
 
-  if (typeof guiControllers !== 'undefined' && guiControllers.gradientMap3D) guiControllers.gradientMap3D.setValue(true);
-
-  rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+  rebuildColorLUT();
   refreshGradientWidget();
+  if (gradientEngine && gradientEngine.selectedColorStop) {
+    setColorFromHex(gradientEngine.selectedColorStop.color, false);
+  }
   renderCustomGradientsList();
   const presetLib = document.getElementById('modalGradientLibrary');
   if (presetLib) presetLib.querySelectorAll('.gradient-lib-item').forEach(el => el.classList.remove('active'));
@@ -246,14 +268,15 @@ function applyCustomGradient(item) {
   showToast(`Gradiente: ${item.name}`);
 }
 
-// State for 2D Color Picker
-let currentColorHue = 0;
-let currentColorSat = 1.0;
-let currentColorVal = 1.0;
-let isColorFilterActive = false;
-let selectedHexColor = '';
-let currentActiveModalTag = '';
-let activeColorMode = 'wheel'; // 'wheel' (default) or 'box'
+// State for Color Picker & Filters (Declared in state.js)
+currentColorHue = 0;
+currentColorSat = 1.0;
+currentColorVal = 1.0;
+isColorFilterActive = true;
+selectedHexColor = '#ff0000';
+currentActiveModalTag = '';
+currentActiveModalColor = '#ff0000';
+activeColorMode = 'wheel'; // 'wheel' (default) or 'box'
 
 // State for Gradient Map Mode
 let gradientEngine = typeof GradientEngine !== 'undefined' ? new GradientEngine() : null;
@@ -262,48 +285,36 @@ let activeGradientPresetName = 'Roxo Neon';
 
 let currentMatchedList = [];
 let renderedEmojiCount = 0;
-const EMOJI_BATCH_SIZE = 80;
+const EMOJI_BATCH_SIZE = 180;
 
 // Progressive and Throttled Rendering State
-let progressiveRenderTimer = null;
-let progressiveRenderRafId = null;
 let renderEmojiModalRafId = null;
-let renderEmojiModalTimer = null;
 
 function cancelProgressiveRender() {
-  if (progressiveRenderTimer) {
-    clearTimeout(progressiveRenderTimer);
-    progressiveRenderTimer = null;
-  }
-  if (progressiveRenderRafId) {
-    cancelAnimationFrame(progressiveRenderRafId);
-    progressiveRenderRafId = null;
-  }
-}
-
-function requestEmojiModalRender(immediate = false) {
-  if (renderEmojiModalTimer) {
-    clearTimeout(renderEmojiModalTimer);
-    renderEmojiModalTimer = null;
-  }
   if (renderEmojiModalRafId) {
     cancelAnimationFrame(renderEmojiModalRafId);
     renderEmojiModalRafId = null;
   }
+}
 
+function requestEmojiModalRender(immediate = false) {
   if (immediate) {
+    if (renderEmojiModalRafId) {
+      cancelAnimationFrame(renderEmojiModalRafId);
+      renderEmojiModalRafId = null;
+    }
     const searchInput = document.getElementById('emoji-modal-search-input');
     renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
     return;
   }
 
-  renderEmojiModalTimer = setTimeout(() => {
-    renderEmojiModalRafId = requestAnimationFrame(() => {
-      renderEmojiModalRafId = null;
-      const searchInput = document.getElementById('emoji-modal-search-input');
-      renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
-    });
-  }, 35);
+  if (renderEmojiModalRafId) return;
+
+  renderEmojiModalRafId = requestAnimationFrame(() => {
+    renderEmojiModalRafId = null;
+    const searchInput = document.getElementById('emoji-modal-search-input');
+    renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+  });
 }
 
 function drawColorBox(hue) {
@@ -614,7 +625,7 @@ function setColorFromHsv(h, s, v, triggerFilter = true, isDragging = false) {
     }
 
     if (params.gradientMap3D) {
-      rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+      rebuildColorLUT();
     }
   }
 
@@ -685,7 +696,7 @@ function refreshGradientWidget() {
   }
 
   if (params.gradientMap3D) {
-    rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+    rebuildColorLUT();
   }
 }
 
@@ -746,8 +757,11 @@ function renderGradientLibrary() {
         if (guiControllers.gradientPreset) guiControllers.gradientPreset.setValue(p.name);
       }
 
-      rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+      rebuildColorLUT();
       refreshGradientWidget();
+      if (gradientEngine && gradientEngine.selectedColorStop) {
+        setColorFromHex(gradientEngine.selectedColorStop.color, false);
+      }
 
       const customListEl = document.getElementById('custom-gradients-list');
       if (customListEl) customListEl.querySelectorAll('.custom-grad-item').forEach(el => el.classList.remove('active'));
@@ -929,10 +943,15 @@ function updateStatusCounter() {
     ? `Exibindo <strong>${renderedEmojiCount}</strong> de <strong>${currentMatchedList.length}</strong> (role para ver mais)`
     : `<strong>${currentMatchedList.length}</strong> emojis (total: ${numAtlasEmojis})`;
 
+  const isSpecificCategory = currentActiveCategory && currentActiveCategory !== '__all';
+  const blockedCountText = (hideBlockedEmojis && !isSpecificCategory)
+    ? `<span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndicesSet.size}</strong> (ocultos)</span>`
+    : `<span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndicesSet.size}</strong></span>`;
+
   status.innerHTML = `
     <span>${loadedText}</span>
     ${modeIndicator}
-    <span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndicesSet.size}</strong></span>
+    ${blockedCountText}
     <span style="color: #7ee787;">Focados: <strong>${forcedIndicesSet.size}</strong></span>
     <span>${forcedStatusHtml}</span>
   `;
@@ -968,7 +987,7 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
   }
 
   let gradientSamples = null;
-  if (gradientEngine) {
+  if (params.gradientMap3D && gradientEngine) {
     const SAMPLE_COUNT = 64;
     gradientSamples = [];
     for (let s = 0; s <= SAMPLE_COUNT; s++) {
@@ -1005,6 +1024,8 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
       if (!isForced) continue;
     } else if (allowedIndicesSet) {
       if (!allowedIndicesSet.has(i)) continue;
+    } else {
+      if (hideBlockedEmojis && isBlocked) continue;
     }
 
     if (isColorFilterActive && colorFilter && !colorFilter.startsWith('#')) {
@@ -1050,15 +1071,15 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
     matched.push({ emoji: e, index: i, isBlocked, isForced, colorDist, gradBestT, gradMinDist });
   }
 
-  if (targetLabColor) {
-    matched.sort((a, b) => a.colorDist - b.colorDist);
-  } else if (params.gradientMap3D) {
+  if (params.gradientMap3D && gradientSamples) {
     matched.sort((a, b) => {
       if (Math.abs(a.gradBestT - b.gradBestT) > 0.001) {
         return a.gradBestT - b.gradBestT;
       }
       return a.gradMinDist - b.gradMinDist;
     });
+  } else if (targetLabColor) {
+    matched.sort((a, b) => a.colorDist - b.colorDist);
   }
 
   currentMatchedList = matched;
@@ -1069,19 +1090,36 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
   const activeBar = document.getElementById('active-category-bar');
   const activeName = document.getElementById('active-category-name');
   const activeCount = document.getElementById('active-category-count');
+  const btnCatBlockAll = document.getElementById('btn-cat-block-all');
+  const btnCatUnblockAll = document.getElementById('btn-cat-unblock-all');
+  const btnCatForceAll = document.getElementById('btn-cat-force-all');
+  const btnCatClearFilter = document.getElementById('btn-cat-clear-filter');
+
   if (activeBar && activeName && activeCount) {
     if (activeCatDef) {
       activeBar.style.display = 'flex';
       activeName.textContent = activeCatDef.label;
       activeCount.textContent = `(${matched.length} emojis)`;
+      if (btnCatBlockAll) { btnCatBlockAll.style.display = 'inline-flex'; btnCatBlockAll.textContent = 'Bloquear Todos'; }
+      if (btnCatUnblockAll) { btnCatUnblockAll.style.display = 'inline-flex'; btnCatUnblockAll.textContent = 'Liberar Todos'; }
+      if (btnCatForceAll) { btnCatForceAll.style.display = 'inline-flex'; btnCatForceAll.textContent = 'Focar Categoria'; }
+      if (btnCatClearFilter) { btnCatClearFilter.style.display = 'inline-flex'; btnCatClearFilter.textContent = 'Ver Todos'; }
     } else if (currentActiveCategory === '__blocked') {
       activeBar.style.display = 'flex';
       activeName.textContent = 'Emojis Bloqueados';
       activeCount.textContent = `(${matched.length} emojis)`;
+      if (btnCatBlockAll) btnCatBlockAll.style.display = 'none';
+      if (btnCatUnblockAll) { btnCatUnblockAll.style.display = 'inline-flex'; btnCatUnblockAll.textContent = 'Desbloquear Todos'; }
+      if (btnCatForceAll) btnCatForceAll.style.display = 'none';
+      if (btnCatClearFilter) { btnCatClearFilter.style.display = 'inline-flex'; btnCatClearFilter.textContent = 'Ver Todos'; }
     } else if (currentActiveCategory === '__forced') {
       activeBar.style.display = 'flex';
       activeName.textContent = 'Emojis Focados';
       activeCount.textContent = `(${matched.length} emojis)`;
+      if (btnCatBlockAll) btnCatBlockAll.style.display = 'none';
+      if (btnCatUnblockAll) { btnCatUnblockAll.style.display = 'inline-flex'; btnCatUnblockAll.textContent = 'Limpar Foco'; }
+      if (btnCatForceAll) btnCatForceAll.style.display = 'none';
+      if (btnCatClearFilter) { btnCatClearFilter.style.display = 'inline-flex'; btnCatClearFilter.textContent = 'Ver Todos'; }
     } else {
       activeBar.style.display = 'none';
     }
@@ -1092,6 +1130,9 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
     updateStatusCounter();
   } else {
     renderNextBatch();
+    if (grid.clientHeight > 0 && grid.scrollHeight <= grid.clientHeight + 600 && renderedEmojiCount < currentMatchedList.length) {
+      renderNextBatch();
+    }
   }
 }
 
@@ -1437,6 +1478,7 @@ function setupEmojiModalEvents() {
   renderCustomGradientsList();
   updateCategoryChipsUI();
   refreshGradientWidget();
+  renderEmojiModal('', currentActiveModalTag, currentActiveModalColor);
 
   // Color Mode Tabs
   if (btnModeBox && btnModeWheel && colorBoxView && colorWheelView) {
@@ -1595,10 +1637,10 @@ function setupEmojiModalEvents() {
 
   if (grid) {
     grid.addEventListener('scroll', () => {
-      if (grid.scrollTop + grid.clientHeight >= grid.scrollHeight - 300) {
+      if (grid.scrollTop + grid.clientHeight >= grid.scrollHeight - 800) {
         renderNextBatch();
       }
-    });
+    }, { passive: true });
   }
 
   // 2D Box Dragging State
@@ -1881,6 +1923,15 @@ function setupEmojiModalEvents() {
       const searchInput = document.getElementById('emoji-modal-search-input');
       renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
       showToast('Foco limpo em todos os emojis.');
+    });
+  }
+
+  const hideBlockedToggle = document.getElementById('emoji-modal-hide-blocked-toggle');
+  if (hideBlockedToggle) {
+    hideBlockedToggle.checked = hideBlockedEmojis;
+    hideBlockedToggle.addEventListener('change', (e) => {
+      hideBlockedEmojis = e.target.checked;
+      renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
     });
   }
 

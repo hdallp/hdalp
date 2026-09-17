@@ -52,11 +52,11 @@ function normalizeEmojiStr(str) {
   return str.replace(/[\uFE0E\uFE0F]/g, '').trim().toLowerCase();
 }
 
-// 12 Categorias do Emojicloud com correspondência estrita e precisa
+// Categorias do Emojicloud com correspondência estrita e precisa
 const CATEGORY_DEFINITIONS = [
   {
     id: 'emojis',
-    label: 'Emojis',
+    label: 'Rostos & Emojis',
     test: e => {
       const n = (e.name || '').toLowerCase();
       const faceExact = ['grinning', 'smiley', 'smile', 'grin', 'laughing', 'sweat_smile', 'joy', 'rofl', 'relaxed', 'slightly_smiling_face', 'upside_down_face', 'wink', 'relieved', 'heart_eyes', 'smiling_face_with_3_hearts', 'kissing_heart', 'kissing', 'kissing_smiling_eyes', 'kissing_closed_eyes', 'yum', 'stuck_out_tongue', 'stuck_out_tongue_winking_eye', 'stuck_out_tongue_closed_eyes', 'money_mouth_face', 'hugging_face', 'hugs', 'face_with_hand_over_mouth', 'shushing_face', 'thinking', 'thinking_face', 'zipper_mouth_face', 'raised_eyebrow', 'neutral_face', 'expressionless', 'no_mouth', 'smirk', 'unamused', 'rolling_eyes', 'grimacing', 'lying_face', 'pensive', 'sleepy', 'drooling_face', 'sleeping', 'mask', 'face_with_thermometer', 'face_with_head_bandage', 'nauseated_face', 'face_vomiting', 'sneezing_face', 'hot_face', 'cold_face', 'woozy_face', 'dizzy_face', 'exploding_head', 'cowboy_hat_face', 'partying_face', 'sunglasses', 'nerd_face', 'monocle_face', 'confused', 'worried', 'slightly_frowning_face', 'frowning_face', 'open_mouth', 'hushed', 'astonished', 'flushed', 'pleading_face', 'frowning', 'anguished', 'fearful', 'cold_sweat', 'disappointed_relieved', 'cry', 'sob', 'scream', 'confounded', 'persevere', 'disappointed', 'sweat', 'weary', 'tired_face', 'yawning_face', 'triumph', 'rage', 'angry', 'cursing_face', 'smiling_imp', 'imp', 'skull', 'skull_crossbones', 'poop', 'clown_face', 'ghost', 'alien', 'space_invader', 'robot', 'jack_o_lantern', 'see_no_evil', 'hear_no_evil', 'speak_no_evil'];
@@ -69,13 +69,25 @@ const CATEGORY_DEFINITIONS = [
     test: e => {
       const n = (e.name || '').toLowerCase();
       if (n.startsWith('man_') || n.startsWith('woman_') || n.startsWith('person_') || n.startsWith('boy') || n.startsWith('girl') || n.startsWith('baby') || n.startsWith('adult') || n.startsWith('people') || n.startsWith('family_') || n.startsWith('couple_') || n.startsWith('two_men') || n.startsWith('two_women') || n.startsWith('men_') || n.startsWith('women_') || n.startsWith('holding_hands') || n === 'man' || n === 'woman' || n === 'person' || n === 'baby' || n === 'boy' || n === 'girl' || n === 'child' || n === 'older_man' || n === 'older_woman' || n === 'older_adult' || n === 'deaf_woman' || n === 'deaf_man' || n === 'deaf_person' || n === 'pregnant_woman' || n === 'breast_feeding' || n === 'woman_with_veil' || n === 'blond_haired_woman' || n === 'blond_haired_man' || n === 'blond_haired_person') return true;
-      const bodyParts = ['hand', 'finger', 'foot', 'leg', 'arm', 'ear', 'nose', 'eyes', 'brain', 'bone', 'muscle', 'tongue', 'lips', 'mouth', 'eye', 'beard', 'hair'];
-      if (bodyParts.some(b => n === b || n.startsWith(b + '_') || n.endsWith('_' + b))) return true;
-      const gestures = ['thumbsup', 'thumbsdown', 'wave', 'clap', 'punch', 'fist', 'pray', 'point_up', 'point_down', 'point_left', 'point_right', 'raised_back_of_hand', 'raised_hand_with_fingers_splayed', 'vulcan_salute', 'ok_hand', 'pinching_hand', 'victory_hand', 'love_you_gesture', 'metal', 'call_me_hand'];
-      if (gestures.some(g => n === g || n.startsWith(g + '_'))) return true;
       const roles = ['ninja', 'superhero', 'supervillain', 'mage', 'fairy', 'vampire', 'merperson', 'merman', 'mermaid', 'elf', 'genie', 'zombie', 'guard', 'police', 'detective', 'firefighter', 'doctor', 'nurse', 'judge', 'pilot', 'astronaut', 'cook', 'mechanic', 'scientist', 'artist', 'singer', 'teacher', 'student', 'worker', 'farmer'];
-      if (roles.some(r => n === r || n.startsWith(r + '_') || n.endsWith('_' + r) || n.includes('_' + r + '_'))) return true;
-      return false;
+      return roles.some(r => n === r || n.startsWith(r + '_') || n.endsWith('_' + r) || n.includes('_' + r + '_'));
+    }
+  },
+  {
+    id: 'hands',
+    label: 'Mãos & Gestos',
+    test: e => {
+      const items = ['wave', 'raised_back_of_hand', 'raised_hand_with_fingers_splayed', 'hand_splayed', 'vulcan_salute', 'rightwards_hand', 'leftwards_hand', 'palm_down_hand', 'palm_up_hand', 'ok_hand', 'pinching_hand', 'pinched_fingers', 'victory_hand', 'crossed_fingers', 'love_you_gesture', 'metal', 'call_me_hand', 'point_left', 'point_right', 'point_up_2', 'point_down', 'point_up', 'middle_finger', 'raised_fist', 'fist', 'punch', 'left_facing_fist', 'right_facing_fist', 'clap', 'raised_hands', 'open_hands', 'palms_up_together', 'handshake', 'pray', 'writing_hand', 'nail_care', 'selfie', 'muscle', 'mechanical_arm', 'mechanical_leg', 'leg', 'foot', 'ear', 'nose', 'brain', 'eyes', 'eye', 'tongue', 'mouth', 'lips', 'hand', 'finger', 'arm'];
+      const n = (e.name || '').toLowerCase();
+      return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
+    }
+  },
+  {
+    id: 'hearts',
+    label: 'Corações',
+    test: e => {
+      const n = (e.name || '').toLowerCase();
+      return (n.includes('heart') && !n.includes('hearth')) || n === 'cupid' || n === 'love_letter' || n === 'kiss';
     }
   },
   {
@@ -88,10 +100,64 @@ const CATEGORY_DEFINITIONS = [
     }
   },
   {
+    id: 'nature',
+    label: 'Natureza',
+    test: e => {
+      const items = ['seedling', 'potted_plant', 'evergreen_tree', 'deciduous_tree', 'palm_tree', 'cactus', 'tulip', 'rose', 'hibiscus', 'cherry_blossom', 'sunflower', 'blossom', 'herb', 'four_leaf_clover', 'shamrock', 'maple_leaf', 'fallen_leaf', 'leaf_fluttering_in_wind', 'leaves', 'bouquet', 'ear_of_rice', 'tanabata_tree', 'mushroom', 'wood', 'mountain', 'volcano', 'mount_fuji', 'camping', 'beach_with_umbrella', 'desert', 'island', 'national_park', 'rock', 'seed', 'plant', 'tree', 'flower'];
+      const n = (e.name || '').toLowerCase();
+      return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
+    }
+  },
+  {
+    id: 'weather',
+    label: 'Clima',
+    test: e => {
+      const items = ['sunny', 'sun_with_face', 'sun_behind_cloud', 'sun_behind_small_cloud', 'sun_behind_large_cloud', 'sun_behind_rain_cloud', 'cloud', 'cloud_with_rain', 'cloud_with_lightning_and_rain', 'cloud_with_lightning', 'cloud_with_snow', 'snowflake', 'snowman', 'wind_face', 'fog', 'umbrella', 'umbrella_with_rain_drops', 'zap', 'rainbow', 'crescent_moon', 'moon', 'full_moon', 'waxing_gibbous_moon', 'first_quarter_moon', 'waxing_crescent_moon', 'new_moon', 'waning_crescent_moon', 'last_quarter_moon', 'waning_gibbous_moon', 'new_moon_with_face', 'full_moon_with_face', 'star', 'star2', 'stars', 'sparkles', 'comet', 'milky_way', 'tornado', 'cyclone', 'droplet', 'ocean', 'water_wave', 'fire', 'flame', 'thermometer', 'sun', 'foggy', 'glowing_star', 'shooting_star'];
+      const n = (e.name || '').toLowerCase();
+      return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
+    }
+  },
+  {
     id: 'food',
     label: 'Comida',
     test: e => {
       const items = ['grapes', 'melon', 'watermelon', 'tangerine', 'lemon', 'banana', 'pineapple', 'mango', 'apple', 'green_apple', 'pear', 'peach', 'cherries', 'strawberry', 'kiwifruit', 'tomato', 'coconut', 'avocado', 'eggplant', 'potato', 'carrot', 'ear_of_corn', 'hot_pepper', 'cucumber', 'leafy_green', 'broccoli', 'garlic', 'onion', 'mushroom', 'peanuts', 'chestnut', 'bread', 'croissant', 'baguette_bread', 'pretzel', 'bagel', 'pancakes', 'waffle', 'cheese', 'meat_on_bone', 'poultry_leg', 'cut_of_meat', 'bacon', 'hamburger', 'fries', 'pizza', 'hotdog', 'sandwich', 'taco', 'burrito', 'stuffed_flatbread', 'falafel', 'egg', 'fried_egg', 'shallow_pan_of_food', 'stew', 'bowl_with_spoon', 'green_salad', 'popcorn', 'butter', 'salt', 'canned_food', 'bento', 'rice_cracker', 'rice_ball', 'rice', 'curry', 'ramen', 'spaghetti', 'sweet_potato', 'oden', 'sushi', 'fried_shrimp', 'fish_cake', 'moon_cake', 'dango', 'dumpling', 'fortune_cookie', 'takeout_box', 'crab', 'lobster', 'shrimp', 'squid', 'oyster', 'icecream', 'shaved_ice', 'ice_cream', 'doughnut', 'cookie', 'birthday', 'cake', 'cupcake', 'pie', 'chocolate_bar', 'candy', 'lollipop', 'custard', 'honey_pot', 'baby_bottle', 'glass_of_milk', 'coffee', 'tea', 'teapot', 'mate', 'cup_with_straw', 'beverage_box', 'sake', 'beer', 'beers', 'clinking_glasses', 'wine_glass', 'cocktail', 'tropical_drink', 'champagne', 'fork_and_knife', 'spoon', 'kitchen_knife'];
+      const n = (e.name || '').toLowerCase();
+      return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
+    }
+  },
+  {
+    id: 'zodiac',
+    label: 'Signos',
+    test: e => {
+      const items = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpius', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces', 'ophiuchus'];
+      const n = (e.name || '').toLowerCase();
+      return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
+    }
+  },
+  {
+    id: 'sports',
+    label: 'Esportes',
+    test: e => {
+      const items = ['soccer', 'basketball', 'football', 'baseball', 'softball', 'tennis', 'volleyball', 'rugby_football', 'flying_disc', '8ball', 'yo_yo', 'ping_pong', 'badminton', 'ice_hockey', 'field_hockey', 'lacrosse', 'cricket_game', 'cricket', 'goal_net', 'golf', 'kite', 'bow_and_arrow', 'archery', 'fishing_pole_and_fish', 'diving_mask', 'boxing_glove', 'martial_arts_uniform', 'ice_skate', 'curling_stone', 'sled', 'skate', 'ski', 'snowboarder', 'skateboard', 'roller_skate', 'medal', 'trophy', 'sports_medal', 'first_place_medal', 'second_place_medal', 'third_place_medal'];
+      const n = (e.name || '').toLowerCase();
+      return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
+    }
+  },
+  {
+    id: 'arts',
+    label: 'Música & Arte',
+    test: e => {
+      const items = ['art', 'palette', 'performing_arts', 'circus_tent', 'microphone', 'headphones', 'musical_score', 'musical_note', 'notes', 'musical_keyboard', 'drum', 'long_drum', 'saxophone', 'trumpet', 'guitar', 'banjo', 'violin', 'accordion', 'clapper', 'film_frames', 'tickets', 'ticket', 'yarn', 'thread', 'sewing_needle', 'frame_photo', 'framed_picture', 'drama'];
+      const n = (e.name || '').toLowerCase();
+      return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
+    }
+  },
+  {
+    id: 'tech',
+    label: 'Tecnologia',
+    test: e => {
+      const items = ['computer', 'desktop_computer', 'laptop', 'keyboard', 'trackball', 'mouse_three_button', 'printer', 'floppy_disk', 'cd', 'dvd', 'vhs', 'camera', 'camera_flash', 'video_camera', 'movie_camera', 'projector', 'tv', 'television', 'radio', 'telephone', 'phone', 'iphone', 'pager', 'fax', 'battery', 'electric_plug', 'bulb', 'flashlight', 'satellite_antenna', 'satellite', 'joystick', 'video_game'];
       const n = (e.name || '').toLowerCase();
       return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
     }
@@ -145,7 +211,7 @@ const CATEGORY_DEFINITIONS = [
     id: 'activities',
     label: 'Atividades',
     test: e => {
-      const items = ['jack_o_lantern', 'christmas_tree', 'fireworks', 'sparkler', 'firecracker', 'sparkles', 'balloon', 'tada', 'confetti_ball', 'tanabata_tree', 'bamboo', 'dolls', 'flags', 'wind_chime', 'rice_scene', 'ribbon', 'gift', 'reminder_ribbon', 'tickets', 'ticket', 'medal', 'trophy', 'sports_medal', 'first_place_medal', 'second_place_medal', 'third_place_medal', 'soccer', 'baseball', 'softball', 'basketball', 'volleyball', 'football', 'rugby_football', 'tennis', 'flying_disc', 'bowling', 'cricket_game', 'field_hockey', 'ice_hockey', 'lacrosse', 'ping_pong', 'badminton', 'boxing_glove', 'martial_arts_uniform', 'goal_net', 'golf', 'ice_skate', 'fishing_pole_and_fish', 'diving_mask', 'running_shirt_with_sash', 'ski', 'sled', 'curling_stone', 'dart', 'yo_yo', 'kite', 'gun', '8ball', 'crystal_ball', 'magic_wand', 'video_game', 'joystick', 'slot_machine', 'dice', 'jigsaw', 'teddy_bear', 'pinata', 'nesting_dolls', 'spades', 'hearts', 'diamonds', 'clubs', 'chess_pawn', 'black_joker', 'mahjong', 'flower_playing_cards', 'performing_arts', 'frame_photo', 'art', 'thread', 'yarn'];
+      const items = ['jack_o_lantern', 'christmas_tree', 'fireworks', 'sparkler', 'firecracker', 'sparkles', 'balloon', 'tada', 'confetti_ball', 'tanabata_tree', 'bamboo', 'dolls', 'flags', 'wind_chime', 'rice_scene', 'ribbon', 'gift', 'reminder_ribbon', 'tickets', 'ticket', 'dice', 'jigsaw', 'teddy_bear', 'pinata', 'nesting_dolls', 'spades', 'hearts', 'diamonds', 'clubs', 'chess_pawn', 'black_joker', 'mahjong', 'flower_playing_cards'];
       const n = (e.name || '').toLowerCase();
       return items.some(k => n === k || n.startsWith(k + '_') || n.endsWith('_' + k) || n.includes('_' + k + '_'));
     }

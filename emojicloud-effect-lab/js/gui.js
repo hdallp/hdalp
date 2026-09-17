@@ -31,6 +31,8 @@ function showPickerActionMenu(clientX, clientY, emoji, localPos) {
   const badge = document.getElementById('picker-action-badge');
   const coordsEl = document.getElementById('picker-action-coords');
   const unpinBtn = document.getElementById('picker-btn-unpin');
+  const blockBtn = document.getElementById('picker-btn-block');
+  const forceBtn = document.getElementById('picker-btn-force');
 
   if (!card) return;
 
@@ -59,10 +61,42 @@ function showPickerActionMenu(clientX, clientY, emoji, localPos) {
       badge.textContent = 'Bloqueado';
     } else if (isForced) {
       badge.className = 'emoji-badge badge-forced';
-      badge.textContent = 'Exclusivo';
+      badge.textContent = 'Focado';
     } else {
       badge.className = 'emoji-badge badge-idle';
       badge.textContent = 'Ativo';
+    }
+  }
+
+  if (blockBtn) {
+    if (isBlocked) {
+      blockBtn.textContent = 'Desbloquear Emoji';
+      blockBtn.className = 'picker-action-btn picker-btn-unblock';
+      blockBtn.title = 'Remove este emoji da lista de bloqueados';
+    } else if (isForced) {
+      blockBtn.textContent = 'Bloquear (Tirar do Foco)';
+      blockBtn.className = 'picker-action-btn picker-btn-block';
+      blockBtn.title = 'Remove do foco e move este emoji para a lista de bloqueados';
+    } else {
+      blockBtn.textContent = 'Bloquear Emoji';
+      blockBtn.className = 'picker-action-btn picker-btn-block';
+      blockBtn.title = 'Bloqueia este emoji globalmente';
+    }
+  }
+
+  if (forceBtn) {
+    if (isForced) {
+      forceBtn.textContent = 'Tirar do Foco';
+      forceBtn.className = 'picker-action-btn picker-btn-unforce';
+      forceBtn.title = 'Remove este emoji da lista de foco exclusivo';
+    } else if (isBlocked) {
+      forceBtn.textContent = 'Focar (Desbloquear)';
+      forceBtn.className = 'picker-action-btn picker-btn-force';
+      forceBtn.title = 'Desbloqueia e move este emoji para a lista de foco exclusivo';
+    } else {
+      forceBtn.textContent = 'Focar Emoji';
+      forceBtn.className = 'picker-action-btn picker-btn-force';
+      forceBtn.title = 'Adiciona este emoji à lista de foco exclusivo';
     }
   }
 
@@ -156,7 +190,12 @@ function handlePickerClick(e) {
 
   if (e.shiftKey) {
     hidePickerActionMenu();
-    window.__toggleExclusion(pickedEmoji.name);
+    const target = pickedEmoji._atlasIndex !== undefined ? pickedEmoji._atlasIndex : pickedEmoji.name;
+    window.__toggleExclusion(target);
+    lastSampleTime = 0;
+    if (typeof updatePickerHover === 'function') {
+      updatePickerHover(e.clientX, e.clientY);
+    }
     return;
   }
 
@@ -364,6 +403,26 @@ function setupGUI() {
     params.renderMode = renderModeMap[val];
     params.useEmojis = (val !== 'Original');
     refresh();
+    applyShaderParams();
+  });
+
+  bindControl(effectFolder, 'distModeText', {
+    label: 'Distribuição',
+    options: addLabelOptions(['Fidelidade de Cor', 'Luminância / Sombra', 'Aleatório / Mosaico'])
+  }, (val) => {
+    params.distMode = distModeMap[val] || 0;
+    rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
+    applyShaderParams();
+    showToast(`Distribuição: ${val}`);
+  });
+
+  bindControl(effectFolder, 'emojiVariety', {
+    label: 'Variedade / Dither',
+    min: 0.0,
+    max: 1.0,
+    step: 0.05
+  }, () => {
+    rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
     applyShaderParams();
   });
 

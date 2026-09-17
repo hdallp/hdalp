@@ -55,6 +55,8 @@ function applyShaderParams() {
   const maxDepth = camDist + radius;
 
   const activeRenderMode = params.useEmojis ? params.renderMode : 2;
+  const activeDistMode = (typeof params.distMode === 'number') ? params.distMode : (distModeMap[params.distModeText] || 0);
+  const activeVariety = (typeof params.emojiVariety === 'number') ? params.emojiVariety : 0.5;
   const centerArr = [modelCenter.x, modelCenter.y, modelCenter.z];
 
   const device = app ? app.graphicsDevice : null;
@@ -69,6 +71,8 @@ function applyShaderParams() {
     device.scope.resolve('uMinDepth')?.setValue(minDepth);
     device.scope.resolve('uMaxDepth')?.setValue(maxDepth);
     device.scope.resolve('uRenderMode')?.setValue(activeRenderMode);
+    device.scope.resolve('uDistMode')?.setValue(activeDistMode);
+    device.scope.resolve('uEmojiVariety')?.setValue(activeVariety);
     device.scope.resolve('uAlphaCutoff')?.setValue(params.alphaCutoff);
     device.scope.resolve('uTintIntensity')?.setValue(params.tintIntensity);
     device.scope.resolve('uLockSH')?.setValue(params.lockSH ? 1.0 : 0.0);
@@ -102,6 +106,8 @@ function applyShaderParams() {
       splatEntity.gsplat.setParameter('uMinDepth', minDepth);
       splatEntity.gsplat.setParameter('uMaxDepth', maxDepth);
       splatEntity.gsplat.setParameter('uRenderMode', activeRenderMode);
+      splatEntity.gsplat.setParameter('uDistMode', activeDistMode);
+      splatEntity.gsplat.setParameter('uEmojiVariety', activeVariety);
       splatEntity.gsplat.setParameter('uAlphaCutoff', params.alphaCutoff);
       splatEntity.gsplat.setParameter('uTintIntensity', params.tintIntensity);
       splatEntity.gsplat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
@@ -130,6 +136,8 @@ function applyShaderParams() {
         mat.setParameter('uMinDepth', minDepth);
         mat.setParameter('uMaxDepth', maxDepth);
         mat.setParameter('uRenderMode', activeRenderMode);
+        mat.setParameter('uDistMode', activeDistMode);
+        mat.setParameter('uEmojiVariety', activeVariety);
         mat.setParameter('uAlphaCutoff', params.alphaCutoff);
         mat.setParameter('uTintIntensity', params.tintIntensity);
         mat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
@@ -515,9 +523,14 @@ function setupInteractionControls() {
     btnBlock.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeActionMenuEmoji) {
-        window.__toggleExclusion(activeActionMenuEmoji.name);
+        const target = activeActionMenuEmoji._atlasIndex !== undefined ? activeActionMenuEmoji._atlasIndex : activeActionMenuEmoji.name;
+        window.__toggleExclusion(target);
       }
       hidePickerActionMenu();
+      lastSampleTime = 0;
+      if (typeof updatePickerHover === 'function') {
+        updatePickerHover(lastHoverX, lastHoverY);
+      }
     });
   }
 
@@ -526,9 +539,14 @@ function setupInteractionControls() {
     btnForce.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeActionMenuEmoji) {
-        window.__toggleForced(activeActionMenuEmoji.name);
+        const target = activeActionMenuEmoji._atlasIndex !== undefined ? activeActionMenuEmoji._atlasIndex : activeActionMenuEmoji.name;
+        window.__toggleForced(target);
       }
       hidePickerActionMenu();
+      lastSampleTime = 0;
+      if (typeof updatePickerHover === 'function') {
+        updatePickerHover(lastHoverX, lastHoverY);
+      }
     });
   }
 
@@ -541,6 +559,10 @@ function setupInteractionControls() {
         if (near) removePinnedPoint(near.point.id);
       }
       hidePickerActionMenu();
+      lastSampleTime = 0;
+      if (typeof updatePickerHover === 'function') {
+        updatePickerHover(lastHoverX, lastHoverY);
+      }
     });
   }
 

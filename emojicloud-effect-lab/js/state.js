@@ -44,6 +44,17 @@ let currentActiveTool = 'navigate';
 let isPickerActive = false;
 let isLassoActive = false;
 
+// Modal & Color State
+let currentActiveModalTag = '';
+let currentActiveModalColor = '#ff0000';
+let isColorFilterActive = true;
+let selectedHexColor = '#ff0000';
+let currentColorHue = 0;
+let currentColorSat = 1.0;
+let currentColorVal = 1.0;
+let activeColorMode = 'wheel';
+let hideBlockedEmojis = false;
+
 // Render Mode Map
 const renderModeMap = {
   'Colorido': 0,
@@ -51,11 +62,21 @@ const renderModeMap = {
   'Original': 2
 };
 
+// Distribution Mode Map (Fidelidade de Cor, Luminância / Sombra, Aleatório / Mosaico)
+const distModeMap = {
+  'Fidelidade de Cor': 0,
+  'Luminância / Sombra': 1,
+  'Aleatório / Mosaico': 2
+};
+
 // Main Lab Parameter Object
 const params = {
   useEmojis: true,
   renderModeText: 'Colorido',
   renderMode: 0,
+  distModeText: 'Fidelidade de Cor',
+  distMode: 0,
+  emojiVariety: 0.0,
   tintIntensity: 0.6,
   alphaCutoff: 0.10,
 
@@ -72,12 +93,18 @@ const params = {
     params.brightness = 0.0;
     params.contrast = 1.0;
     params.gamma = 1.0;
+    params.distModeText = 'Fidelidade de Cor';
+    params.distMode = 0;
+    params.emojiVariety = 0.5;
     if (guiControllers.lockSH) guiControllers.lockSH.updateDisplay();
     if (guiControllers.hueShift) guiControllers.hueShift.updateDisplay();
     if (guiControllers.saturation) guiControllers.saturation.updateDisplay();
     if (guiControllers.brightness) guiControllers.brightness.updateDisplay();
     if (guiControllers.contrast) guiControllers.contrast.updateDisplay();
     if (guiControllers.gamma) guiControllers.gamma.updateDisplay();
+    if (guiControllers.distModeText) guiControllers.distModeText.updateDisplay();
+    if (guiControllers.emojiVariety) guiControllers.emojiVariety.updateDisplay();
+    rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
     applyShaderParams();
   },
 

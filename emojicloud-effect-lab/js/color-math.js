@@ -93,6 +93,14 @@ function hexToRgb(hex) {
   return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
 }
 
+function hash3D(r, g, b, seed = 0) {
+  let h = (r * 73856093) ^ (g * 19349663) ^ (b * 83492791) ^ (seed * 2654435761);
+  h = ((h >> 16) ^ h) * 0x45d9f3b;
+  h = ((h >> 16) ^ h) * 0x45d9f3b;
+  h = (h >> 16) ^ h;
+  return (h >>> 0);
+}
+
 function rebuildColorLUT(exclusionInput, forcedInput, useForcedInput) {
   if (!lutTexture || !emojiLabL || numAtlasEmojis === 0) return;
 
@@ -129,48 +137,146 @@ function rebuildColorLUT(exclusionInput, forcedInput, useForcedInput) {
   }
 
   const poolLen = pool.length;
+  const distMode = (typeof params.distMode === 'number') ? params.distMode : (distModeMap[params.distModeText] || 0);
+  const variety = (typeof params.emojiVariety === 'number') ? params.emojiVariety : 0.5;
 
-  for (let pIdx = 0; pIdx < 4096; pIdx++) {
-    let vL = voxelLabL[pIdx];
-    let va = voxelLabA[pIdx];
-    let vb = voxelLabB[pIdx];
-
-    if (params.gradientMap3D && typeof gradientEngine !== 'undefined' && gradientEngine) {
+  if (distMode === 2) {
+    // === MODO 3: ALEATÓRIO / MOSAICO ===
+    // Preenche os voxels da LUT distribuindo uniformemente todos os emojis do pool
+    for (let pIdx = 0; pIdx < 4096; pIdx++) {
       const r = Math.floor((pIdx % 256) / 16);
       const g = pIdx % 16;
       const b = Math.floor(pIdx / 256);
-      const qR = r / 15;
-      const qG = g / 15;
-      const qB = b / 15;
-      const lum = Math.max(0, Math.min(1, 0.299 * qR + 0.587 * qG + 0.114 * qB));
-      const [gr, gg, gb] = gradientEngine.getColorAt(lum);
-      const gLab = rgbToLab(gr, gg, gb);
-      vL = gLab[0];
-      va = gLab[1];
-      vb = gLab[2];
+      const h = hash3D(r, g, b, 42);
+      const emojiIdx = pool[h % poolLen];
+
+      const byteOff = pIdx * 4;
+      lutBuffer[byteOff] = emojiCols[emojiIdx];
+      lutBuffer[byteOff + 1] = emojiRows[emojiIdx];
+      lutBuffer[byteOff + 2] = 0;
+      lutBuffer[byteOff + 3] = 255;
     }
+  } else if (distMode === 1) {
+    // === MODO 2: LUMINÂNCIA / SOMBRA ===
+    // Ordena o pool por luminosidade perceptual CIELAB L (0 a 100)
+    const sortedByL = [...pool].sort((a, b) => emojiLabL[a] - emojiLabL[b]);
 
-    let bestIdx = pool[0];
-    let minD = 1e12;
+    for (let pIdx = 0; pIdx < 4096; pIdx++) {
+      const r = Math.floor((pIdx % 256) / 16);
+      const g = pIdx % 16;
+      const b = Math.floor(pIdx / 256);
 
-    for (let p = 0; p < poolLen; p++) {
-      const idx = pool[p];
-      const dL = vL - emojiLabL[idx];
-      const da = va - emojiLabA[idx];
-      const db = vb - emojiLabB[idx];
-      const dist = dL * dL + da * da + db * db;
+      let vL = voxelLabL[pIdx];
 
-      if (dist < minD) {
-        minD = dist;
-        bestIdx = idx;
+      if (params.gradientMap3D && typeof gradientEngine !== 'undefined' && gradientEngine) {
+        const qR = r / 15;
+        const qG = g / 15;
+        const qB = b / 15;
+        const lum = Math.max(0, Math.min(1, 0.299 * qR + 0.587 * qG + 0.114 * qB));
+        const [gr, gg, gb] = gradientEngine.getColorAt(lum);
+        const gLab = rgbToLab(gr, gg, gb);
+        vL = gLab[0];
       }
-    }
 
-    const byteOff = pIdx * 4;
-    lutBuffer[byteOff] = emojiCols[bestIdx];
-    lutBuffer[byteOff + 1] = emojiRows[bestIdx];
-    lutBuffer[byteOff + 2] = 0;
-    lutBuffer[byteOff + 3] = 255;
+      const normL = Math.max(0, Math.min(1, vL / 100));
+      let targetRank = normL * (poolLen - 1);
+
+      if (variety > 0.02 && poolLen > 1) {
+        const h = (hash3D(r, g, b, 77) % 1000) / 1000 - 0.5;
+        const jitter = h * variety * Math.min(poolLen * 0.45, 10);
+        targetRank = Math.max(0, Math.min(poolLen - 1, Math.round(targetRank + jitter)));
+      } else {
+        targetRank = Math.round(targetRank);
+      }
+
+      const bestIdx = sortedByL[targetRank];
+      const byteOff = pIdx * 4;
+      lutBuffer[byteOff] = emojiCols[bestIdx];
+      lutBuffer[byteOff + 1] = emojiRows[bestIdx];
+      lutBuffer[byteOff + 2] = 0;
+      lutBuffer[byteOff + 3] = 255;
+    }
+  } else {
+    // === MODO 1: FIDELIDADE DE COR (COM VARIEDADE INTELIGENTE DE CANDIDATOS) ===
+    for (let pIdx = 0; pIdx < 4096; pIdx++) {
+      const r = Math.floor((pIdx % 256) / 16);
+      const g = pIdx % 16;
+      const b = Math.floor(pIdx / 256);
+
+      let vL = voxelLabL[pIdx];
+      let va = voxelLabA[pIdx];
+      let vb = voxelLabB[pIdx];
+
+      if (params.gradientMap3D && typeof gradientEngine !== 'undefined' && gradientEngine) {
+        const qR = r / 15;
+        const qG = g / 15;
+        const qB = b / 15;
+        const lum = Math.max(0, Math.min(1, 0.299 * qR + 0.587 * qG + 0.114 * qB));
+        const [gr, gg, gb] = gradientEngine.getColorAt(lum);
+        const gLab = rgbToLab(gr, gg, gb);
+        vL = gLab[0];
+        va = gLab[1];
+        vb = gLab[2];
+      }
+
+      let bestIdx = pool[0];
+      let minD = 1e12;
+
+      if (variety <= 0.01) {
+        for (let p = 0; p < poolLen; p++) {
+          const idx = pool[p];
+          const dL = vL - emojiLabL[idx];
+          const da = va - emojiLabA[idx];
+          const db = vb - emojiLabB[idx];
+          const dist = dL * dL + da * da + db * db;
+
+          if (dist < minD) {
+            minD = dist;
+            bestIdx = idx;
+          }
+        }
+      } else {
+        // Encontra a menor distância perceptual primeiro
+        for (let p = 0; p < poolLen; p++) {
+          const idx = pool[p];
+          const dL = vL - emojiLabL[idx];
+          const da = va - emojiLabA[idx];
+          const db = vb - emojiLabB[idx];
+          const dist = dL * dL + da * da + db * db;
+
+          if (dist < minD) {
+            minD = dist;
+            bestIdx = idx;
+          }
+        }
+
+        // Tolerância perceptiva: agrupa candidatos com cores similares e dispersa entre voxels
+        const threshold = minD * (1.0 + variety * 1.8) + (variety * variety * 250.0);
+        const candidates = [];
+
+        for (let p = 0; p < poolLen; p++) {
+          const idx = pool[p];
+          const dL = vL - emojiLabL[idx];
+          const da = va - emojiLabA[idx];
+          const db = vb - emojiLabB[idx];
+          const dist = dL * dL + da * da + db * db;
+          if (dist <= threshold) {
+            candidates.push(idx);
+          }
+        }
+
+        if (candidates.length > 1) {
+          const h = hash3D(r, g, b, 101);
+          bestIdx = candidates[h % candidates.length];
+        }
+      }
+
+      const byteOff = pIdx * 4;
+      lutBuffer[byteOff] = emojiCols[bestIdx];
+      lutBuffer[byteOff + 1] = emojiRows[bestIdx];
+      lutBuffer[byteOff + 2] = 0;
+      lutBuffer[byteOff + 3] = 255;
+    }
   }
 
   try {
