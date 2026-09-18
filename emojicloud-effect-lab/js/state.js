@@ -11,6 +11,7 @@ let currentAsset = null;
 let modelRadius = 0.5;
 let modelCenter = { x: 0, y: 0, z: 0 };
 let splatCenters = null;
+let splatColors = null;
 
 // Texture Atlas & LUT References
 let atlasTexture = null;
@@ -43,6 +44,35 @@ const lutBuffer = new Uint8Array(256 * 16 * 4);
 let currentActiveTool = 'navigate';
 let isPickerActive = false;
 let isLassoActive = false;
+
+// Global Emoji Replacement State
+let emojiToReplaceGlobal = null;
+let globalEmojiReplacements = new Map(); // Map<originalAtlasIndex, replacementAtlasIndex>
+
+function resolveGlobalReplacement(idx) {
+  if (!globalEmojiReplacements || globalEmojiReplacements.size === 0) return idx;
+  let curr = idx;
+  let visited = new Set();
+  while (globalEmojiReplacements.has(curr) && !visited.has(curr)) {
+    visited.add(curr);
+    curr = globalEmojiReplacements.get(curr);
+  }
+  return curr;
+}
+
+function clearGlobalReplacements() {
+  const count = globalEmojiReplacements.size;
+  globalEmojiReplacements.clear();
+  emojiToReplaceGlobal = null;
+  rebuildColorLUT();
+  const searchInput = document.getElementById('emoji-modal-search-input');
+  if (typeof renderEmojiModal === 'function') {
+    renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
+  }
+  if (count > 0) {
+    showToast('Substituições restauradas.');
+  }
+}
 
 // Modal & Color State
 let currentActiveModalTag = '';

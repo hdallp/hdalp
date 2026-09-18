@@ -77,8 +77,9 @@ function applyShaderParams() {
     device.scope.resolve('uTintIntensity')?.setValue(params.tintIntensity);
     device.scope.resolve('uLockSH')?.setValue(params.lockSH ? 1.0 : 0.0);
     device.scope.resolve('uLockSHCamPos')?.setValue(lockSHCamPos || [0, 0, 1]);
-    device.scope.resolve('alphaClipForward')?.setValue(1e-12);
-    device.scope.resolve('alphaClip')?.setValue(1e-12);
+    device.scope.resolve('uBakePass')?.setValue(0.0);
+    device.scope.resolve('alphaClipForward')?.setValue(0.0);
+    device.scope.resolve('alphaClip')?.setValue(0.0);
 
     device.scope.resolve('uHueShift')?.setValue(params.hueShift);
     device.scope.resolve('uSaturation')?.setValue(params.saturation);
@@ -112,8 +113,9 @@ function applyShaderParams() {
       splatEntity.gsplat.setParameter('uTintIntensity', params.tintIntensity);
       splatEntity.gsplat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
       splatEntity.gsplat.setParameter('uLockSHCamPos', lockSHCamPos || [0, 0, 1]);
-      splatEntity.gsplat.setParameter('alphaClipForward', 1e-12);
-      splatEntity.gsplat.setParameter('alphaClip', 1e-12);
+      splatEntity.gsplat.setParameter('uBakePass', 0.0);
+      splatEntity.gsplat.setParameter('alphaClipForward', 0.0);
+      splatEntity.gsplat.setParameter('alphaClip', 0.0);
       splatEntity.gsplat.setParameter('uHueShift', params.hueShift);
       splatEntity.gsplat.setParameter('uSaturation', params.saturation);
       splatEntity.gsplat.setParameter('uBrightness', params.brightness);
@@ -142,8 +144,9 @@ function applyShaderParams() {
         mat.setParameter('uTintIntensity', params.tintIntensity);
         mat.setParameter('uLockSH', params.lockSH ? 1.0 : 0.0);
         mat.setParameter('uLockSHCamPos', lockSHCamPos || [0, 0, 1]);
-        mat.setParameter('alphaClipForward', 1e-12);
-        mat.setParameter('alphaClip', 1e-12);
+        mat.setParameter('uBakePass', 0.0);
+        mat.setParameter('alphaClipForward', 0.0);
+        mat.setParameter('alphaClip', 0.0);
         mat.setParameter('uHueShift', params.hueShift);
         mat.setParameter('uSaturation', params.saturation);
         mat.setParameter('uBrightness', params.brightness);
@@ -151,8 +154,8 @@ function applyShaderParams() {
         mat.setParameter('uGamma', params.gamma);
         if (atlasTexture) mat.setParameter('uEmojiAtlas', atlasTexture);
         if (lutTexture) mat.setParameter('uColorLUT', lutTexture);
-        mat.blendType = pc.BLEND_NONE;
-        mat.depthWrite = true;
+        if (mat.blendType !== pc.BLEND_NONE) mat.blendType = pc.BLEND_NONE;
+        if (!mat.depthWrite) mat.depthWrite = true;
       }
     } catch (e) {}
   }
@@ -239,6 +242,16 @@ function loadSplatAsset(url, filename) {
       } else if (resource.gsplatData && resource.gsplatData.centers) {
         splatCenters = resource.gsplatData.centers;
       }
+
+      if (resource.colors) {
+        splatColors = resource.colors;
+      } else if (resource.gsplatData) {
+        if (resource.gsplatData.colors) splatColors = resource.gsplatData.colors;
+        else if (typeof resource.gsplatData.getColors === 'function') splatColors = resource.gsplatData.getColors();
+        else if (resource.gsplatData.rgba) splatColors = resource.gsplatData.rgba;
+        else if (resource.gsplatData.f_dc) splatColors = resource.gsplatData.f_dc;
+      }
+
       console.log('[Effect Lab] splatCenters carregado:', splatCenters ? `${splatCenters.length / 3} splats` : 'não disponível na CPU (usando fallback de tela)');
 
       if (resource.aabb) {
@@ -395,7 +408,9 @@ function setupInteractionControls() {
 
     const moveDist = Math.hypot(e.clientX - startX, e.clientY - startY);
     if (currentActiveTool === 'inspector' && moveDist < 6 && e.button === 0) {
-      handlePickerClick(e);
+      if (typeof isPointerOverUI !== 'function' || !isPointerOverUI(e.clientX, e.clientY)) {
+        handlePickerClick(e);
+      }
     }
 
     isDragging = false;
@@ -492,27 +507,23 @@ function setupInteractionControls() {
   if (btnChoose) {
     btnChoose.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!activeActionMenuPos) {
-        showToast('Não consegui pegar a posição 3D desse ponto. Tente clicar de novo.');
+      if (!activeActionMenuEmoji) {
         hidePickerActionMenu();
         return;
       }
 
+      emojiToReplaceGlobal = activeActionMenuEmoji;
+      pendingPinPoint = null;
+
       try {
-        const hex = (activeActionMenuEmoji && activeActionMenuEmoji.avgColor && activeActionMenuEmoji.avgColor.hex) || '';
+        const hex = (activeActionMenuEmoji.avgColor && activeActionMenuEmoji.avgColor.hex) || '';
         if (hex) setColorFromHex(hex, false);
-      } catch (err) {
-        try { resetColorFilter(); } catch (e2) {}
-      }
+      } catch (err) {}
 
-      pendingPinPoint = activeActionMenuPos;
       hidePickerActionMenu();
-      openEmojiModalForPin();
-
-      const grid = document.getElementById('emoji-modal-grid');
-      if (grid && grid.querySelectorAll('img').length === 0) {
-        showToast('Nenhum emoji nessa cor — mostrando todos.');
-        try { resetColorFilter(); } catch (e3) {}
+      if (typeof openEmojiModalForGlobalReplacement === 'function') {
+        openEmojiModalForGlobalReplacement(activeActionMenuEmoji);
+      } else {
         openEmojiModalForPin();
       }
     });
@@ -571,6 +582,7 @@ function setupInteractionControls() {
     pinCancelBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       pendingPinPoint = null;
+      emojiToReplaceGlobal = null;
       const pinBanner = document.getElementById('modal-pin-banner');
       if (pinBanner) pinBanner.style.display = 'none';
       const searchInput = document.getElementById('emoji-modal-search-input');
@@ -603,6 +615,7 @@ function setupInteractionControls() {
       setActiveTool('navigate');
 
       pendingPinPoint = null;
+      emojiToReplaceGlobal = null;
       const pinBanner = document.getElementById('modal-pin-banner');
       if (pinBanner) pinBanner.style.display = 'none';
       const panel = document.getElementById('emoji-catalog-panel');

@@ -149,10 +149,11 @@ function rebuildColorLUT(exclusionInput, forcedInput, useForcedInput) {
       const b = Math.floor(pIdx / 256);
       const h = hash3D(r, g, b, 42);
       const emojiIdx = pool[h % poolLen];
+      const finalIdx = resolveGlobalReplacement(emojiIdx);
 
       const byteOff = pIdx * 4;
-      lutBuffer[byteOff] = emojiCols[emojiIdx];
-      lutBuffer[byteOff + 1] = emojiRows[emojiIdx];
+      lutBuffer[byteOff] = emojiCols[finalIdx];
+      lutBuffer[byteOff + 1] = emojiRows[finalIdx];
       lutBuffer[byteOff + 2] = 0;
       lutBuffer[byteOff + 3] = 255;
     }
@@ -190,9 +191,10 @@ function rebuildColorLUT(exclusionInput, forcedInput, useForcedInput) {
       }
 
       const bestIdx = sortedByL[targetRank];
+      const finalIdx = resolveGlobalReplacement(bestIdx);
       const byteOff = pIdx * 4;
-      lutBuffer[byteOff] = emojiCols[bestIdx];
-      lutBuffer[byteOff + 1] = emojiRows[bestIdx];
+      lutBuffer[byteOff] = emojiCols[finalIdx];
+      lutBuffer[byteOff + 1] = emojiRows[finalIdx];
       lutBuffer[byteOff + 2] = 0;
       lutBuffer[byteOff + 3] = 255;
     }
@@ -271,9 +273,10 @@ function rebuildColorLUT(exclusionInput, forcedInput, useForcedInput) {
         }
       }
 
+      const finalIdx = resolveGlobalReplacement(bestIdx);
       const byteOff = pIdx * 4;
-      lutBuffer[byteOff] = emojiCols[bestIdx];
-      lutBuffer[byteOff + 1] = emojiRows[bestIdx];
+      lutBuffer[byteOff] = emojiCols[finalIdx];
+      lutBuffer[byteOff + 1] = emojiRows[finalIdx];
       lutBuffer[byteOff + 2] = 0;
       lutBuffer[byteOff + 3] = 255;
     }

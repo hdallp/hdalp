@@ -880,9 +880,9 @@ function renderNextBatch() {
     card.className = cardClass;
     card.dataset.idx = idx;
 
-    if (pendingPinPoint) {
+    if (emojiToReplaceGlobal) {
       card.style.cursor = 'pointer';
-      card.onclick = () => window.__selectEmojiForPin(idx);
+      card.onclick = () => window.__selectEmojiForGlobalReplacement(idx);
       card.innerHTML = `
         <div class="emoji-card-header">
           <span class="emoji-color-dot" style="background-color: ${hex};" title="Cor: ${hex}"></span>
@@ -891,7 +891,7 @@ function renderNextBatch() {
         <div class="emoji-atlas-sprite" style="${spritePos}"></div>
         <div class="emoji-grid-name" title="${e.name} (${hex})">${e.name}</div>
         <div class="emoji-grid-actions">
-          <button class="emoji-btn-pin-action" onclick="event.stopPropagation(); window.__selectEmojiForPin(${idx})">Fixar Ponto</button>
+          <button class="emoji-btn-pin-action" onclick="event.stopPropagation(); window.__selectEmojiForGlobalReplacement(${idx})">Substituir Global</button>
         </div>
       `;
     } else {
@@ -948,11 +948,16 @@ function updateStatusCounter() {
     ? `<span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndicesSet.size}</strong> (ocultos)</span>`
     : `<span style="color: #ff7b72;">Bloqueados: <strong>${excludedIndicesSet.size}</strong></span>`;
 
+  const replacedCountText = (typeof globalEmojiReplacements !== 'undefined' && globalEmojiReplacements.size > 0)
+    ? `<span style="color: #d2a8ff;">Substituídos: <strong>${globalEmojiReplacements.size}</strong></span>`
+    : '';
+
   status.innerHTML = `
     <span>${loadedText}</span>
     ${modeIndicator}
     ${blockedCountText}
     <span style="color: #7ee787;">Focados: <strong>${forcedIndicesSet.size}</strong></span>
+    ${replacedCountText}
     <span>${forcedStatusHtml}</span>
   `;
 
@@ -970,24 +975,24 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
   let queryColorCategory = null;
   let targetLabColor = null;
 
-  if (isColorFilterActive) {
+  if (q) {
     const hexMatch = q.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
     if (hexMatch) {
       const rgb = hexToRgb(hexMatch[0]);
       if (rgb) targetLabColor = rgbToLab(...rgb);
-    } else if (colorFilter && colorFilter.startsWith('#')) {
-      const rgb = hexToRgb(colorFilter);
-      if (rgb) targetLabColor = rgbToLab(...rgb);
+    } else {
+      const cleanQ = q.replace(/^cor:\s*/i, '').trim();
+      if (COLOR_NAMES_MAP[cleanQ]) {
+        queryColorCategory = COLOR_NAMES_MAP[cleanQ];
+      }
     }
-
-    const cleanQ = q.replace(/^cor:\s*/i, '').trim();
-    if (COLOR_NAMES_MAP[cleanQ]) {
-      queryColorCategory = COLOR_NAMES_MAP[cleanQ];
-    }
+  } else if (isColorFilterActive && colorFilter && colorFilter.startsWith('#')) {
+    const rgb = hexToRgb(colorFilter);
+    if (rgb) targetLabColor = rgbToLab(...rgb);
   }
 
   let gradientSamples = null;
-  if (params.gradientMap3D && gradientEngine) {
+  if (params.gradientMap3D && gradientEngine && !q) {
     const SAMPLE_COUNT = 64;
     gradientSamples = [];
     for (let s = 0; s <= SAMPLE_COUNT; s++) {
@@ -1028,19 +1033,19 @@ function renderEmojiModal(query = '', categoryFilter = currentActiveModalTag, co
       if (hideBlockedEmojis && isBlocked) continue;
     }
 
-    if (isColorFilterActive && colorFilter && !colorFilter.startsWith('#')) {
-      if (emojiCat !== colorFilter) continue;
-    }
-
     if (q) {
-      let matchQuery = name.includes(q) || surrogates.includes(q) || codepoint.includes(q) || allNames.some(n => n.includes(q));
-      if (!matchQuery && queryColorCategory) {
-        if (emojiCat === queryColorCategory) matchQuery = true;
+      if (targetLabColor) {
+        // Hex search - keep to calculate distance
+      } else if (queryColorCategory) {
+        if (emojiCat !== queryColorCategory) continue;
+      } else {
+        const matchQuery = name.includes(q) || surrogates.includes(q) || codepoint.includes(q) || allNames.some(n => n.includes(q));
+        if (!matchQuery) continue;
       }
-      if (!matchQuery && targetLabColor) {
-        matchQuery = true;
+    } else {
+      if (isColorFilterActive && colorFilter && !colorFilter.startsWith('#')) {
+        if (emojiCat !== colorFilter) continue;
       }
-      if (!matchQuery) continue;
     }
 
     let colorDist = 0;
@@ -1238,28 +1243,110 @@ window.__toggleForced = function (token) {
   renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
 };
 
-window.__selectEmojiForPin = function (atlasIndex) {
-  if (!pendingPinPoint || !atlasMetadata || !atlasMetadata.emojis) {
+function openEmojiModalForGlobalReplacement(targetEmoji) {
+  params.openEmojiModal(true);
+  const pinBanner = document.getElementById('modal-pin-banner');
+  const pinBannerText = document.getElementById('modal-pin-banner-text');
+  if (pinBanner && pinBannerText) {
+    pinBanner.style.display = 'flex';
+    const name = targetEmoji ? targetEmoji.name : 'este emoji';
+    const surr = (targetEmoji && targetEmoji.surrogates) ? targetEmoji.surrogates + ' ' : '';
+    pinBannerText.innerHTML = `Substituir: <strong>${surr}${name}</strong> globalmente`;
+  }
+
+  currentActiveCategory = '__all';
+  isColorFilterActive = false;
+  currentActiveModalColor = '';
+  selectedHexColor = '';
+  updateCategoryChipsUI();
+  updateCrosshairUI();
+
+  const searchInput = document.getElementById('emoji-modal-search-input');
+  if (searchInput) {
+    searchInput.value = '';
+    const searchPill = document.getElementById('search-pill-container');
+    if (searchPill) searchPill.classList.remove('has-value');
+    setTimeout(() => { searchInput.focus(); }, 60);
+  }
+  renderEmojiModal('', '__all', '');
+}
+
+function openEmojiModalForPin(customTitle) {
+  if (emojiToReplaceGlobal) {
+    openEmojiModalForGlobalReplacement(emojiToReplaceGlobal);
     return;
   }
-  const emoji = atlasMetadata.emojis[atlasIndex];
-  if (!emoji) return;
+  params.openEmojiModal(true);
+  const pinBanner = document.getElementById('modal-pin-banner');
+  const pinBannerText = document.getElementById('modal-pin-banner-text');
+  if (pinBanner && pinBannerText) {
+    pinBanner.style.display = 'flex';
+    if (customTitle) {
+      pinBannerText.innerHTML = customTitle;
+    } else if (activeActionMenuEmoji && activeActionMenuEmoji.name) {
+      const surr = activeActionMenuEmoji.surrogates ? activeActionMenuEmoji.surrogates + ' ' : '';
+      pinBannerText.innerHTML = `Substituir: <strong>${surr}${activeActionMenuEmoji.name}</strong> globalmente`;
+    } else {
+      pinBannerText.innerHTML = `Substituição global`;
+    }
+  }
+}
 
-  const rad = (pendingPinPoint.radius !== undefined) ? pendingPinPoint.radius : (params.pinRadius || 0.035);
+window.__selectEmojiForGlobalReplacement = function (newAtlasIndex) {
+  if (!emojiToReplaceGlobal || !atlasMetadata || !atlasMetadata.emojis || typeof newAtlasIndex !== 'number') {
+    return;
+  }
+  const newEmoji = atlasMetadata.emojis[newAtlasIndex];
+  if (!newEmoji) return;
 
-  const pin = addOrUpdatePinnedPoint(
-    pendingPinPoint.x, pendingPinPoint.y, pendingPinPoint.z, emoji, rad,
-    pendingPinPoint.indices || null, pendingPinPoint.pinId
-  );
-  if (pin) pendingPinPoint.pinId = pin.id;
+  const oldIdx = (emojiToReplaceGlobal._atlasIndex !== undefined)
+    ? emojiToReplaceGlobal._atlasIndex
+    : atlasMetadata.emojis.findIndex(e => e.name === emojiToReplaceGlobal.name);
+
+  if (oldIdx >= 0) {
+    globalEmojiReplacements.set(oldIdx, newAtlasIndex);
+
+    // Se o emoji antigo estava nos focados, transfere o foco para o novo emoji
+    if (forcedIndicesSet.has(oldIdx)) {
+      forcedIndicesSet.delete(oldIdx);
+      forcedIndicesSet.add(newAtlasIndex);
+      syncForcedTextFromSet();
+    }
+
+    // Garante que o novo emoji não esteja bloqueado
+    if (excludedIndicesSet.has(newAtlasIndex)) {
+      excludedIndicesSet.delete(newAtlasIndex);
+      syncExcludedTextFromSet();
+    }
+
+    rebuildColorLUT();
+    updateCategoryChipsUI();
+  }
+
+  const oldName = emojiToReplaceGlobal.name;
+  const oldSurr = emojiToReplaceGlobal.surrogates ? emojiToReplaceGlobal.surrogates + ' ' : '';
+  const newName = newEmoji.name;
+  const newSurr = newEmoji.surrogates ? newEmoji.surrogates + ' ' : '';
 
   const pinBanner = document.getElementById('modal-pin-banner');
   const pinBannerText = document.getElementById('modal-pin-banner-text');
-  if (pinBanner && pinBannerText && pendingPinPoint.indices) {
+  if (pinBanner && pinBannerText) {
     pinBanner.style.display = 'flex';
-    pinBannerText.innerHTML = `<strong>${emoji.surrogates ? emoji.surrogates + ' ' : ''}${emoji.name}</strong> aplicado em <code>${pendingPinPoint.indices.length.toLocaleString('pt-BR')}</code> pontos. Clique em outro emoji para trocar, ou em Cancelar para encerrar.`;
+    pinBannerText.innerHTML = `Substituído: <strong>${oldSurr}${oldName} → ${newSurr}${newName}</strong>`;
   }
+
+  showToast(`"${oldName}" substituído por "${newName}".`);
+
+  lastSampleTime = 0;
+  if (typeof updatePickerHover === 'function') {
+    updatePickerHover(lastHoverX, lastHoverY);
+  }
+
+  const searchInput = document.getElementById('emoji-modal-search-input');
+  renderEmojiModal(searchInput ? searchInput.value : '', currentActiveModalTag, currentActiveModalColor);
 };
+
+window.__selectEmojiForPin = window.__selectEmojiForGlobalReplacement;
 
 window.__addExclusion = window.__toggleExclusion;
 window.__addForced = window.__toggleForced;
@@ -1898,6 +1985,13 @@ function setupEmojiModalEvents() {
       if (!btn) return;
       const color = btn.getAttribute('data-color');
       if (color) setColorFromHex(color, true);
+    });
+  }
+
+  const clearReplacementsBtn = document.getElementById('sidebar-clear-replacements-btn');
+  if (clearReplacementsBtn) {
+    clearReplacementsBtn.addEventListener('click', () => {
+      clearGlobalReplacements();
     });
   }
 

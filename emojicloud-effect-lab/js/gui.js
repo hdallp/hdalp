@@ -132,6 +132,12 @@ function setActiveTool(tool) {
   currentActiveTool = tool;
   isPickerActive = (tool === 'inspector');
   isLassoActive = (tool === 'lasso');
+  // Invalida cache de posição do picker ao trocar de ferramenta
+  if (typeof _lastPickedEmoji !== 'undefined') {
+    _lastPickedX = -9999;
+    _lastPickedY = -9999;
+    _lastPickedEmoji = undefined;
+  }
 
   document.querySelectorAll('.gui-tool-btn').forEach(btn => {
     const bTool = btn.getAttribute('data-tool');
@@ -153,10 +159,10 @@ function setActiveTool(tool) {
   const hudText = document.getElementById('tool-hud-text');
   if (hudBanner && hudText) {
     if (tool === 'inspector') {
-      hudText.textContent = 'Inspetor Ativo: Passe o mouse para analisar ou clique para inspecionar e fixar';
+      hudText.textContent = 'Inspetor: clique para substituir (Shift+clique para bloquear)';
       hudBanner.classList.add('visible');
     } else if (tool === 'lasso') {
-      hudText.textContent = 'Laço de Fixação Ativo: Desenhe um contorno na tela para fixar um emoji na região';
+      hudText.textContent = 'Laço: desenhe para selecionar';
       hudBanner.classList.add('visible');
     } else {
       hudBanner.classList.remove('visible');
@@ -180,26 +186,49 @@ function setPickerState(active) {
 function handlePickerClick(e) {
   if (!isPickerActive || !app || !app.graphicsDevice || !atlasMetadata) return;
 
-  const pickedEmoji = samplePickerAt(e.clientX, e.clientY);
-  const localPos = samplePositionAt(e.clientX, e.clientY);
+  const clickX = e.clientX;
+  const clickY = e.clientY;
+  const isShift = e.shiftKey;
 
-  if (!pickedEmoji) {
-    hidePickerActionMenu();
+  // Primeiro tenta pin síncrono
+  const pinnedEmoji = samplePickerAt(clickX, clickY);
+  if (pinnedEmoji) {
+    _onPickerClickEmoji(pinnedEmoji, clickX, clickY, isShift);
     return;
   }
 
-  if (e.shiftKey) {
+  // Usa pick assíncrono via render mode 3
+  schedulePickerRead(clickX, clickY, function(pickedEmoji) {
+    if (!pickedEmoji) {
+      hidePickerActionMenu();
+      return;
+    }
+    _onPickerClickEmoji(pickedEmoji, clickX, clickY, isShift);
+  });
+}
+
+function _onPickerClickEmoji(pickedEmoji, clickX, clickY, isShift) {
+  if (isShift) {
     hidePickerActionMenu();
     const target = pickedEmoji._atlasIndex !== undefined ? pickedEmoji._atlasIndex : pickedEmoji.name;
     window.__toggleExclusion(target);
     lastSampleTime = 0;
     if (typeof updatePickerHover === 'function') {
-      updatePickerHover(e.clientX, e.clientY);
+      updatePickerHover(clickX, clickY);
     }
     return;
   }
 
-  showPickerActionMenu(e.clientX, e.clientY, pickedEmoji, localPos);
+  // Ao clicar com o inspetor, abrir o catálogo para substituir aquele emoji globalmente
+  emojiToReplaceGlobal = pickedEmoji;
+  pendingPinPoint = null;
+
+  hidePickerActionMenu();
+  if (typeof openEmojiModalForGlobalReplacement === 'function') {
+    openEmojiModalForGlobalReplacement(pickedEmoji);
+  } else {
+    params.openEmojiModal(true);
+  }
 }
 
 function setupToolbar(rootEl) {
@@ -318,21 +347,21 @@ function setupGUI() {
   const tabs = pane.addTab({
     pages: [
       { title: 'Emojis' },
-      { title: 'Pins' },
+      { title: 'Superfície' },
       { title: 'Capture' },
       { title: 'Cena' },
       { title: 'Presets' }
     ]
   });
   const pageEmojis = tabs.pages[0];
-  const pagePins = tabs.pages[1];
+  const pageSurface = tabs.pages[1];
   const pageCapture = tabs.pages[2];
   const pageScene = tabs.pages[3];
   const pagePresets = tabs.pages[4];
   tabs.selectedIndex = 0;
 
   // Superfície & Bake
-  const surfFolder = pagePins.addFolder({ title: 'Superfície & Bake' });
+  const surfFolder = pageSurface.addFolder({ title: 'Superfície & Bake' });
 
   // Capture
   const capFolder = pageCapture.addFolder({ title: 'Marcadores ao redor do ponto' });
@@ -428,34 +457,6 @@ function setupGUI() {
 
   bindControl(effectFolder, 'tintIntensity', { label: 'Intensidade Tint', min: 0.0, max: 1.0, step: 0.05 }, () => applyShaderParams());
   bindControl(effectFolder, 'alphaCutoff', { label: 'Corte Alpha', min: 0.01, max: 0.8, step: 0.01 }, () => applyShaderParams());
-  bindControl(effectFolder, 'gradientMap3D', { label: 'Mapa Gradiente 3D' }, (val) => {
-    toggleGradientMap3D(val);
-  });
-
-  const allGradientPresets = (typeof GradientEngine !== 'undefined') ? GradientEngine.getPresets() : [];
-  const presetNamesList = allGradientPresets.map(p => p.name);
-  const presetNameToId = {};
-  allGradientPresets.forEach(p => { presetNameToId[p.name] = p.id; });
-
-  bindControl(effectFolder, 'gradientPreset', {
-    label: 'Preset Gradiente',
-    options: addLabelOptions(presetNamesList)
-  }, (val) => {
-    const presetId = presetNameToId[val] || 'purple-white';
-    activeGradientPresetId = presetId;
-    activeGradientPresetName = val;
-    if (gradientEngine) {
-      gradientEngine.setPreset(presetId);
-    }
-    params.gradientMap3D = true;
-    const chkGrad3d = document.getElementById('chk-gradient-map-3d');
-    if (chkGrad3d) chkGrad3d.checked = true;
-    if (guiControllers.gradientMap3D) guiControllers.gradientMap3D.setValue(true);
-
-    rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);
-    refreshGradientWidget();
-    showToast(`Gradiente: ${val}`);
-  });
 
   const orientBinding = surfFolder.addBinding(params, 'surfaceOrient', { label: 'Orientar pela Normal (para fora)' });
   guiControllers.surfaceOrient = shim('surfaceOrient', orientBinding);
@@ -505,20 +506,10 @@ function setupGUI() {
 
   addAction(colorFolder, 'Redefinir Cores', () => params.resetColors());
 
-  // Pins de Emojis
-  const pinFolder = pagePins.addFolder({ title: 'Pins de Emojis' });
-
-  bindControl(pinFolder, 'pinnedCountDisplay', { label: 'Status', readonly: true });
-  bindControl(pinFolder, 'pinRadius', { label: 'Raio do Pin (Inspetor)', min: 0.005, max: 0.12, step: 0.005 }, () => updatePinnedUniforms());
-  bindControl(pinFolder, 'pinEmojiScale', { label: 'Escala do Emoji Fixado', min: 1, max: 16, step: 0.5 }, () => applyPinnedParams());
-
-  addAction(pinFolder, 'Limpar Todos os Pins', () => params.clearAllPinsAction());
-
   // Filtragem & Restrições
   const filterFolder = pageEmojis.addFolder({ title: 'Filtragem & Restrições' });
 
   addAction(filterFolder, 'Catálogo de Emojis', () => params.openEmojiModal());
-  addAction(filterFolder, 'Restringir ao Gradiente', () => restrictEmojisToGradient());
 
   const onFilterTextChange = () => {
     rebuildColorLUT(params.excludedText, params.forcedText, params.useForced);

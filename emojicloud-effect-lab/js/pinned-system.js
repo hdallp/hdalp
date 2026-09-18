@@ -575,124 +575,223 @@ let lastHoverX = 0;
 let lastHoverY = 0;
 let lastSampleTime = 0;
 
-function samplePickerAt(clientX, clientY) {
-  if (!isPickerActive || !app || !app.graphicsDevice || !atlasMetadata) return null;
-  const gl = app.graphicsDevice.gl;
-  if (!gl) return null;
+let pickRenderTarget = null;
+let pickRenderTexture = null;
+
+function isPointerOverUI(clientX, clientY) {
+  if (typeof document === 'undefined') return false;
+  const el = document.elementFromPoint(clientX, clientY);
+  if (!el) return false;
+  if (el.id === 'splat-canvas' || el.id === 'lasso-canvas' || el.id === 'app' || el.tagName === 'BODY' || el.tagName === 'HTML') {
+    return false;
+  }
+  return !!(
+    el.closest('.tp-dfwv') ||
+    el.closest('.emoji-catalog-panel') ||
+    el.closest('#picker-action-card') ||
+    el.closest('#gui-toolbar') ||
+    el.closest('#tool-hud-banner') ||
+    el.closest('#picker-tooltip') ||
+    el.closest('#picker-reticle') ||
+    el.closest('.lab-toast') ||
+    el.closest('.drop-overlay')
+  );
+}
+
+let pick2DCanvas = null;
+let pick2DCtx = null;
+
+// Pick buffer usando renderMode 3 (emite col/255, row/255 por pixel) — zero flicker, zero dependência de cor de tela
+let _pickPending = false;
+let _pickX = 0, _pickY = 0;
+let _pickCallback = null;
+let _pickPreHandler = null;
+let _pickPostHandler = null;
+
+// RenderTarget offscreen para pick (não visível na tela)
+let _pickRT = null;
+let _pickTex = null;
+let _pickBuf = null;
+let _pickRTW = 0;
+let _pickRTH = 0;
+
+// Cache de posição: evita re-render quando mouse não moveu significativamente
+let _lastPickedX = -9999;
+let _lastPickedY = -9999;
+let _lastPickedEmoji = undefined; // undefined = sem cache válido, null = sem emoji
+
+function _ensurePickRT(w, h) {
+  if (_pickRT && _pickTex && _pickRTW === w && _pickRTH === h) return true;
+  if (_pickRT) { try { _pickRT.destroy(); } catch(e){} _pickRT = null; }
+  if (_pickTex) { try { _pickTex.destroy(); } catch(e){} _pickTex = null; }
+  if (!app || !app.graphicsDevice) return false;
+  try {
+    _pickTex = new pc.Texture(app.graphicsDevice, {
+      name: 'pickerRT',
+      width: w, height: h,
+      format: pc.PIXELFORMAT_RGBA8,
+      mipmaps: false,
+      minFilter: pc.FILTER_NEAREST,
+      magFilter: pc.FILTER_NEAREST,
+      addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+      addressV: pc.ADDRESS_CLAMP_TO_EDGE
+    });
+    _pickRT = new pc.RenderTarget({ colorBuffer: _pickTex, depth: true });
+    _pickBuf = new Uint8Array(w * h * 4);
+    _pickRTW = w;
+    _pickRTH = h;
+    return true;
+  } catch(e) {
+    _pickRT = null; _pickTex = null;
+    return false;
+  }
+}
+
+function _resolveEmojiFromColRow(col, row) {
+  if (col >= 64 || row >= 32) return null;
+  let emoji = slotEmojiMap ? slotEmojiMap.get(row * 64 + col) : null;
+  if (!emoji && atlasMetadata && atlasMetadata.emojis) {
+    for (let i = 0; i < atlasMetadata.emojis.length; i++) {
+      const e = atlasMetadata.emojis[i];
+      if (e && e.slot && e.slot.col === col && e.slot.row === row) { emoji = e; break; }
+    }
+  }
+  if (emoji && emoji._atlasIndex !== undefined) {
+    const finalIdx = resolveGlobalReplacement(emoji._atlasIndex);
+    emoji = (atlasMetadata && atlasMetadata.emojis ? atlasMetadata.emojis[finalIdx] : null) || emoji;
+  }
+  return emoji || null;
+}
+
+function _doSyncPickRender(clientX, clientY) {
+  // Renderiza cena em modo 3 para um RT offscreen e lê o pixel sob o cursor
+  // Zero flicker: canvas visível não é afetado
+  if (!app || !app.graphicsDevice || !cameraEntity || !splatEntity) return null;
 
   const canvas = document.getElementById('splat-canvas');
   if (!canvas) return null;
   const rect = canvas.getBoundingClientRect();
-  const x = clientX - rect.left;
-  const y = clientY - rect.top;
-
-  if (x < 0 || x > rect.width || y < 0 || y > rect.height) return null;
+  const cx = clientX - rect.left;
+  const cy = clientY - rect.top;
+  if (cx < 0 || cx > rect.width || cy < 0 || cy > rect.height) return null;
 
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
+  const px = Math.round(cx * scaleX);
+  const py = Math.round(cy * scaleY);
 
-  const centerX = Math.round(x * scaleX);
-  const centerY = Math.round((rect.height - y) * scaleY);
-
-  const radius = 3;
-  const sampleSize = radius * 2 + 1;
-  const startX = Math.max(0, Math.min(canvas.width - sampleSize, centerX - radius));
-  const startY = Math.max(0, Math.min(canvas.height - sampleSize, centerY - radius));
-
-  const activeRenderMode = params.useEmojis ? params.renderMode : 2;
   const device = app.graphicsDevice;
+  const gl = device.gl;
+  if (!gl) return null; // WebGPU fallback
 
-  if (device && device.scope) {
-    device.scope.resolve('uRenderMode')?.setValue(3);
-  }
-  if (splatEntity && splatEntity.gsplat) {
-    try { splatEntity.gsplat.setParameter('uRenderMode', 3); } catch (e) {}
-    if (splatEntity.gsplat.material) {
-      try { splatEntity.gsplat.material.setParameter('uRenderMode', 3); } catch (e) {}
-    }
-  }
-  app.render();
+  // Usa 1/4 da resolução para o RT de pick (adequado para índice de emoji)
+  const rtW = Math.max(1, Math.ceil(canvas.width / 4));
+  const rtH = Math.max(1, Math.ceil(canvas.height / 4));
+  if (!_ensurePickRT(rtW, rtH)) return null;
 
-  const pixelData = new Uint8Array(sampleSize * sampleSize * 4);
+  const cam = cameraEntity.camera;
+  const prevRT = cam.renderTarget || null;
+  const setScope = (n, v) => { try { device.scope.resolve(n)?.setValue(v); } catch(e){} };
+  const setParam = (n, v) => {
+    try { if (splatEntity.gsplat) splatEntity.gsplat.setParameter(n, v); } catch(e){}
+    try { if (splatEntity.gsplat && splatEntity.gsplat.material) splatEntity.gsplat.material.setParameter(n, v); } catch(e){}
+  };
+
+  const restoreMode = params.useEmojis ? params.renderMode : 2;
+  let emoji = null;
+
   try {
+    // Configura pick mode
+    setScope('uRenderMode', 3);
+    setScope('uBakePass', 0.0);
+    setParam('uRenderMode', 3);
+    setParam('uBakePass', 0.0);
+
+    // Redireciona câmera para RT offscreen
+    device.setRenderTarget(_pickRT);
+    device.clear({ color: [0, 0, 0, 0], depth: 1, stencil: 0, flags: pc.CLEARFLAG_COLOR | pc.CLEARFLAG_DEPTH });
+    cam.renderTarget = _pickRT;
+    app.render();
+
+    // Lê pixel de volta
+    const glRT = (_pickRT.impl && _pickRT.impl._glFrameBuffer) || null;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, glRT);
+    const rtPxX = Math.round(px * (rtW / canvas.width));
+    const rtPxY = Math.round((canvas.height - 1 - py) * (rtH / canvas.height)); // flip Y
+    const rtPxXClamped = Math.max(0, Math.min(rtW - 1, rtPxX));
+    const rtPxYClamped = Math.max(0, Math.min(rtH - 1, rtPxY));
+    const onePx = new Uint8Array(4);
+    gl.readPixels(rtPxXClamped, rtPxYClamped, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, onePx);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  } catch (err) {}
-  gl.readPixels(startX, startY, sampleSize, sampleSize, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
 
-  if (device && device.scope) {
-    device.scope.resolve('uRenderMode')?.setValue(activeRenderMode);
+    const r = onePx[0];
+    const g = onePx[1];
+    const a = onePx[3];
+
+    if (a >= 64 && (r > 0 || g > 0)) {
+      emoji = _resolveEmojiFromColRow(r, g);
+    }
+  } catch(err) {
+    console.warn('[Pick] Erro no render offscreen:', err);
+  } finally {
+    // Restaura tudo
+    cam.renderTarget = prevRT;
+    device.setRenderTarget(null);
+    setScope('uRenderMode', restoreMode);
+    setScope('uBakePass', 0.0);
+    setParam('uRenderMode', restoreMode);
+    setParam('uBakePass', 0.0);
+    try { applyShaderParams(); } catch(e){}
   }
-  if (splatEntity && splatEntity.gsplat) {
-    try { splatEntity.gsplat.setParameter('uRenderMode', activeRenderMode); } catch (e) {}
-    if (splatEntity.gsplat.material) {
-      try { splatEntity.gsplat.material.setParameter('uRenderMode', activeRenderMode); } catch (e) {}
+  return emoji;
+}
+
+function schedulePickerRead(clientX, clientY, callback) {
+  // Cancela pick anterior pendente (caso exista um RAF em voo)
+  if (_pickPending && _pickPreHandler) {
+    cancelAnimationFrame(_pickPreHandler);
+    _pickPreHandler = null;
+  }
+  _pickPending = false;
+
+  // Pick offscreen síncrono direto — sem RAF delay (~16ms economizados por pick)
+  try {
+    const emoji = _doSyncPickRender(clientX, clientY);
+    _lastPickedX = clientX;
+    _lastPickedY = clientY;
+    _lastPickedEmoji = emoji;
+    callback(emoji);
+  } catch(err) {
+    callback(null);
+  }
+}
+
+function samplePickerAt(clientX, clientY) {
+  if (!isPickerActive || !app || !atlasMetadata || !cameraEntity || isPointerOverUI(clientX, clientY)) return null;
+
+  // 1. Verifica se está sobre um ponto fixado (Pin)
+  const hitPos = screenToModelLocal(clientX, clientY);
+  if (hitPos) {
+    const pinnedNear = findPinnedPointNear(hitPos);
+    if (pinnedNear && pinnedNear.point) {
+      const p = pinnedNear.point;
+      const pinnedEmoji = atlasMetadata.emojis.find(e => e.name === p.emojiName || (e.slot && e.slot.col === p.col && e.slot.row === p.row));
+      if (pinnedEmoji) return pinnedEmoji;
     }
   }
-  app.render();
 
-  let bestCol = -1;
-  let bestRow = -1;
-  let bestDistSq = 1e9;
-
-  for (let dy = 0; dy < sampleSize; dy++) {
-    for (let dx = 0; dx < sampleSize; dx++) {
-      const off = (dy * sampleSize + dx) * 4;
-      const r = pixelData[off];
-      const g = pixelData[off + 1];
-      const b = pixelData[off + 2];
-      const a = pixelData[off + 3];
-
-      if (a > 20 && !(r >= 250 && g >= 250 && b >= 250)) {
-        const distSq = (dx - radius) * (dx - radius) + (dy - radius) * (dy - radius);
-        if (distSq < bestDistSq) {
-          bestDistSq = distSq;
-          bestCol = r;
-          bestRow = g;
-        }
-      }
-    }
-  }
-
-  if (bestCol === -1 || bestRow === -1) return null;
-  return slotEmojiMap ? slotEmojiMap.get(bestRow * 64 + bestCol) : null;
+  return null; // resultado assíncrono via schedulePickerRead
 }
 
 function samplePositionAt(clientX, clientY) {
   return screenToModelLocal(clientX, clientY);
 }
 
-function updatePickerHover(clientX, clientY) {
-  lastHoverX = clientX;
-  lastHoverY = clientY;
-
+function applyPickerResult(emoji, atX, atY) {
   const reticle = document.getElementById('picker-reticle');
-  if (reticle && isPickerActive) {
-    reticle.style.display = 'block';
-    reticle.style.left = `${lastHoverX}px`;
-    reticle.style.top = `${lastHoverY}px`;
-  }
-
-  const now = performance.now();
-  if (now - lastSampleTime < 35) {
-    if (!hoverSampleRaf) {
-      hoverSampleRaf = requestAnimationFrame(() => {
-        hoverSampleRaf = null;
-        updatePickerHover(lastHoverX, lastHoverY);
-      });
-    }
-    return;
-  }
-  lastSampleTime = now;
-
-  if (!isPickerActive) {
-    hidePickerHover();
-    return;
-  }
-
   const tooltip = document.getElementById('picker-tooltip');
   if (!reticle || !tooltip) return;
 
-  const emoji = samplePickerAt(lastHoverX, lastHoverY);
   if (!emoji) {
     tooltip.style.display = 'none';
     reticle.classList.remove('is-locked');
@@ -720,43 +819,108 @@ function updatePickerHover(clientX, clientY) {
   if (dot) dot.style.backgroundColor = hex;
   if (hexEl) hexEl.textContent = hex;
 
+  const originalIdx = emoji._atlasIndex !== undefined ? emoji._atlasIndex : null;
+  const isReplaced = originalIdx !== null && typeof globalEmojiReplacements !== 'undefined' && globalEmojiReplacements.has(originalIdx);
+
   if (badge && hintText) {
-    if (isBlocked) {
+    if (isReplaced) {
+      const replIdx = globalEmojiReplacements.get(originalIdx);
+      const replEmoji = atlasMetadata && atlasMetadata.emojis ? atlasMetadata.emojis[replIdx] : null;
+      badge.className = 'emoji-badge badge-forced';
+      badge.textContent = 'Substituído';
+      hintText.innerHTML = `Substituído: ${replEmoji ? replEmoji.name : replIdx}`;
+      reticle.style.borderColor = '#d2a8ff';
+      reticle.style.boxShadow = '0 0 6px rgba(210, 168, 255, 0.4)';
+    } else if (isBlocked) {
       badge.className = 'emoji-badge badge-blocked';
       badge.textContent = 'Bloqueado';
-      hintText.innerHTML = 'Clique para Opções';
+      hintText.innerHTML = 'Clique para substituir';
       reticle.style.borderColor = '#ff7b72';
-      reticle.style.boxShadow = '0 0 14px rgba(255, 123, 114, 0.8), inset 0 0 6px rgba(255, 123, 114, 0.4)';
+      reticle.style.boxShadow = '0 0 6px rgba(255, 123, 114, 0.4)';
     } else if (isForced) {
       badge.className = 'emoji-badge badge-forced';
-      badge.textContent = 'Exclusivo';
-      hintText.innerHTML = 'Clique para Opções';
+      badge.textContent = 'Foco';
+      hintText.innerHTML = 'Clique para substituir';
       reticle.style.borderColor = '#7ee787';
-      reticle.style.boxShadow = '0 0 14px rgba(126, 231, 135, 0.8), inset 0 0 6px rgba(126, 231, 135, 0.4)';
+      reticle.style.boxShadow = '0 0 6px rgba(126, 231, 135, 0.4)';
     } else {
       badge.className = 'emoji-badge badge-idle';
       badge.textContent = 'Ativo';
-      hintText.innerHTML = 'Clique para Opções e Fixação';
+      hintText.innerHTML = 'Clique para substituir';
       reticle.style.borderColor = '#58a6ff';
-      reticle.style.boxShadow = '0 0 14px rgba(88, 166, 255, 0.8), inset 0 0 6px rgba(88, 166, 255, 0.4)';
+      reticle.style.boxShadow = '0 0 6px rgba(88, 166, 255, 0.4)';
     }
   }
 
   const tooltipW = 230;
   const tooltipH = 80;
-  let tx = lastHoverX + 28;
-  let ty = lastHoverY + 16;
+  let tx = atX + 28;
+  let ty = atY + 16;
 
   if (tx + tooltipW > window.innerWidth - 330) {
-    tx = lastHoverX - tooltipW - 28;
+    tx = atX - tooltipW - 28;
   }
   if (ty + tooltipH > window.innerHeight - 20) {
-    ty = lastHoverY - tooltipH - 16;
+    ty = atY - tooltipH - 16;
   }
 
   tooltip.style.left = `${Math.max(10, tx)}px`;
   tooltip.style.top = `${Math.max(10, ty)}px`;
   tooltip.style.display = 'flex';
+}
+
+function updatePickerHover(clientX, clientY) {
+  lastHoverX = clientX;
+  lastHoverY = clientY;
+
+  if (!isPickerActive || isPointerOverUI(clientX, clientY)) {
+    hidePickerHover();
+    return;
+  }
+
+  const reticle = document.getElementById('picker-reticle');
+  if (reticle && isPickerActive) {
+    reticle.style.display = 'block';
+    reticle.style.left = `${lastHoverX}px`;
+    reticle.style.top = `${lastHoverY}px`;
+  }
+
+  if (!app || !atlasMetadata || !cameraEntity) return;
+
+  const captureX = lastHoverX;
+  const captureY = lastHoverY;
+
+  // Cache por posição: reutiliza resultado se mouse não moveu mais que 6px
+  if (_lastPickedEmoji !== undefined) {
+    const dist = Math.hypot(captureX - _lastPickedX, captureY - _lastPickedY);
+    if (dist < 6) {
+      applyPickerResult(_lastPickedEmoji, captureX, captureY);
+      return;
+    }
+  }
+
+  const now = performance.now();
+  if (now - lastSampleTime < 40) {
+    // Throttle leve: evita picks a mais de 25fps
+    return;
+  }
+  lastSampleTime = now;
+
+  // Primeiro verifica pin (síncrono, CPU-only)
+  const pinnedEmoji = samplePickerAt(captureX, captureY);
+  if (pinnedEmoji) {
+    _lastPickedX = captureX;
+    _lastPickedY = captureY;
+    _lastPickedEmoji = pinnedEmoji;
+    applyPickerResult(pinnedEmoji, captureX, captureY);
+    return;
+  }
+
+  // Pick via render mode 3 (direto, sem RAF delay)
+  schedulePickerRead(captureX, captureY, function(emoji) {
+    if (!isPickerActive) return;
+    applyPickerResult(emoji, captureX, captureY);
+  });
 }
 
 function hidePickerHover() {

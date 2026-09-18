@@ -29,7 +29,6 @@
 
     <!-- Top HUD Banner for Active Tool (Inspector or Lasso) -->
     <div id="tool-hud-banner" class="tool-hud-banner">
-      <span class="tool-hud-dot"></span>
       <span id="tool-hud-text">Ferramenta Ativa</span>
       <button class="tool-hud-close" id="tool-hud-close-btn" title="Voltar para Navegação (ESC)">&times;</button>
     </div>
@@ -72,19 +71,13 @@
         <button class="picker-action-close" id="picker-action-close-btn" title="Fechar Menu">&times;</button>
       </div>
       <div class="picker-action-buttons">
-        <button class="picker-action-btn picker-btn-pin" id="picker-btn-pin" title="Fixa este ponto 3D para renderizar sempre este emoji">
-          Fixar Ponto Neste Emoji
-        </button>
-        <button class="picker-action-btn picker-btn-choose" id="picker-btn-choose" title="Abre o catálogo para escolher outro emoji para este ponto">
-          Escolher Outro Emoji para este Ponto...
+        <button class="picker-action-btn picker-btn-choose" id="picker-btn-choose" title="Abre o catálogo para substituir este emoji globalmente em toda a nuvem 3D">
+          Substituir Emoji Globalmente...
         </button>
         <div class="picker-btn-group">
           <button class="picker-action-btn" id="picker-btn-block" title="Bloqueia este emoji globalmente">Bloquear Emoji</button>
           <button class="picker-action-btn" id="picker-btn-force" title="Foca a nuvem 3D neste emoji">Focar Emoji</button>
         </div>
-        <button class="picker-action-btn picker-btn-unpin" id="picker-btn-unpin" style="display: none;" title="Remove a fixação deste ponto 3D">
-          Desfixar Ponto
-        </button>
       </div>
     </div>
 
@@ -114,9 +107,9 @@
         </div>
       </div>
 
-      <!-- Banner de Fixação de Ponto ou Região -->
+      <!-- Banner de Substituição Global de Emoji -->
       <div id="modal-pin-banner" class="modal-pin-banner" style="display: none;">
-        <span id="modal-pin-banner-text"><strong>Fixar Emoji:</strong> Clique em qualquer emoji abaixo para fixá-lo na posição selecionada.</span>
+        <span id="modal-pin-banner-text"><strong>Substituição Global:</strong> Clique em qualquer emoji abaixo para aplicar a troca em toda a nuvem 3D.</span>
         <button id="modal-pin-cancel-btn" class="modal-pin-cancel-btn">Cancelar</button>
       </div>
 
@@ -277,6 +270,7 @@
           <!-- Quick Actions Footer -->
           <div class="sidebar-section-title">Ações Rápidas</div>
           <div class="sidebar-actions-col">
+            <button class="sidebar-action-btn" id="sidebar-clear-replacements-btn" title="Restaura todos os emojis substituídos globalmente para seus emojis originais">Limpar Substituições</button>
             <button class="sidebar-action-btn" id="sidebar-unblock-all-btn">Desbloquear Todos</button>
             <button class="sidebar-action-btn" id="sidebar-clear-forced-btn">Limpar Focados</button>
           </div>
