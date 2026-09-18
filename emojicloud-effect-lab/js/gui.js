@@ -133,7 +133,9 @@ function setActiveTool(tool) {
   isPickerActive = (tool === 'inspector');
   isLassoActive = (tool === 'lasso');
   // Invalida cache de posição do picker ao trocar de ferramenta
-  if (typeof _lastPickedEmoji !== 'undefined') {
+  if (typeof invalidatePickerCache === 'function') {
+    invalidatePickerCache(false);
+  } else if (typeof _lastPickedEmoji !== 'undefined') {
     _lastPickedX = -9999;
     _lastPickedY = -9999;
     _lastPickedEmoji = undefined;
@@ -212,6 +214,9 @@ function _onPickerClickEmoji(pickedEmoji, clickX, clickY, isShift) {
     hidePickerActionMenu();
     const target = pickedEmoji._atlasIndex !== undefined ? pickedEmoji._atlasIndex : pickedEmoji.name;
     window.__toggleExclusion(target);
+    if (typeof invalidatePickerCache === 'function') {
+      invalidatePickerCache(false);
+    }
     lastSampleTime = 0;
     if (typeof updatePickerHover === 'function') {
       updatePickerHover(clickX, clickY);
@@ -545,7 +550,7 @@ function setupGUI() {
   // Geometria & Densidade
   const geoFolder = pageScene.addFolder({ title: 'Geometria & Densidade' });
 
-  bindControl(geoFolder, 'squareSize', { label: 'Escala', min: 0.0005, max: 0.03, step: 0.0002 }, () => applyShaderParams());
+  bindControl(geoFolder, 'squareSize', { label: 'Escala', min: 0.0005, max: 0.05, step: 0.0002 }, () => applyShaderParams());
   bindControl(geoFolder, 'density', { label: 'Densidade (%)', min: 1, max: 100, step: 1 }, () => {
     applyShaderParams();
     updateSplatCountDisplay();

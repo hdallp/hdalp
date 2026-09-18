@@ -35,6 +35,20 @@ uniform float uMinOpacity;
 uniform float uLockSH;
 uniform float uBakePass;      // 1 = passe de bake: cada splat desenha 1 texel do mapa
 uniform vec3 uLockSHCamPos;   // camera congelada no espaco do modelo (Fixar Harmonicos)
+uniform int uRenderMode;
+
+uint hashUintVS(uint x) {
+	x ^= (x >> 16u);
+	x *= 0x45d9f3bu;
+	x ^= (x >> 16u);
+	x *= 0x45d9f3bu;
+	x ^= (x >> 16u);
+	return x;
+}
+
+float splatRandomRank(uint idx) {
+	return float(hashUintVS(idx)) / 4294967296.0;
+}
 
 void main(void) {
 	SplatSource source;
@@ -49,28 +63,21 @@ void main(void) {
 
 	if (uDensity < 0.999 && uBakePass < 0.5) {
 		if (uEvenDensity > 0.5) {
-			// --- Modo Distribuição Igualitária (Evenly Spaced / Spatial Voxel Grid) ---
+			// --- Modo Distribuição Uniforme (Espacialmente Estável - Sem Flicker) ---
 			float rad = max(0.05, uModelRadius);
-			float cellSize = rad * 0.012 / max(0.02, pow(uDensity, 0.42));
-			vec3 cell = floor((modelCenter - uModelCenter) / cellSize);
-
-			vec3 j = fract(sin(cell * mat3(vec3(127.1, 311.7, 74.7), vec3(269.5, 183.3, 246.1), vec3(113.5, 271.9, 124.6))) * 43758.5453);
-			vec3 cellTarget = uModelCenter + (cell + j * 0.6 + 0.2) * cellSize;
-			float distToTarget = length(modelCenter - cellTarget) / cellSize;
-
-			float r3 = fract(dot(cell, vec3(0.754877666, 0.569840291, 0.400587784)));
-			float spatialRank = fract(r3 + distToTarget * 0.35);
-
-			float keepRadius = 0.90;
-			if (spatialRank > uDensity || distToTarget > keepRadius) {
+			float cellSize = rad * 0.03;
+			vec3 cPos = (modelCenter - uModelCenter) / cellSize;
+			ivec3 cell = ivec3(floor(cPos));
+			uint cellHash = uint(cell.x) * 73856093u ^ uint(cell.y) * 19349663u ^ uint(cell.z) * 83492791u;
+			uint h = splat.index ^ cellHash;
+			float spatialRank = float(hashUintVS(h)) / 4294967296.0;
+			if (spatialRank > uDensity) {
 				gl_Position = discardVec;
 				return;
 			}
 		} else {
-			// --- Modo Aleatório Estável (Baseado na posição 3D local do modelo - zero flicker) ---
-			vec3 p3 = fract(modelCenter * vec3(443.897, 441.423, 437.195));
-			p3 += dot(p3, p3.yzx + 19.19);
-			float randVal = fract((p3.x + p3.y) * p3.z);
+			// --- Modo Aleatório Estável (Monotônico, determinístico por splat.index - ZERO flicker) ---
+			float randVal = splatRandomRank(splat.index);
 			if (randVal > uDensity) {
 				gl_Position = discardVec;
 				return;
@@ -105,6 +112,9 @@ void main(void) {
 		vec3 dir;
 		if (uLockSH > 0.5) {
 			dir = normalize(modelCenter - uLockSHCamPos);
+		} else if (uRenderMode != 2) {
+			// No modo Emoji (0, 1, 3, 4), fixa a direção dos harmônicos para estabilidade total de cor (zero flicker ao girar)
+			dir = vec3(0.0, 0.0, 1.0);
 		} else {
 			dir = normalize(center.view * mat3(center.modelView));
 		}
@@ -126,6 +136,10 @@ void main(void) {
 	#else
 		gl_Position = center.proj + vec4(corner.offset.xyz, 0);
 	#endif
+
+	// Desempate determinístico estável na profundidade (elimina Z-fighting e alternância de ordem de sorteio)
+	float depthTie = (float(splat.index % 1024u) - 512.0) * 1e-7;
+	gl_Position.z += depthTie * gl_Position.w;
 	gaussianUV = source.cornerUV;
 
 	if (uBakePass > 0.5) {
@@ -377,16 +391,13 @@ vec3 applyColorGrading(vec3 col) {
 	return clamp(rgb, 0.0, 1.0);
 }
 
-float hashPos(vec3 p) {
-	vec3 p3 = fract(p * vec3(443.897, 441.423, 437.195));
-	p3 += dot(p3, p3.yzx + 19.19);
-	return fract((p3.x + p3.y) * p3.z);
-}
-
-vec3 hashPos3(vec3 p) {
-	vec3 p3 = fract(p * vec3(443.897, 441.423, 437.195));
-	p3 += dot(p3, p3.yzx + 19.19);
-	return fract((p3.xxy + p3.yzz) * p3.zyx);
+uint hashUintPS(uint x) {
+	x ^= (x >> 16u);
+	x *= 0x45d9f3bu;
+	x ^= (x >> 16u);
+	x *= 0x45d9f3bu;
+	x ^= (x >> 16u);
+	return x;
 }
 
 void main(void) {
@@ -420,16 +431,19 @@ void main(void) {
 		float lutX = (voxel.r * 16.0 + voxel.g + 0.5) / 256.0;
 		float lutY = (voxel.b + 0.5) / 16.0;
 
+		uint sIdx = uint(floor(vSplatIndex + 0.5));
 		if (uDistMode == 2) {
-			// Modo Aleatório: distribui splats uniformemente pela LUT baseado na posição 3D local fixa (zero flicker)
-			float rnd = hashPos(vModelCenter * 80.0);
-			float randVoxel = floor(rnd * 4095.0 + 0.5);
+			// Modo Aleatório: distribui splats uniformemente pela LUT baseado no índice exato do splat (zero flicker)
+			uint h = hashUintPS(sIdx);
+			float randVoxel = mod(float(h), 4096.0);
 			lutX = (mod(randVoxel, 256.0) + 0.5) / 256.0;
 			lutY = (floor(randVoxel / 256.0) + 0.5) / 16.0;
 		} else if (uEmojiVariety > 0.05) {
-			// Dither espacial suave entre splats vizinhos baseado na posição 3D local fixa (zero flicker)
-			vec3 h3 = hashPos3(vModelCenter * 80.0) - 0.5;
-			vec3 jitter = h3 * (uEmojiVariety * 0.95);
+			// Dither suave determinístico por splat index (zero flicker)
+			uint h1 = hashUintPS(sIdx);
+			uint h2 = hashUintPS(sIdx ^ 0x9e3779b9u);
+			uint h3_u = hashUintPS(sIdx ^ 0x517cc1b7u);
+			vec3 jitter = (vec3(float(h1)/4294967296.0, float(h2)/4294967296.0, float(h3_u)/4294967296.0) - 0.5) * (uEmojiVariety * 0.95);
 			vec3 jitVoxel = clamp(floor(splatColor * 15.0 + jitter + 0.5), vec3(0.0), vec3(15.0));
 			lutX = (jitVoxel.r * 16.0 + jitVoxel.g + 0.5) / 256.0;
 			lutY = (jitVoxel.b + 0.5) / 16.0;

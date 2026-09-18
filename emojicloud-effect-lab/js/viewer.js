@@ -156,6 +156,11 @@ function applyShaderParams() {
         if (lutTexture) mat.setParameter('uColorLUT', lutTexture);
         if (mat.blendType !== pc.BLEND_NONE) mat.blendType = pc.BLEND_NONE;
         if (!mat.depthWrite) mat.depthWrite = true;
+        if (mat.depthState) {
+          mat.depthState.func = pc.FUNC_LESS;
+          mat.depthState.write = true;
+          mat.depthState.test = true;
+        }
       }
     } catch (e) {}
   }
@@ -293,6 +298,7 @@ function loadSplatAsset(url, filename) {
     pinMapH = 0;
     updatePinnedUniforms();
 
+    updateCamera();
     applyShaderParams();
 
     params.fileName = filename;
@@ -413,6 +419,11 @@ function setupInteractionControls() {
       }
     }
 
+    if (isDragging) {
+      if (typeof invalidatePickerCache === 'function') {
+        invalidatePickerCache(false);
+      }
+    }
     isDragging = false;
     isPanning = false;
   });
@@ -426,6 +437,9 @@ function setupInteractionControls() {
       orbit.minDistance,
       Math.min(orbit.maxDistance, orbit.targetDistance * zoomFactor)
     );
+    if (typeof invalidatePickerCache === 'function') {
+      invalidatePickerCache(false);
+    }
   }, { passive: false });
 
   canvas.addEventListener('touchstart', (e) => {
@@ -472,6 +486,11 @@ function setupInteractionControls() {
   }, { passive: true });
 
   canvas.addEventListener('touchend', () => {
+    if (isDragging) {
+      if (typeof invalidatePickerCache === 'function') {
+        invalidatePickerCache(false);
+      }
+    }
     isDragging = false;
     lastPinchDist = null;
   });
@@ -500,6 +519,12 @@ function setupInteractionControls() {
         addOrUpdatePinnedPoint(activeActionMenuPos.x, activeActionMenuPos.y, activeActionMenuPos.z, activeActionMenuEmoji, params.pinRadius);
       }
       hidePickerActionMenu();
+      if (typeof invalidatePickerCache === 'function') {
+        invalidatePickerCache(false);
+      }
+      if (typeof updatePickerHover === 'function') {
+        updatePickerHover(lastHoverX, lastHoverY);
+      }
     });
   }
 
@@ -538,6 +563,9 @@ function setupInteractionControls() {
         window.__toggleExclusion(target);
       }
       hidePickerActionMenu();
+      if (typeof invalidatePickerCache === 'function') {
+        invalidatePickerCache(false);
+      }
       lastSampleTime = 0;
       if (typeof updatePickerHover === 'function') {
         updatePickerHover(lastHoverX, lastHoverY);
@@ -554,6 +582,9 @@ function setupInteractionControls() {
         window.__toggleForced(target);
       }
       hidePickerActionMenu();
+      if (typeof invalidatePickerCache === 'function') {
+        invalidatePickerCache(false);
+      }
       lastSampleTime = 0;
       if (typeof updatePickerHover === 'function') {
         updatePickerHover(lastHoverX, lastHoverY);
@@ -570,6 +601,9 @@ function setupInteractionControls() {
         if (near) removePinnedPoint(near.point.id);
       }
       hidePickerActionMenu();
+      if (typeof invalidatePickerCache === 'function') {
+        invalidatePickerCache(false);
+      }
       lastSampleTime = 0;
       if (typeof updatePickerHover === 'function') {
         updatePickerHover(lastHoverX, lastHoverY);
@@ -746,10 +780,26 @@ function initPlayCanvas() {
       orbit.targetYaw -= dt * params.spinSpeed;
     }
 
-    orbit.yaw += (orbit.targetYaw - orbit.yaw) * smooth;
-    orbit.pitch += (orbit.targetPitch - orbit.pitch) * smooth;
-    orbit.distance += (orbit.targetDistance - orbit.distance) * smooth;
-    orbit.panTarget.lerp(orbit.panTarget, orbit.targetPan, smooth);
+    const dYaw = orbit.targetYaw - orbit.yaw;
+    const dPitch = orbit.targetPitch - orbit.pitch;
+    const dDist = orbit.targetDistance - orbit.distance;
+    const dPan = Math.hypot(
+      orbit.targetPan.x - orbit.panTarget.x,
+      orbit.targetPan.y - orbit.panTarget.y,
+      orbit.targetPan.z - orbit.panTarget.z
+    );
+
+    if (Math.abs(dYaw) <= 1e-4) orbit.yaw = orbit.targetYaw;
+    else orbit.yaw += dYaw * smooth;
+
+    if (Math.abs(dPitch) <= 1e-4) orbit.pitch = orbit.targetPitch;
+    else orbit.pitch += dPitch * smooth;
+
+    if (Math.abs(dDist) <= 1e-4) orbit.distance = orbit.targetDistance;
+    else orbit.distance += dDist * smooth;
+
+    if (dPan <= 1e-4) orbit.panTarget.copy(orbit.targetPan);
+    else orbit.panTarget.lerp(orbit.panTarget, orbit.targetPan, smooth);
 
     updateCamera();
     applyShaderParams();

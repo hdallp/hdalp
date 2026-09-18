@@ -1335,8 +1335,9 @@ window.__selectEmojiForGlobalReplacement = function (newAtlasIndex) {
     pinBannerText.innerHTML = `Substituído: <strong>${oldSurr}${oldName} → ${newSurr}${newName}</strong>`;
   }
 
-  showToast(`"${oldName}" substituído por "${newName}".`);
-
+  if (typeof invalidatePickerCache === 'function') {
+    invalidatePickerCache(false);
+  }
   lastSampleTime = 0;
   if (typeof updatePickerHover === 'function') {
     updatePickerHover(lastHoverX, lastHoverY);

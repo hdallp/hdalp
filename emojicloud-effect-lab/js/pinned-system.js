@@ -560,6 +560,10 @@ function updatePinnedUniforms() {
   rebuildPinMap();
   applyPinnedParams();
 
+  if (typeof invalidatePickerCache === 'function') {
+    invalidatePickerCache(false);
+  }
+
   const total = pinnedSplatCount();
   params.pinnedCountDisplay = pinCount === 0
     ? '0 / 16 pins'
@@ -619,6 +623,17 @@ let _pickRTH = 0;
 let _lastPickedX = -9999;
 let _lastPickedY = -9999;
 let _lastPickedEmoji = undefined; // undefined = sem cache válido, null = sem emoji
+
+function invalidatePickerCache(triggerUpdate = false) {
+  _lastPickedX = -9999;
+  _lastPickedY = -9999;
+  _lastPickedEmoji = undefined;
+  lastSampleTime = 0;
+  if (triggerUpdate && isPickerActive && typeof lastHoverX === 'number' && lastHoverX > 0) {
+    updatePickerHover(lastHoverX, lastHoverY);
+  }
+}
+window.invalidatePickerCache = invalidatePickerCache;
 
 function _ensurePickRT(w, h) {
   if (_pickRT && _pickTex && _pickRTW === w && _pickRTH === h) return true;
@@ -728,7 +743,7 @@ function _doSyncPickRender(clientX, clientY) {
     const g = onePx[1];
     const a = onePx[3];
 
-    if (a >= 64 && (r > 0 || g > 0)) {
+    if (a >= 64) {
       emoji = _resolveEmojiFromColRow(r, g);
     }
   } catch(err) {
@@ -1008,6 +1023,9 @@ function bakeEmojiColors() {
   let valid = 0;
   for (let i = 3; i < bakeMapData.length; i += 4) if (bakeMapData[i] > 0) valid++;
   console.log('[Bake] splats congelados: ' + valid.toLocaleString('pt-BR') + ' de ' + splatCount().toLocaleString('pt-BR'));
+  if (typeof invalidatePickerCache === 'function') {
+    invalidatePickerCache(false);
+  }
   showToast('Bake concluído: ' + valid.toLocaleString('pt-BR') + ' emojis congelados.');
   return valid > 0;
 }

@@ -64,6 +64,9 @@ function clearGlobalReplacements() {
   const count = globalEmojiReplacements.size;
   globalEmojiReplacements.clear();
   emojiToReplaceGlobal = null;
+  if (typeof invalidatePickerCache === 'function') {
+    invalidatePickerCache(false);
+  }
   rebuildColorLUT();
   const searchInput = document.getElementById('emoji-modal-search-input');
   if (typeof renderEmojiModal === 'function') {

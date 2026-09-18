@@ -294,6 +294,10 @@ function rebuildColorLUT(exclusionInput, forcedInput, useForcedInput) {
   params.excludedCount = `${excludedIndicesSet.size}`;
   params.forcedCount = `${forcedIndicesSet.size}${params.useForced ? '' : ' (desativado)'}`;
 
+  if (typeof invalidatePickerCache === 'function') {
+    invalidatePickerCache(false);
+  }
+
   if (typeof guiControllers !== 'undefined') {
     if (guiControllers.activeEmojisCount) guiControllers.activeEmojisCount.updateDisplay();
     if (guiControllers.excludedCount) guiControllers.excludedCount.updateDisplay();
