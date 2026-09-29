@@ -6,7 +6,7 @@ export const SPLATS = [
   {
     id: 'Painel-Dec',
     title: 'Painel Dec(1.9Mi)',
-    file: './files/painel-dec.sog',
+    file: 'https://github.com/hdallp/hdalp/releases/download/v0.1/painel-dec.sog',
     description: 'Painel Dec 10',
     settings: {
       camera: {
@@ -16,10 +16,10 @@ export const SPLATS = [
       }
     }
   },
-    {
+  {
     id: 'Painel',
     title: 'Painel (2.9Mi)',
-    file: './files/painel.sog',
+    file: 'https://github.com/hdallp/hdalp/releases/download/v0.1/painel.sog',
     description: 'Painel',
     settings: {
       camera: {
@@ -29,23 +29,10 @@ export const SPLATS = [
       }
     }
   },
-    {
-    id: 'PainelVeu',
-    title: 'Painel com Veu (5.7Mi)',
-    file: './files/painelVeu.sog',
-    description: 'Painel',
-    settings: {
-      camera: {
-        position: [0, 0, 1.8],
-        target: [0, 0, 0],
-        fov: 60
-      }
-    }
-  },
-      {
+  {
     id: 'PainelVeu-Dec',
     title: 'Painel com Veu Dec(3.9Mi)',
-    file: './files/painelVeu-dec.sog',
+    file: 'https://github.com/hdallp/hdalp/releases/download/v0.1/painelVeu-dec.sog',
     description: 'Painel',
     settings: {
       camera: {
@@ -58,9 +45,9 @@ export const SPLATS = [
   {
     id: 'head',
     title: 'Archive',
-    file: './files/head.sog', // Altere para o novo arquivo .sog/.ply quando adicionar
-    locked: true,             // Splat bloqueado com senha
-    passwordHash: '395d8c817d4e9577d849ac5fd592652df94f34e439101cd7b079f3680331169a', // SHA-256
+    file: './files/head.sog',
+    locked: true,
+    passwordHash: '395d8c817d4e9577d849ac5fd592652df94f34e439101cd7b079f3680331169a', // SHA-256 de "781975"
     description: 'head.sog',
     settings: {
       camera: {
@@ -70,12 +57,12 @@ export const SPLATS = [
       }
     }
   },
-    {
+  {
     id: 'emoji_facing_camera--LAB',
     title: 'Archive',
-    file: './files/emoji_facing_camera--LAB.sog', // Altere para o novo arquivo .sog/.ply quando adicionar
-    locked: true,             // Splat bloqueado com senha
-    passwordHash: '395d8c817d4e9577d849ac5fd592652df94f34e439101cd7b079f3680331169a', // SHA-256
+    file: 'https://github.com/hdallp/hdalp/releases/download/v0.1/emoji_facing_camera--LAB.sog',
+    locked: true,
+    passwordHash: '395d8c817d4e9577d849ac5fd592652df94f34e439101cd7b079f3680331169a', // SHA-256 de "781975"
     description: 'emoji_facing_camera--LAB',
     settings: {
       camera: {

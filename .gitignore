@@ -19,3 +19,7 @@ desktop.ini
 *.log
 temp/
 tmp/
+
+# Arquivos 3D pesados (>25MB) hospedados no GitHub Releases para não bloquear o Cloudflare Pages
+private/splat/files/*.sog
+!private/splat/files/head.sog
