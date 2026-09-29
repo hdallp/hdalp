@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>HDALP STUDIO</title>
+<meta name="description" content="HDALP Studio">
+
+<link rel="icon" href="../../site/assets/marca/favico.png">
+
+<!-- Pré-carregamento da fonte tipográfica -->
+<link rel="preload" href="../../site/assets/fontes/Bitroad/Bitroad-Regular.otf" as="font" type="font/otf" crossorigin>
+
+<!-- Folhas de Estilo -->
+<link rel="stylesheet" href="../../site/src/estilos/fonts.css">
+<link rel="stylesheet" href="../../site/src/estilos/tokens.css">
+<link rel="stylesheet" href="../../site/src/estilos/base.css">
+<link rel="stylesheet" href="../../site/src/estilos/aside.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@playcanvas/supersplat-viewer/dist/viewer.css">
+<link rel="stylesheet" href="./splat.css">
+</head>
+<body>
+
+<!-- Visualizador 3D PlayCanvas SuperSplat -->
+<div id="viewer-container"></div>
+
+<!-- Loading Overlay -->
+<div class="splat-loading-overlay" id="loading-overlay" aria-live="polite">
+  <div class="splat-spinner"></div>
+</div>
+
+<!-- Barra de Navegação Lateral Animada (Aside) -->
+<aside class="aside" id="aside" aria-label="Navegação">
+  <img class="mark" src="../../site/assets/marca/HDALP-branco.svg" alt="HDALP" width="52" height="14">
+</aside>
+
+<!-- Badge de Informações Técnicas (INREF e Quantidade Dinâmica de Splats) -->
+<div class="splat-info-badge" id="splat-info-badge">
+  <div class="info-group">
+    <span class="info-label">INREF</span>
+    <span class="info-val" id="info-inref">---</span>
+  </div>
+  <span class="info-divider">/</span>
+  <div class="info-group">
+    <span class="info-label">SPLATS</span>
+    <span class="info-val" id="info-count">0</span>
+  </div>
+</div>
+
+<!-- Modal de Proteção por Senha da Página -->
+<div class="gate-overlay" id="gate-overlay">
+  <div class="gate-card">
+    <img class="gate-logo" src="../../site/assets/marca/HDALP-branco.svg" alt="HDALP">
+    <form class="gate-form" id="gate-form">
+      <div class="gate-input-wrapper">
+        <input class="gate-input" id="gate-password" type="password" placeholder="senha" autocomplete="current-password" autofocus required>
+      </div>
+      <button class="gate-btn" type="submit">&gt;&gt;&gt;</button>
+      <div class="gate-error-msg" id="gate-error" role="alert"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Senha para Splat Individual Bloqueado -->
+<div class="splat-modal-overlay" id="splat-lock-modal">
+  <div class="splat-modal-card">
+    <button class="splat-modal-close" id="splat-lock-close" type="button" aria-label="Fechar">✕</button>
+    <svg class="splat-modal-icon" viewBox="0 0 24 24">
+      <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+    </svg>
+    <form class="gate-form" id="splat-lock-form">
+      <div class="gate-input-wrapper">
+        <input class="gate-input" id="splat-lock-password" type="password" placeholder="senha" autocomplete="off" required>
+      </div>
+      <button class="gate-btn" type="submit">&gt;&gt;&gt;</button>
+      <div class="gate-error-msg" id="splat-lock-error" role="alert"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Lista de Splats no Mobile (Fade In/Out ao clicar em "Outros") -->
+<div class="splat-mobile-overlay" id="splat-mobile-overlay">
+  <div class="splat-mobile-content">
+    <div class="splat-mobile-header">
+      <span class="splat-mobile-title">SPLATS</span>
+      <button class="splat-mobile-close" id="splat-mobile-close" type="button" aria-label="Fechar">✕</button>
+    </div>
+    <div class="splat-mobile-list" id="splat-mobile-list"></div>
+  </div>
+</div>
+
+<!-- Scripts de Funcionamento -->
+<script src="./aside-splat.js"></script>
+<script type="module" src="./splat.js"></script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+/* splat.css — Layout e Estilos com fundo branco e grid para /private/splat */
+
+:root {
+  --viewer-bg: #ffffff;
+  --paper: #ffffff;
+  --ink: #070707;
+  --grid-line: rgba(0, 0, 0, 0.06);
+}
+
+/* Reset de cursor nativo para toda a página */
+*,
+*::before,
+*::after {
+  cursor: auto !important;
+}
+
+a,
+button,
+input,
+select,
+.bar.item {
+  cursor: pointer !important;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--viewer-bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Grid de Fundo e Área Útil do Visualizador (ao lado do aside) */
+#viewer-container {
+  position: fixed;
+  inset-block: var(--bar-h, 0px) 0;
+  inset-inline-start: var(--bar-w, 390px);
+  inset-inline-end: 0;
+  z-index: 1;
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#viewer-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  outline: none;
+}
+
+/* Aside - Barra de Navegação */
+.aside {
+  z-index: 20;
+}
+
+/* Indicador do splat ativo na barra */
+.bar.item.is-active {
+  background-color: #000088;
+}
+
+.bar.item.is-active .label::before {
+  content: '▶ ';
+  font-size: 0.7em;
+  vertical-align: middle;
+  opacity: 0.8;
+}
+
+/* Ícone de Cadeado */
+.lock-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+  opacity: 0.9;
+}
+
+/* Barra Redacted / Tarja Preta ou Branca Preenchida */
+.redacted-box {
+  display: inline-block;
+  vertical-align: middle;
+  width: 64px;
+  height: 13px;
+  background-color: var(--paper);
+  opacity: 0.9;
+  border-radius: 1px;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.bar.item:hover .redacted-box {
+  opacity: 1;
+  background-color: #ffffff;
+}
+
+/* Modal de Senha Individual para Splat Bloqueado */
+.splat-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease;
+}
+
+.splat-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.splat-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  background: #070707;
+  padding: 30px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.splat-modal-icon {
+  width: 24px;
+  height: 24px;
+  fill: #ffffff;
+  margin-bottom: 14px;
+  opacity: 0.9;
+}
+
+.splat-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  padding: 4px;
+  cursor: pointer !important;
+  transition: color 0.2s ease;
+}
+
+.splat-modal-close:hover {
+  color: #ffffff;
+}
+
+/* Modal Lista de Splats no Mobile (Fade In/Out) */
+.splat-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(7, 7, 7, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 18px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease;
+}
+
+.splat-mobile-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.splat-mobile-content {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.splat-mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 10px;
+}
+
+.splat-mobile-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: #888;
+}
+
+.splat-mobile-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer !important;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.splat-mobile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.mobile-splat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  cursor: pointer !important;
+}
+
+.mobile-splat-item:active {
+  background: #252525;
+}
+
+.mobile-splat-item.is-active {
+  background: #000088;
+  border-color: #4f63ff;
+}
+
+.mobile-splat-item .item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-splat-item .item-inref {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #888;
+  letter-spacing: 0.05em;
+}
+
+/* Badge de Informações Técnicas (INREF + Quantidade Dinâmica de Splats) */
+.splat-info-badge {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.splat-info-badge .info-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.splat-info-badge .info-label {
+  color: #777;
+  font-weight: 400;
+}
+
+.splat-info-badge .info-val {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.splat-info-badge .info-divider {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 900px) {
+  .splat-info-badge {
+    top: calc(var(--bar-h, 80px) + 12px);
+    right: 16px;
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+}
+
+/* Spinner / Loading Overlay no centro da área do viewer */
+.splat-loading-overlay {
+  position: fixed;
+  inset-block: var(--bar-h, 0px) 0;
+  inset-inline-start: var(--bar-w, 390px);
+  inset-inline-end: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.splat-loading-overlay.visible {
+  opacity: 1;
+}
+
+.splat-spinner {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* -------------------------------------------------------------
+   GATE / MODAL DE SENHA
+   ------------------------------------------------------------- */
+.gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
+}
+
+.gate-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.gate-card {
+  width: 100%;
+  max-width: 300px;
+  background: #070707;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+}
+
+.gate-logo {
+  width: 80px;
+  height: auto;
+  margin-bottom: 24px;
+}
+
+.gate-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gate-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.gate-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 12px 14px;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease;
+  border-radius: 0;
+}
+
+.gate-input:focus {
+  border-color: #ffffff;
+}
+
+.gate-input.error {
+  border-color: #ff3344;
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.gate-btn {
+  width: 100%;
+  background: #ffffff;
+  color: #070707;
+  border: none;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  border-radius: 0;
+}
+
+.gate-btn:hover {
+  opacity: 0.85;
+}
+
+.gate-btn:active {
+  transform: scale(0.98);
+}
+
+.gate-error-msg {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #ff4d4d;
+  min-height: 14px;
+  margin-top: 2px;
+}
